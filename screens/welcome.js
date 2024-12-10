@@ -3,8 +3,7 @@ import {
   StyleSheet, 
   View, 
   Text, 
-  TouchableOpacity, 
-  Dimensions, 
+  TouchableOpacity,
   Animated,
   StatusBar,
   SafeAreaView, 
@@ -13,7 +12,6 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
-const { width, height } = Dimensions.get('window');
 
 export default function WelcomePage({ navigation }) {
   const [colorMode, setColorMode] = useState('light');

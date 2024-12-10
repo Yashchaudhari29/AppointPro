@@ -10,7 +10,7 @@ import {
   StatusBar,
   Platform,
   ScrollView,
-  ActivityIndicator // Import ActivityIndicator
+  ActivityIndicator 
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import Svg, { Path } from 'react-native-svg'; 
@@ -117,10 +117,10 @@ const LoginScreen = ({ navigation }) => {
 
         <View style={styles.formContainer}>
           <Text style={styles.header}>Log in to your Account</Text>
-          <Text style={styles.smallheader}>Please, enter your information</Text>
+          {/* <Text style={styles.smallheader}>Please, enter your information</Text> */}
 
           {/* Google Sign in Button */}
-          <TouchableOpacity style={styles.googleButton}>
+          {/* <TouchableOpacity style={styles.googleButton}>
             <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150" width={30} height={30}>
               <Path
                 fill="#4285F4"
@@ -140,7 +140,7 @@ const LoginScreen = ({ navigation }) => {
               />
             </Svg>
             <Text style={styles.googleButtonText}>Sign in with Google</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TextInput
             placeholder="Email"
@@ -166,7 +166,9 @@ const LoginScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
           {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-
+          <TouchableOpacity style={styles.forgotPasswordContainer} onPress={() => navigation.navigate('Forgot_Password')}>
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
             {loading ? (
               <ActivityIndicator size="small" color="#FFFFE7" /> // Show the loading spinner
@@ -175,9 +177,7 @@ const LoginScreen = ({ navigation }) => {
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.forgotPasswordContainer} onPress={() => navigation.navigate('Forgot_Password')}>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </TouchableOpacity>
+          
 
           <TouchableOpacity style={styles.registerContainer} onPress={() => navigation.navigate('Register')}>
             <Text style={styles.registerText}>
@@ -224,7 +224,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 7,
+
+    marginBottom: 30,
     color: '#333',
   },
   smallheader: {
@@ -281,6 +282,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 5,
     marginBottom: 20,
+    marginTop: 35,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -291,7 +293,7 @@ const styles = StyleSheet.create({
   },
   forgotPasswordContainer: {
     marginBottom: 10,
-    alignItems: 'center',
+    // alignItems: 'center',
   },
   forgotPasswordText: {
     color: '#4285F4',
