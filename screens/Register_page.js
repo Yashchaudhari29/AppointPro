@@ -1,24 +1,13 @@
 import React, { useState } from 'react';
-import {
-  createUserWithEmailAndPassword,
-} from 'firebase/auth';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-  StatusBar,
-  ScrollView,
-  ActivityIndicator
-} from 'react-native';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, StatusBar, ScrollView, ActivityIndicator } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list';
 import Icon from 'react-native-vector-icons/Feather';
-import Svg, { Path } from 'react-native-svg';
-import { getFirestore, doc, setDoc} from 'firebase/firestore';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
+
 const db1 = getFirestore();
+
 const RegisterScreen = ({ navigation }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -30,6 +19,7 @@ const RegisterScreen = ({ navigation }) => {
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
   const validatePassword = (password) => {
     const minLength = password.length >= 8;
     const hasNumber = /\d/.test(password);
@@ -41,34 +31,31 @@ const RegisterScreen = ({ navigation }) => {
 
   const handleSubmit = async () => {
     const formErrors = {};
-    // if (!name) formErrors.name = 'Name is required';
-    // if (!email) formErrors.email = 'Email is required';
-    // if (!mobile) formErrors.mobile = 'Mobile number is required';
-    // if (!role) formErrors.role = 'Type of service is required';
-    // if (!password) formErrors.password = 'Password is required';
-    // if (!confirmPassword) formErrors.confirmPassword = 'Confirm password is required';
 
-    // const passwordValidation = validatePassword(password);
-    // if (!passwordValidation.minLength) formErrors.passwordLength = 'Password must be at least 8 characters';
-    // if (!passwordValidation.hasNumber) formErrors.passwordNumber = 'Password must contain at least one number';
-    // if (!passwordValidation.hasSpecialChar) formErrors.passwordSpecialChar = 'Password must contain at least one special character';
-    // if (!passwordValidation.hasLetter) formErrors.passwordLetter = 'Password must contain at least one letter';
+    // Form validation
+    if (!name) formErrors.name = 'Name is required';
+    if (!email) formErrors.email = 'Email is required';
+    if (!mobile) formErrors.mobile = 'Mobile number is required';
+    if (!role) formErrors.role = 'Role is required';
+    if (!password) formErrors.password = 'Password is required';
+    if (!confirmPassword) formErrors.confirmPassword = 'Confirm password is required';
 
-    // if (password !== confirmPassword) formErrors.passwordMatch = 'Passwords don’t match';
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.minLength) formErrors.passwordLength = 'Password must be at least 8 characters';
+    if (!passwordValidation.hasNumber) formErrors.passwordNumber = 'Password must contain at least one number';
+    if (!passwordValidation.hasSpecialChar) formErrors.passwordSpecialChar = 'Password must contain at least one special character';
+    if (!passwordValidation.hasLetter) formErrors.passwordLetter = 'Password must contain at least one letter';
 
-    // if (Object.keys(formErrors).length > 0) {
-    //   setErrors(formErrors);
-    //   return;
-    // }
+    if (password !== confirmPassword) formErrors.passwordMatch = 'Passwords do not match';
+
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      return;
+    }
 
     try {
-      if (password !== confirmPassword) {
-        alert('Passwords do not match!');
-        return;
-      }
       setIsLoading(true);
       const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
-
       const user = userCredentials.user;
 
       await setDoc(doc(db1, 'users', user.uid), {
@@ -81,7 +68,7 @@ const RegisterScreen = ({ navigation }) => {
     } catch (error) {
       alert(error.message || 'Registration failed. Please try again.');
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
 
@@ -91,43 +78,90 @@ const RegisterScreen = ({ navigation }) => {
         <StatusBar barStyle="dark-content" />
         <View style={styles.formContainer}>
           <Text style={styles.header}>Get Started with AppointPro</Text>
-          {/* <TouchableOpacity style={styles.googleButton}>
-            <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150" width={30} height={30}>
-              <Path fill="#4285F4" d="M120,76.1c0-3.1-0.3-6.3-0.8-9.3H75.9v17.7h24.8c-1,5.7-4.3,10.7-9.2,13.9l14.8,11.5C115,101.8,120,90,120,76.1L120,76.1z" />
-              <Path fill="#34A853" d="M75.9,120.9c12.4,0,22.8-4.1,30.4-11.1L91.5,98.4c-4.1,2.8-9.4,4.4-15.6,4.4c-12,0-22.1-8.1-25.8-18.9L34.9,95.6C42.7,111.1,58.5,120.9,75.9,120.9z" />
-              <Path fill="#FBBC05" d="M50.1,83.8c-1.9-5.7-1.9-11.9,0-17.6L34.9,54.4c-6.5,13-6.5,28.3,0,41.2L50.1,83.8z" />
-              <Path fill="#EA4335" d="M75.9,47.3c6.5-0.1,12.9,2.4,17.6,6.9L106.6,41C98.3,33.2,87.3,29,75.9,29.1c-17.4,0-33.2,9.8-41,25.3l15.2,11.8C53.8,55.3,63.9,47.3,75.9,47.3z" />
-            </Svg>
-            <Text style={styles.googleButtonText}>Sign Up with Google</Text>
-          </TouchableOpacity> */}
-          {/* Form Inputs */}
-          <TextInput placeholder="Name" value={name} onChangeText={setName} style={[styles.input, errors.name && styles.errorInput]} />
+
+          {/* Name Input */}
+          <TextInput
+            placeholder="Full Name"
+            value={name}
+            onChangeText={setName}
+            style={[styles.input, errors.name && styles.errorInput]}
+          />
           {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
-          <TextInput placeholder="Email" value={email} onChangeText={setEmail} style={[styles.input, errors.email && styles.errorInput]} />
+
+          {/* Email Input */}
+          <TextInput
+            placeholder="Email Address"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            style={[styles.input, errors.email && styles.errorInput]}
+          />
           {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-          <TextInput placeholder="Mobile Number" value={mobile} onChangeText={setMobile} keyboardType="phone-pad" style={[styles.input, errors.mobile && styles.errorInput]} />
+
+          {/* Mobile Input */}
+          <TextInput
+            placeholder="Mobile Number"
+            value={mobile}
+            onChangeText={setMobile}
+            keyboardType="phone-pad"
+            style={[styles.input, errors.mobile && styles.errorInput]}
+          />
           {errors.mobile && <Text style={styles.errorText}>{errors.mobile}</Text>}
+
+          {/* Role Selection */}
           <View style={[styles.selectContainer, errors.role && styles.errorInput]}>
-            <SelectList setSelected={setRole} data={[{ key: 'consumer', value: 'Service consumer' }, { key: 'provider', value: 'Service Provider' }]} placeholder="Type of service" search={false} />
+            <SelectList
+              setSelected={setRole}
+              data={[
+                { key: 'provider', value: 'Service Provider' },
+                { key: 'consumer', value: 'Service Consumer' },
+              ]}
+              placeholder="Select Role"
+              search={false}
+            />
           </View>
           {errors.role && <Text style={styles.errorText}>{errors.role}</Text>}
-          {/* Password Inputs */}
+
+          {/* Password Input */}
           <View style={styles.passwordContainer}>
-            <TextInput placeholder="Password" secureTextEntry={!passwordVisible} value={password} onChangeText={setPassword} style={[styles.input, errors.password && styles.errorInput]} />
-            <TouchableOpacity style={styles.eyeButton} onPress={() => setPasswordVisible(!passwordVisible)}>
+            <TextInput
+              placeholder="Password"
+              secureTextEntry={!passwordVisible}
+              value={password}
+              onChangeText={setPassword}
+              autoCapitalize="none"
+              style={[styles.input, errors.password && styles.errorInput]}
+            />
+            <TouchableOpacity
+              style={styles.eyeButton}
+              onPress={() => setPasswordVisible(!passwordVisible)}
+            >
               <Icon name={passwordVisible ? 'eye-off' : 'eye'} size={20} color="#888" />
             </TouchableOpacity>
           </View>
           {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+
+          {/* Confirm Password Input */}
           <View style={styles.passwordContainer}>
-            <TextInput placeholder="Confirm Password" secureTextEntry={!confirmPasswordVisible} value={confirmPassword} onChangeText={setConfirmPassword} style={[styles.input, errors.confirmPassword && styles.errorInput]} />
-            <TouchableOpacity style={styles.eyeButton} onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}>
+            <TextInput
+              placeholder="Confirm Password"
+              secureTextEntry={!confirmPasswordVisible}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              autoCapitalize="none"
+              style={[styles.input, errors.confirmPassword && styles.errorInput]}
+            />
+            <TouchableOpacity
+              style={styles.eyeButton}
+              onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+            >
               <Icon name={confirmPasswordVisible ? 'eye-off' : 'eye'} size={20} color="#888" />
             </TouchableOpacity>
           </View>
           {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
           {errors.passwordMatch && <Text style={styles.errorText}>{errors.passwordMatch}</Text>}
-          {/* Sign Up Button */}
+
+          {/* Register Button */}
           {isLoading ? (
             <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />
           ) : (
@@ -135,8 +169,12 @@ const RegisterScreen = ({ navigation }) => {
               <Text style={styles.registerButtonText}>Sign Up</Text>
             </TouchableOpacity>
           )}
-          <TouchableOpacity style={styles.loginLink} onPress={() => navigation.goBack()}>
-            <Text style={styles.loginLinkText}>Already have an account? Login</Text>
+
+          {/* Login Link */}
+          <TouchableOpacity style={styles.registerContainer} onPress={() => navigation.goBack()}>
+            <Text style={styles.registerText}>
+            Already have an account? <Text style={styles.signUpText}>Log In</Text>
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -149,7 +187,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f7f7f7',
+    backgroundColor: '#FFFFE7',
     paddingHorizontal: 20,
   },
   formContainer: {
@@ -157,18 +195,7 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     padding: 20,
     borderRadius: 10,
-    backgroundColor: '#fff',
-    ...Platform.select({
-      android: {
-        elevation: 5,
-      },
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3.5,
-      }
-    })
+    backgroundColor: 'transparent',
   },
   scrollContainer: {
     flexGrow: 1,
@@ -181,38 +208,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#333',
   },
-  googleButton: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderWidth: 2,
-    borderColor: '#4285F4',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 20,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  googleButtonText: {
-    color: '#1A237E',
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginLeft: 5,
-  },
   input: {
-    width: '100%',
-    height: 45,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
     paddingHorizontal: 15,
+    marginBottom: 10,
+    fontSize: 16,
+  },
+  selectContainer: {
+    borderColor:'#ccc',
+    width: '100%',
     marginVertical: 10,
-    color: '#333',
   },
-
-  selectinputContainer: {
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
-  },
-
   passwordContainer: {
     position: 'relative',
   },
@@ -223,9 +232,9 @@ const styles = StyleSheet.create({
     transform: [{ translateY: -12 }],
   },
   registerButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: 'black',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 5,
     marginVertical: 10,
     alignItems: 'center',
   },
@@ -247,22 +256,22 @@ const styles = StyleSheet.create({
     marginTop: 15,
     alignItems: 'center',
   },
-
-  alreadyAccountContainer: {
-    flexDirection: 'row',
-    alignSelf: 'center'
-  },
-
-  AlreadyaccountText: {
-    color: 'black',
-    fontSize: 14,
-  },
-
   loginLinkText: {
     color: '#007BFF',
     fontSize: 14,
     fontWeight: 'bold',
   },
+  registerContainer: {
+    marginTop:20,
+    alignItems: 'center',
+  },
+  registerText: {
+    color: '#888',
+  },
+  signUpText: {
+    color:'black',
+    fontWeight: 'bold',
+  }
 });
 
 export default RegisterScreen;

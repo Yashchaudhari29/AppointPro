@@ -146,6 +146,7 @@ const LoginScreen = ({ navigation }) => {
             placeholder="Email"
             value={email}
             onChangeText={setEmail}
+            autoCapitalize="none"
             style={[styles.input, errors.email && styles.errorInput]}
           />
           {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
@@ -156,6 +157,7 @@ const LoginScreen = ({ navigation }) => {
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
+              autoCapitalize="none"
               style={[styles.input, errors.password && styles.errorInput]}
             />
             <TouchableOpacity 
@@ -170,12 +172,15 @@ const LoginScreen = ({ navigation }) => {
             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
-            {loading ? (
-              <ActivityIndicator size="small" color="#FFFFE7" /> // Show the loading spinner
-            ) : (
-              <Text style={styles.loginButtonText}>Login</Text> // Show the button text
-            )}
-          </TouchableOpacity>
+  {loading ? (
+    <ActivityIndicator size="small" color="#FFFFE7" /> // Show the loading spinner
+  ) : (
+    <View style={styles.buttonContent}>
+      <Text style={styles.loginButtonText}>Login</Text>
+      <Icon name="arrow-right-circle" size={24} style={styles.arrowIcon} />
+    </View> // Show the button text with the right arrow
+  )}
+</TouchableOpacity>
 
           
 
@@ -195,7 +200,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f7f7f7',
+    backgroundColor: '#FFFFE7',
     paddingHorizontal: 20,
   },
   formContainer: {
@@ -203,18 +208,8 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     padding: 20,
     borderRadius: 10,
-    backgroundColor: '#fff',
-    ...Platform.select({
-      android: {
-        elevation: 5,
-      },
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3.5,
-      }
-    })
+    backgroundColor: 'transparent',
+    
   },
   scrollContainer: {
     flexGrow: 1,
@@ -278,25 +273,38 @@ const styles = StyleSheet.create({
     right: 15,
   },
   loginButton: {
-    backgroundColor: '#4285F4',
+    backgroundColor: 'black',
     paddingVertical: 15,
     borderRadius: 5,
     marginBottom: 20,
     marginTop: 35,
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
+    width: '100%',
+    maxWidth: 400,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   loginButtonText: {
     fontSize: 18,
-    color: 'white',
+    color: '#FFFFE7',
     fontWeight: 'bold',
+    marginRight: 2, // Space between text and icon
+  },
+  arrowIcon: {
+    marginLeft: 1,
+    color:'#FFFFE7'
   },
   forgotPasswordContainer: {
     marginBottom: 10,
     // alignItems: 'center',
   },
   forgotPasswordText: {
-    color: '#4285F4',
+    color:'black'
+    // color: '#4285F4',
   },
   registerContainer: {
     alignItems: 'center',
@@ -305,8 +313,8 @@ const styles = StyleSheet.create({
     color: '#888',
   },
   signUpText: {
+    color:'black',
     fontWeight: 'bold',
-    color: '#4285F4',
   }
 });
 

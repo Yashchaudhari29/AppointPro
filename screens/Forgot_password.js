@@ -6,12 +6,16 @@ import {
   TextInput, 
   TouchableOpacity, 
   StyleSheet, 
-  StatusBar 
+  StatusBar, 
+  ActivityIndicator 
 } from 'react-native';
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+
+import Icon from 'react-native-vector-icons/Feather';
 const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false); // Track loading state
 
   const handlePasswordReset = async () => {
     const auth = getAuth();
@@ -19,13 +23,15 @@ const ForgotPasswordScreen = ({ navigation }) => {
       setMessage('Please enter a valid email address');
       return;
     }
+    setLoading(true); // Show loading spinner
     try {
       await sendPasswordResetEmail(auth, email);
       alert("Password reset email sent! Check your mail please.");
-      navigation.goBack()
+      navigation.goBack();
     } catch (error) {
-      Alert.alert("Error", error.message);
+      setMessage(error.message);
     }
+    setLoading(false); // Stop loading spinner
   };
 
   return (
@@ -43,16 +49,32 @@ const ForgotPasswordScreen = ({ navigation }) => {
           placeholder="Enter your email"
           value={email}
           onChangeText={setEmail}
-          style={styles.input}
-          placeholderTextColor="#888"
+          autoCapitalize="none"
+          style={[styles.input, message && styles.errorInput]}
         />
-
-        <TouchableOpacity style={styles.resetButton} onPress={handlePasswordReset}>
-          <Text style={styles.resetButtonText}>Send Reset Link</Text>
+        
+        <TouchableOpacity 
+          style={styles.resetButton} 
+          onPress={handlePasswordReset} 
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color="#FFFFE7" /> // Show loading spinner
+          ) : (
+            <View style={styles.buttonContent}>
+              <Text style={styles.resetButtonText}>Send Reset Email</Text>
+            </View>
+          )}
         </TouchableOpacity>
-
-        <TouchableOpacity style={styles.loginLink} onPress={() => navigation.goBack()}>
-          <Text style={styles.loginLinkText}>Back to Login</Text>
+        
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => navigation.goBack()}
+        >
+          <View style={styles.back_container}>
+          <Icon name="arrow-left" size={17} style={styles.arrowIcon} />
+          <Text style={styles.backText}>Back to Login</Text>
+          </View>
         </TouchableOpacity>
       </View>
     </View>
@@ -63,58 +85,80 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#f7f7f7',
+    alignItems: 'center',
+    backgroundColor: '#FFFFE7',
+    paddingHorizontal: 20,
   },
   formContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    width: '100%',
+    maxWidth: 400,
     padding: 20,
-    alignItems: 'center',
-    elevation: 3,
+    borderRadius: 10,
+    backgroundColor: 'transparent',
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 30,
     color: '#333',
-    marginBottom: 20,
   },
   input: {
-    width: '100%',
     height: 50,
-    borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 20,
-    paddingHorizontal: 10,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    paddingHorizontal: 15,
+    marginBottom: 10,
     fontSize: 16,
   },
+  errorInput: {
+    borderColor: '#FF0000',
+  },
+  message: {
+    color: '#FF0000',
+    fontSize: 14,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
   resetButton: {
+    backgroundColor: 'black',
+    paddingVertical: 15,
+    borderRadius: 5,
+    marginTop:20,
+    marginBottom: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
     width: '100%',
-    backgroundColor: '#4CAF50',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 20,
+    maxWidth: 400,
+  },
+  buttonContent: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
   resetButtonText: {
     fontSize: 18,
-    color: '#fff',
+    color: '#FFFFE7',
     fontWeight: 'bold',
   },
-  loginLink: {
-    marginTop: 10,
+  backButton: {
+    marginTop: 15,
+    alignItems: 'center',
   },
-  loginLinkText: {
+  backText: {
+    color: 'grey',
     fontSize: 16,
-    color: '#007BFF',
-    textDecorationLine: 'underline',
+    // fontWeight: 'bold',
   },
-  message: {
-    fontSize: 16,
-    color: '#FF5722',
-    marginBottom: 20,
+  back_container:{
+    flexDirection: 'row',
+    alignItems: 'center',
   },
+  arrowIcon:{
+    color:'grey'
+  }
+  
 });
 
 export default ForgotPasswordScreen;

@@ -18,33 +18,34 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator 
+      
         initialRouteName="wp" 
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: '#6200EE', // Attractive header background color
-            shadowColor: 'transparent', // Remove shadow
-            elevation: 0, // No shadow for Android
-          },
-          headerTintColor: '#fff', // White color for header text
-          headerTitleStyle: {
-            fontWeight: 'bold', // Bold title for headers
-            fontSize: 22, // Larger font size
-          },
-          cardStyle: {
-            backgroundColor: '#F3F4F6', // Light background for all screens
-          },
-        }}
+        // screenOptions={{
+        //   headerStyle: {
+        //     backgroundColor: '#FFFFE7', // Attractive header background color
+        //     shadowColor: 'transparent', // Remove shadow
+        //     elevation: 0, // No shadow for Android
+        //   },
+        //   headerTintColor: 'black', // White color for header text
+        //   headerTitleStyle: {
+        //     // fontWeight: 'bold', // Bold title for headers
+        //     // fontSize: 22, // Larger font size
+        //   },
+        //   cardStyle: {
+        //     backgroundColor: '#FFFFE7', // Light background for all screens
+        //   },
+        // }}
       >
         <Stack.Screen
           options={{ headerShown: false }}
           name="wp"
           component={WelcomePage}
         />
-        <Stack.Screen 
+        <Stack.Screen options={{ headerShown: false }}
           name="Login" 
           component={LoginScreen} 
         />
-        <Stack.Screen 
+        <Stack.Screen options={{ headerShown: false }}
           name="Register" 
           component={RegisterScreen} 
         />
