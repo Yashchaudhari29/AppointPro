@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TextInput, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const categories = [
   { id: '1', title: 'Electrician' },
@@ -19,6 +20,7 @@ const categories = [
 ];
 
 const CategoriesScreen = ({ navigation }) => {
+  const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredCategories, setFilteredCategories] = useState(categories);
 
@@ -35,14 +37,38 @@ const CategoriesScreen = ({ navigation }) => {
     }
   };
 
+  const renderItem = ({ item }) => (
+    <TouchableOpacity 
+      style={[styles.categoryCard, { 
+        backgroundColor: theme.card,
+        ...theme.shadow
+      }]}
+      onPress={() => navigation.navigate('ProviderInfo')}
+    >
+      <View style={styles.placeholderIcon} />
+      <View style={styles.textContainer}>
+        <Text style={[styles.categoryTitle, { color: theme.text }]}>
+          {item.title}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Categories</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <StatusBar barStyle={theme.statusBar} backgroundColor={theme.background} />
+      
+      <Text style={[styles.header, { color: theme.text }]}>Categories</Text>
 
       {/* Search Input */}
       <TextInput
-        style={styles.searchInput}
+        style={[styles.searchInput, { 
+          backgroundColor: theme.searchBackground,
+          color: theme.text,
+          borderColor: theme.border
+        }]}
         placeholder="Search categories..."
+        placeholderTextColor={theme.textSecondary}
         value={searchQuery}
         onChangeText={handleSearch}
       />
@@ -52,20 +78,23 @@ const CategoriesScreen = ({ navigation }) => {
         data={filteredCategories}
         numColumns={2}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.categoryCard}>
-            <View style={styles.placeholderIcon} /> {/* Placeholder */}
-            <Text style={styles.categoryTitle}>{item.title}</Text>
-          </TouchableOpacity>
-        )}
+        renderItem={renderItem}
+        contentContainerStyle={styles.listContainer}
       />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 16 },
-  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 16 },
+  container: {
+    flex: 1,
+    padding: 16
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16
+  },
   searchInput: {
     height: 40,
     borderColor: '#ccc',
@@ -74,6 +103,9 @@ const styles = StyleSheet.create({
     paddingLeft: 12,
     marginBottom: 16,
     fontSize: 16,
+  },
+  listContainer: {
+    paddingBottom: 16
   },
   categoryCard: {
     flex: 1,
@@ -89,8 +121,23 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 1.5,
   },
-  placeholderIcon: { width: 50, height: 50, backgroundColor: '#ddd', marginBottom: 8, borderRadius: 25 },
-  categoryTitle: { fontSize: 16, fontWeight: '600', textAlign: 'center' },
+  placeholderIcon: {
+    width: 50,
+    height: 50,
+    backgroundColor: '#ddd',
+    marginBottom: 8,
+    borderRadius: 25
+  },
+  textContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8
+  },
+  categoryTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center'
+  },
 });
 
 export default CategoriesScreen;

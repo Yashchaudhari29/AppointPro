@@ -103,7 +103,7 @@ const AppointmentScreen = () => {
             </View>
           </View>
           <TouchableOpacity style={styles.viewMoreButton}>
-            <Text style={styles.viewMoreText}> &gt; </Text>
+            <Text style={styles.viewMoreText}>&gt;</Text>
           </TouchableOpacity>
         </ScrollView>
 
@@ -132,7 +132,7 @@ const AppointmentScreen = () => {
             </View>
           </View>
           <TouchableOpacity style={styles.viewMoreButton}>
-            <Text style={styles.viewMoreText}> &gt; </Text>
+            <Text style={styles.viewMoreText}>&gt;</Text>
           </TouchableOpacity>
         </ScrollView>
 
@@ -157,7 +157,7 @@ const AppointmentScreen = () => {
             </View>
           </View>
           <TouchableOpacity style={styles.viewMoreButton}>
-            <Text style={styles.viewMoreText}> &gt; </Text>
+            <Text style={styles.viewMoreText}>&gt;</Text>
           </TouchableOpacity>
         </ScrollView>
       </ScrollView>
