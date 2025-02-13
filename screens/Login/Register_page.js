@@ -4,7 +4,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, StatusBa
 import { SelectList } from 'react-native-dropdown-select-list';
 import Icon from 'react-native-vector-icons/Feather';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import { auth, db } from '../../firebase';
 
 const db1 = getFirestore();
 
@@ -40,18 +40,18 @@ const RegisterScreen = ({ navigation }) => {
     if (!password) formErrors.password = 'Password is required';
     if (!confirmPassword) formErrors.confirmPassword = 'Confirm password is required';
 
-    const passwordValidation = validatePassword(password);
-    if (!passwordValidation.minLength) formErrors.passwordLength = 'Password must be at least 8 characters';
-    if (!passwordValidation.hasNumber) formErrors.passwordNumber = 'Password must contain at least one number';
-    if (!passwordValidation.hasSpecialChar) formErrors.passwordSpecialChar = 'Password must contain at least one special character';
-    if (!passwordValidation.hasLetter) formErrors.passwordLetter = 'Password must contain at least one letter';
+    // const passwordValidation = validatePassword(password);
+    // if (!passwordValidation.minLength) formErrors.passwordLength = 'Password must be at least 8 characters';
+    // if (!passwordValidation.hasNumber) formErrors.passwordNumber = 'Password must contain at least one number';
+    // if (!passwordValidation.hasSpecialChar) formErrors.passwordSpecialChar = 'Password must contain at least one special character';
+    // if (!passwordValidation.hasLetter) formErrors.passwordLetter = 'Password must contain at least one letter';
 
-    if (password !== confirmPassword) formErrors.passwordMatch = 'Passwords do not match';
+    // if (password !== confirmPassword) formErrors.passwordMatch = 'Passwords do not match';
 
-    if (Object.keys(formErrors).length > 0) {
-      setErrors(formErrors);
-      return;
-    }
+    // if (Object.keys(formErrors).length > 0) {
+    //   setErrors(formErrors);
+    //   return;
+    // }
 
     try {
       setIsLoading(true);
@@ -63,6 +63,7 @@ const RegisterScreen = ({ navigation }) => {
         email,
         mobile,
         role,
+        password,
       });
       navigation.replace('Login');
     } catch (error) {

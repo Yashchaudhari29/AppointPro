@@ -18,7 +18,7 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged
 } from 'firebase/auth';
-import { auth, db } from '../firebase';
+import { auth, db } from '../../firebase';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 const db1 = getFirestore();
 

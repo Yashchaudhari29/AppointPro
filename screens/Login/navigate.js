@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, ScrollView, Text, Button } from 'react-native'; // Importing Button from React Native
 import { Card } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import FontAwesome for the right arrow icon
-import { auth } from '../firebase';
+import { auth } from '../../firebase';
 import { useNavigation } from '@react-navigation/native';
 
 const services = [
