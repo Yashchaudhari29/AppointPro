@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, ScrollView, Image, StatusBar, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Alert } from 'react-native';
@@ -18,6 +18,7 @@ import Animated, {
   useSharedValue 
 } from 'react-native-reanimated';
 import { useTheme } from '../../contexts/ThemeContext';
+import * as Location from 'expo-location';
 
 const jobsData = [
   {
@@ -66,6 +67,7 @@ function HomeScreen() {
   const navigation = useNavigation();
   const { unreadCount } = useNotifications();
   const [searchQuery, setSearchQuery] = useState('');
+  const [userLocation, setUserLocation] = useState('Fetching location...');
   const [searchHistory, setSearchHistory] = useState([
     'Mobile App Developer', 'UI/UX Designer', 'Frontend Developer'
   ]);
@@ -120,6 +122,33 @@ function HomeScreen() {
   ];
 
   const { theme } = useTheme();
+
+  useEffect(() => {
+    getUserLocation();
+  }, []);
+
+  const getUserLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      
+      if (status !== 'granted') {
+        setUserLocation('Location access denied');
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      const [address] = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+
+      const formattedAddress = `${address.street || ''}, ${address.city || ''}`;
+      setUserLocation(formattedAddress);
+    } catch (error) {
+      console.error('Error getting location:', error);
+      setUserLocation('Location unavailable');
+    }
+  };
 
   const handleSearchOpen = () => {
     setShowSearch(true);
@@ -341,7 +370,15 @@ function HomeScreen() {
       <View style={[styles.header, { backgroundColor: theme.card }]}>
         <View style={styles.headerLeft}>
           <Text style={[styles.headerTitle, { color: theme.text }]}>Hello, {name}</Text>
-          <Text style={[styles.headerSubtitle, { color: theme.textSecondary }]}>Find your services</Text>
+          <TouchableOpacity 
+            style={styles.locationRow}
+            onPress={getUserLocation}
+          >
+            <Icon name="location" size={16} color="#666" />
+            <Text style={[styles.locationText, { color: theme.textSecondary }]} numberOfLines={1}>
+              {userLocation}
+            </Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.headerRight}>
           <View style={styles.iconWrapper}>
@@ -1151,5 +1188,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     marginLeft: 12,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  locationText: {
+    fontSize: 14,
+    color: '#666',
+    marginLeft: 4,
+    flex: 1,
   },
 });
