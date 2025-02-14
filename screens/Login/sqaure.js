@@ -1,165 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, TextInput, FlatList } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
 
+const db1 = getFirestore();
 const screenWidth = Dimensions.get('window').width;
 
 const AppointmentScreen = () => {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
-  const [searchHistory, setSearchHistory] = useState([]);
+  const [categories, setCategories] = useState([]);
 
-  const allSpecialists = [
-    { name: 'Christopher San', role: 'Nutritionist' },
-    { name: 'Olivia Stark', role: 'Exercise Trainer' },
-    { name: 'Christina K', role: 'Beauty Consultant' },
-  ];
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const usersCollection = collection(db1, 'users');
+      const userSnapshot = await getDocs(usersCollection);
+      const users = userSnapshot.docs.map(doc => doc.data());
+
+      const groupedJobs = users.reduce((acc, user) => {
+        if (user.role === 'provider') {
+          const { job } = user;
+          if (!acc[job]) acc[job] = [];
+          acc[job].push(user);
+        }
+        return acc;
+      }, {});
+      setCategories(groupedJobs);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
 
   const handleSearch = (text) => {
     setSearchQuery(text);
-    if (text) {
-      setSuggestions(allSpecialists.filter(item => item.name.toLowerCase().includes(text.toLowerCase())));
-    } else {
-      setSuggestions([]);
-    }
   };
-
-  const handleSearchSubmit = () => {
-    if (searchQuery && !searchHistory.includes(searchQuery)) {
-      setSearchHistory([...searchHistory, searchQuery]);
-    }
-    setSuggestions([]);
-  };
-
-  const handleCategoryPress = () => {
-    try {
-      navigation.navigate('Categories');
-    } catch (error) {
-      console.log('Navigation error:', error);
-    }
-  };
-
-
-  const renderSuggestion = ({ item }) => (
-    <TouchableOpacity style={styles.suggestionItem}>
-      <Text style={styles.suggestionText}>{item.name}</Text>
-    </TouchableOpacity>
-  );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.searchContainer}>
-          <FontAwesome5 name="search" size={20} color="black" />
+          <FontAwesome5 name="search" size={18} color="#888" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search..."
+            placeholder="Search specialists..."
+            placeholderTextColor="#aaa"
             value={searchQuery}
             onChangeText={handleSearch}
-            onSubmitEditing={handleSearchSubmit}
           />
         </View>
-        <TouchableOpacity 
-          style={styles.categoryButton}
-          onPress={handleCategoryPress}
-        >
+        <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate('Categories')}>
           <Text style={styles.categoryButtonText}>Categories</Text>
         </TouchableOpacity>
       </View>
 
-      {suggestions.length > 0 && (
-        <FlatList
-          data={suggestions}
-          renderItem={renderSuggestion}
-          keyExtractor={(item) => item.name}
-          style={styles.suggestionsList}
-        />
-      )}
-
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Best Specialists Section */}
-        <View style={styles.sectionTitle}>
-          <Text style={styles.sectionTitleText}>Best Specialists</Text>
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
-          <View style={styles.specialistsContainer}>
-            <View style={styles.specialistCard}>
-              <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.specialistImage} />
-              <Text style={styles.specialistName}>Christopher San</Text>
-              <Text style={styles.specialistDetails}>Nutritionist</Text>
-            </View>
-            <View style={styles.specialistCard}>
-              <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.specialistImage} />
-              <Text style={styles.specialistName}>Olivia Stark</Text>
-              <Text style={styles.specialistDetails}>Exercise Trainer</Text>
-            </View>
-            <View style={styles.specialistCard}>
-              <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.specialistImage} />
-              <Text style={styles.specialistName}>Christina K</Text>
-              <Text style={styles.specialistDetails}>Beauty Consultant</Text>
-            </View>
+        {Object.keys(categories).map((categoryKey) => (
+          <View key={categoryKey} style={styles.section}>
+            <Text style={styles.sectionTitle}>{categoryKey}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {categories[categoryKey].map((item, index) => (
+                <View key={index} style={styles.card}>
+                  <Image source={{ uri: item.image || 'https://via.placeholder.com/150' }} style={styles.cardImage} />
+                  <Text style={styles.cardName}>{item.name}</Text>
+                  <Text style={styles.cardDetails}>{item.job}</Text>
+                </View>
+              ))}
+            </ScrollView>
           </View>
-          <TouchableOpacity style={styles.viewMoreButton}>
-            <Text style={styles.viewMoreText}>&gt;</Text>
-          </TouchableOpacity>
-        </ScrollView>
-
-        {/* Gyms Section */}
-        <View style={styles.sectionTitle}>
-          <Text style={styles.sectionTitleText}>Gyms</Text>
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
-          <View style={styles.gymsContainer}>
-            <View style={styles.gymCard}>
-              <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.gymImage} />
-              <Text style={styles.gymName}>Planet Fitness</Text>
-            </View>
-            <View style={styles.gymCard}>
-              <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.gymImage} />
-              <Text style={styles.gymName}>Live Fit Gym</Text>
-            </View>
-            <View style={styles.gymCard}>
-              <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.gymImage} />
-              <Text style={styles.gymName}>Fitness SF</Text>
-            </View>
-            <View style={styles.gymCard}>
-              <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.gymImage} />
-              <Text style={styles.gymName}>The Space S</Text>
-            </View>
-          </View>
-          <TouchableOpacity style={styles.viewMoreButton}>
-            <Text style={styles.viewMoreText}>&gt;</Text>
-          </TouchableOpacity>
-        </ScrollView>
-
-        {/* Hair Salons Section */}
-        <View style={styles.sectionTitle}>
-          <Text style={styles.sectionTitleText}>Hair Salons</Text>
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
-          <View style={styles.salonsContainer}>
-            <View style={styles.salonCard}>
-              <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.salonImage} />
-              <Text style={styles.salonName}>Hair Salons</Text>
-            </View>
-            <View style={styles.salonCard}>
-              <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.salonImage} />
-              <Text style={styles.salonName}>Hair Boutique</Text>
-            </View>
-            <View style={styles.salonCard}>
-              <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.salonImage} />
-              <Text style={styles.salonName}>Salon Chic</Text>
-            </View>
-          </View>
-          <TouchableOpacity style={styles.viewMoreButton}>
-            <Text style={styles.viewMoreText}>&gt;</Text>
-          </TouchableOpacity>
-        </ScrollView>
+        ))}
       </ScrollView>
     </View>
   );
@@ -168,164 +82,81 @@ const AppointmentScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8f9fb',
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 15,
     backgroundColor: 'white',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    elevation: 2,
+    elevation: 3,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#eef2f5',
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    flex: 1,
+    marginRight: 10,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    paddingVertical: 8,
+    color: '#333',
   },
   categoryButton: {
-    padding: 10,
     backgroundColor: '#4CAF50',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     borderRadius: 20,
   },
   categoryButtonText: {
     color: 'white',
     fontWeight: 'bold',
-  },
-  headerText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginHorizontal: 16,
-    marginTop: 10,
-  },
-  searchInput: {
-    marginLeft: 8,
-    fontSize: 16,
-    width: '60%',
-  },
-  suggestionsList: {
-    position: 'absolute',
-    top: 100,
-    left: 16,
-    right: 16,
-    backgroundColor: 'white',
-    zIndex: 10,
-    elevation: 5,
-    paddingVertical: 8,
-  },
-  suggestionItem: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  suggestionText: {
-    fontSize: 16,
-    color: '#333',
+    fontSize: 14,
   },
   content: {
     paddingHorizontal: 16,
-    paddingVertical: 24,
+    paddingVertical: 20,
+  },
+  section: {
+    marginBottom: 20,
   },
   sectionTitle: {
-    marginBottom: 16,
-  },
-  sectionTitleText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
   },
-  horizontalScroll: {
-    marginBottom: 16,
-  },
-  specialistsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-  },
-  specialistCard: {
-    width: screenWidth * 0.6,
+  card: {
     backgroundColor: 'white',
-    borderRadius: 100,
-    padding: 12,
-    marginRight: 16,
+    borderRadius: 12,
+    padding: 10,
+    width: screenWidth * 0.4,
+    marginRight: 12,
     elevation: 2,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  specialistImage: {
+  cardImage: {
     width: '100%',
-    height: 120,
-    borderRadius: 100,
-    marginBottom: 8,
+    height: 100,
+    borderRadius: 10,
+    marginBottom: 10,
   },
-  specialistName: {
+  cardName: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 4,
+    color: '#333',
   },
-  specialistDetails: {
+  cardDetails: {
     fontSize: 12,
-    color: '#666',
-  },
-  gymsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-  },
-  gymCard: {
-    width: screenWidth * 0.45,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 12,
-    marginRight: 16,
-    elevation: 2,
-    alignItems: 'center',
-  },
-  gymImage: {
-    width: '100%',
-    height: 120,
-    borderRadius: 10,
-    marginBottom: 8,
-  },
-  gymName: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  salonsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-  },
-  salonCard: {
-    width: screenWidth * 0.45,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 12,
-    marginRight: 16,
-    elevation: 2,
-    alignItems: 'center',
-  },
-  salonImage: {
-    width: '100%',
-    height: 120,
-    borderRadius: 10,
-    marginBottom: 8,
-  },
-  salonName: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  viewMoreButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 16,
-  },
-  viewMoreText: {
-    fontSize: 20,
-    color: 'white',
+    color: '#777',
   },
 });
 

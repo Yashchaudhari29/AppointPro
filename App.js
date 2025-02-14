@@ -115,12 +115,15 @@ import ProfileScreen from './screens/Login/ProfileScreen';
 import AppointmentsScreen from './screens/Login/AppointmentsScreen';
 import ChangePasswordScreen from './screens/Login/ChangePasswordScreen';
 import TwoFactorAuthScreen from './screens/Login/TwoFactorAuthScreen';
+import ChatDetail from './screens/Login/ChatDetail';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function TabNavigator() {
   return (
+    
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
@@ -153,6 +156,7 @@ function TabNavigator() {
 
 export default function App() {
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <ThemeProvider>
       <NotificationProvider>
         <NavigationContainer>
@@ -199,6 +203,11 @@ export default function App() {
               component={AppointmentScreen} 
             />
             <Stack.Screen 
+              name="ChatDetail" 
+              component={ChatDetail}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen 
               name="UserAppointments"
               component={AppointmentsScreen}
               options={{
@@ -231,7 +240,7 @@ export default function App() {
           </Stack.Navigator>
         </NavigationContainer>
       </NotificationProvider>
-    </ThemeProvider>
+    </ThemeProvider></GestureHandlerRootView>
   );
 }
 
