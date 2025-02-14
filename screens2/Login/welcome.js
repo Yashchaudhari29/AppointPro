@@ -10,10 +10,11 @@ import {
   Platform
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { auth } from '../../firebase'; // Import auth from firebase
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+
 
 export default function WelcomePage({ navigation }) {
+  const [colorMode, setColorMode] = useState('light');
   const [showSplash, setShowSplash] = useState(true);
   
   const splashScale = useRef(new Animated.Value(0.5)).current;
@@ -22,8 +23,36 @@ export default function WelcomePage({ navigation }) {
   const translateY = useRef(new Animated.Value(50)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
+  const theme = {
+    light: {
+      gradientColors: ['#FFFFFF', '#F0F4F8'],
+      text: '#1A237E',
+      accent: '#1A237E',
+      iconBackground: 'transparent', // Removed white background
+      textShadow: 'rgba(0, 0, 0, 0.1)',
+      buttonText: '#FFFFFF',
+      buttonBackground: '#1A237E',
+      logoContainerBorder: 'rgba(26, 35, 126, 0.1)'
+    },
+    dark: {
+      gradientColors: ['#121212', '#1E1E1E'],
+      text: '#E0E0E0',
+      accent: '#3F51B5',
+      iconBackground: 'transparent', // Removed white background
+      textShadow: 'rgba(255, 255, 255, 0.1)',
+      buttonText: '#FFFFFF',
+      buttonBackground: '#3F51B5',
+      logoContainerBorder: 'rgba(63, 81, 181, 0.2)'
+    }
+  };
+
+  const currentTheme = theme[colorMode];
+
+  const toggleTheme = () => {
+    setColorMode(colorMode === 'light' ? 'dark' : 'light');
+  };
+
   useEffect(() => {
-    // Splash animation
     Animated.parallel([ 
       Animated.spring(splashScale, {
         toValue: 1,
@@ -52,13 +81,7 @@ export default function WelcomePage({ navigation }) {
         })
       ]).start(() => {
         setShowSplash(false);
-        // Only start welcome animations if user is not logged in
-        if (!auth.currentUser) {
-          startWelcomeAnimations();
-        } else {
-          // Navigate to main app screen if user is logged in
-          navigation.replace('consumer');
-        }
+        startWelcomeAnimations();
       });
     }, 3000);
 
@@ -90,11 +113,24 @@ export default function WelcomePage({ navigation }) {
     navigation.navigate('Login');
   };
 
+  const ThemeToggleButton = () => (
+    <TouchableOpacity 
+      onPress={toggleTheme} 
+      style={styles.themeToggle}
+    >
+      {colorMode === 'light' ? (
+        <Ionicons name="moon" size={24} color={currentTheme.text} />
+      ) : (
+        <Ionicons name="sunny" size={24} color={currentTheme.text} />
+      )}
+    </TouchableOpacity>
+  );
+
   if (showSplash) {
     return (
       <View style={styles.splashContainer}>
         <LinearGradient 
-          colors={['#FFFFFF', '#F0F4F8']} 
+          colors={currentTheme.gradientColors} 
           style={StyleSheet.absoluteFillObject}
         />
         <Animated.View 
@@ -106,31 +142,30 @@ export default function WelcomePage({ navigation }) {
           <MaterialCommunityIcons 
             name="calendar-clock" 
             size={120} 
-            color="#1A237E"
+            color={currentTheme.accent}
             style={{ alignSelf: 'center'}}
           />
-          <Text style={[styles.splashText, { color: '#1A237E' }]}>AppointPro</Text>
+          <Text style={[styles.splashText, { color: currentTheme.text }]}>AppointPro</Text>
         </Animated.View>
       </View>
     );
   }
 
-  // If user is logged in, don't show welcome screen
-  if (auth.currentUser) {
-    return null;
-  }
-
   return (
     <View style={styles.container}>
       <LinearGradient 
-        colors={['#FFFFFF', '#F0F4F8']} 
+        colors={currentTheme.gradientColors} 
         style={StyleSheet.absoluteFillObject}
         start={{x: 0, y: 0}} 
         end={{x: 1, y: 1}}
       />
       <SafeAreaView style={styles.safeArea}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar 
+          barStyle={colorMode === 'dark' ? 'light-content' : 'dark-content'} 
+        />
         
+        <ThemeToggleButton />
+
         <Animated.View 
           style={[ 
             styles.content, 
@@ -147,38 +182,67 @@ export default function WelcomePage({ navigation }) {
             style={[
               styles.logoContainer, 
               { 
-                backgroundColor: 'transparent',
+                backgroundColor: currentTheme.iconBackground,
                 borderWidth: 2,
-                borderColor: 'rgba(26, 35, 126, 0.1)'
+                borderColor: currentTheme.logoContainerBorder
               }
             ]}
           >
             <MaterialCommunityIcons 
               name="calendar-clock" 
               size={80} 
-              color="#1A237E"
+              color={currentTheme.accent}
             />
           </View>
 
-          <Text style={styles.heading}>
+          <Text 
+            style={[
+              styles.heading, 
+              { 
+                color: currentTheme.text,
+                textShadowColor: currentTheme.textShadow,
+              }
+            ]}
+          >
             Welcome to the Future
           </Text>
           
-          <Text style={styles.subheading}>
+          <Text 
+            style={[
+              styles.subheading, 
+              { 
+                color: currentTheme.text,
+                textShadowColor: currentTheme.textShadow,
+              }
+            ]}
+          >
             Unleash Possibilities, Redefine Experience
           </Text>
 
           <TouchableOpacity 
-            style={styles.nextButton}
+            style={[
+              styles.nextButton, 
+              { 
+                backgroundColor: currentTheme.buttonBackground,
+                shadowColor: currentTheme.accent,
+                elevation: 5,
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 3
+              }
+            ]} 
             onPress={handleNext}
           >
-            <Text style={styles.nextButtonText}>
+            <Text style={[
+              styles.nextButtonText, 
+              { color: currentTheme.buttonText }
+            ]}>
               Explore Now
             </Text>
             <MaterialCommunityIcons 
               name="arrow-right-circle" 
               size={30} 
-              color="#FFFFFF"
+              color={currentTheme.buttonText}
             />
           </TouchableOpacity>
         </Animated.View>
@@ -187,11 +251,18 @@ export default function WelcomePage({ navigation }) {
   );
 }
 
+
 const styles = StyleSheet.create({
   splashContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  themeToggle: {
+    position: 'absolute',
+    top: Platform.OS === 'web' ? 20 : 50,
+    right: 20,
+    opacity: 0.7,
   },
   splashText: {
     fontSize: 32,
@@ -225,10 +296,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
-    color: '#1A237E',
     textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowRadius: 5
   },
   subheading: {
     fontSize: Platform.OS === 'web' ? 20 : 18,
@@ -236,10 +305,8 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     paddingHorizontal: 20,
     fontStyle: 'italic',
-    color: '#1A237E',
     textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 3,
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowRadius: 3
   },
   nextButton: {
     flexDirection: 'row',
@@ -248,7 +315,6 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 25,
     borderRadius: 50,
-    backgroundColor: '#1A237E',
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -259,6 +325,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginRight: 10,
-    color: '#FFFFFF',
   },
 });

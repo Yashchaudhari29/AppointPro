@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, TextInput, FlatList } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width;
 
 const AppointmentScreen = () => {
+  const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
+  const [searchHistory, setSearchHistory] = useState([]);
 
   const allSpecialists = [
     { name: 'Christopher San', role: 'Nutritionist' },
@@ -22,12 +25,23 @@ const AppointmentScreen = () => {
       setSuggestions([]);
     }
   };
+
   const handleSearchSubmit = () => {
     if (searchQuery && !searchHistory.includes(searchQuery)) {
       setSearchHistory([...searchHistory, searchQuery]);
     }
     setSuggestions([]);
   };
+
+  const handleCategoryPress = () => {
+    try {
+      navigation.navigate('Categories');
+    } catch (error) {
+      console.log('Navigation error:', error);
+    }
+  };
+
+
   const renderSuggestion = ({ item }) => (
     <TouchableOpacity style={styles.suggestionItem}>
       <Text style={styles.suggestionText}>{item.name}</Text>
@@ -47,7 +61,10 @@ const AppointmentScreen = () => {
             onSubmitEditing={handleSearchSubmit}
           />
         </View>
-        <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate('Categories')}>
+        <TouchableOpacity 
+          style={styles.categoryButton}
+          onPress={handleCategoryPress}
+        >
           <Text style={styles.categoryButtonText}>Categories</Text>
         </TouchableOpacity>
       </View>
@@ -86,7 +103,7 @@ const AppointmentScreen = () => {
             </View>
           </View>
           <TouchableOpacity style={styles.viewMoreButton}>
-            <Text style={styles.viewMoreText}> &gt; </Text>
+            <Text style={styles.viewMoreText}>&gt;</Text>
           </TouchableOpacity>
         </ScrollView>
 
@@ -115,7 +132,7 @@ const AppointmentScreen = () => {
             </View>
           </View>
           <TouchableOpacity style={styles.viewMoreButton}>
-            <Text style={styles.viewMoreText}> &gt; </Text>
+            <Text style={styles.viewMoreText}>&gt;</Text>
           </TouchableOpacity>
         </ScrollView>
 
@@ -140,7 +157,7 @@ const AppointmentScreen = () => {
             </View>
           </View>
           <TouchableOpacity style={styles.viewMoreButton}>
-            <Text style={styles.viewMoreText}> &gt; </Text>
+            <Text style={styles.viewMoreText}>&gt;</Text>
           </TouchableOpacity>
         </ScrollView>
       </ScrollView>
