@@ -18,7 +18,7 @@
 //   return (
 //     <NavigationContainer>
 //       <Stack.Navigator 
-      
+
 //         initialRouteName="wp" 
 //         // screenOptions={{
 //         //   headerStyle: {
@@ -100,7 +100,7 @@ import AdminScreen from './screens/Login/AdminScreen';
 import ProviderScreen from './screens/Login/ProviderScreen';
 import HomeScreen from './screens/Login/ConsumerScreen';
 import CategoriesScreen from './screens/Login/Categories';
-import AppointmentScreen from './screens/Login/sqaure';
+import AppointmentScreen from './screens/Login/square';
 import WelcomePage from './screens/Login/welcome';
 import RegisterScreen from './screens/Login/Register_page';
 import ForgotPasswordScreen from './screens/Login/Forgot_password';
@@ -123,7 +123,7 @@ const Tab = createBottomTabNavigator();
 
 function TabNavigator() {
   return (
-    
+
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
@@ -157,90 +157,85 @@ function TabNavigator() {
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-    <ThemeProvider>
-      <NotificationProvider>
-        <NavigationContainer>
-          <Stack.Navigator 
-            initialRouteName="wp"
-            screenOptions={({ route }) => ({
-              headerShown: false
-            })}
-          >
-            <Stack.Screen
-              name="wp"
-              component={WelcomePage}
-            />
-            <Stack.Screen
-              name="Login" 
-              component={LoginScreen} 
-            />
-            <Stack.Screen
-              name="Register" 
-              component={RegisterScreen} 
-            />
-            <Stack.Screen 
-              name="Forgot_Password" 
-              component={ForgotPasswordScreen} 
-            />
-            <Stack.Screen 
-              name="admin" 
-              component={AdminScreen} 
-            />
-            <Stack.Screen 
-              name="consumer" 
-              component={HomeScreen} 
-            />
-            <Stack.Screen 
-              name="provider" 
-              component={ProviderScreen} 
-            />
-            <Stack.Screen 
-              name="Categories" 
-              component={CategoriesScreen} 
-            />
-             <Stack.Screen 
-              name="Appointments" 
-              component={AppointmentScreen} 
-            />
-            <Stack.Screen 
-              name="ChatDetail" 
-              component={ChatDetail}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen 
-              name="UserAppointments"
-              component={AppointmentsScreen}
-              options={{
-                title: 'My Appointments',
-                headerStyle: {
-                  backgroundColor: '#fff',
-                },
-                headerTintColor: '#333',
-                headerTitleStyle: {
-                  fontWeight: 'bold',
-                },
-              }}
-            />
-            <Stack.Screen name="MainApp" component={TabNavigator} options={{ headerShown: false }} />
-            <Stack.Screen name="Notifications" component={NotificationsScreen} />
-            <Stack.Screen name="Privacy" component={PrivacyScreen} />
-            <Stack.Screen name="Support" component={SupportScreen} />
-            <Stack.Screen name="PaymentMethods" component={PaymentMethodsScreen} />
-            <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
-            <Stack.Screen 
-              name="ChangePassword" 
-              component={ChangePasswordScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen 
-              name="TwoFactorAuth" 
-              component={TwoFactorAuthScreen}
-              options={{ headerShown: false }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </NotificationProvider>
-    </ThemeProvider></GestureHandlerRootView>
+      <ThemeProvider>
+        <NotificationProvider>
+          <NavigationContainer>
+            <Stack.Navigator
+              initialRouteName="wp"
+              screenOptions={({ route }) => ({
+                headerShown: false
+              })}
+            >
+              <Stack.Screen
+                name="wp"
+                component={WelcomePage}
+              />
+              <Stack.Screen
+                name="Login"
+                component={LoginScreen}
+              />
+              <Stack.Screen
+                name="Register"
+                component={RegisterScreen}
+              />
+              <Stack.Screen
+                name="Forgot_Password"
+                component={ForgotPasswordScreen}
+              />
+              <Stack.Screen
+                name="admin"
+                component={AdminScreen}
+              />
+              <Stack.Screen
+                name="consumer"
+                component={HomeScreen}
+              />
+              <Stack.Screen
+                name="provider"
+                component={ProviderScreen}
+              />
+              <Stack.Screen
+                name="Categories"
+                component={CategoriesScreen}
+              />
+              <Stack.Screen
+                name="Appointments"
+                component={AppointmentScreen}
+              />
+              <Stack.Screen
+                name="ChatDetail"
+                component={ChatDetail}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="UserAppointments"
+                component={AppointmentsScreen}
+                options={{
+                  headerShown:true,
+                  title: 'My Appointments',
+                }}
+              />
+
+              <Stack.Screen name="MainApp" component={TabNavigator} options={{ headerShown: false }} />
+              <Stack.Screen name="Notifications" component={NotificationsScreen} />
+              <Stack.Screen name="Privacy" component={PrivacyScreen} />
+              <Stack.Screen name="Support" component={SupportScreen} />
+              <Stack.Screen name="PaymentMethods" component={PaymentMethodsScreen} />
+              <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
+              <Stack.Screen
+                name="ChangePassword"
+                component={ChangePasswordScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="TwoFactorAuth"
+                component={TwoFactorAuthScreen}
+                options={{ headerShown: false }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </NotificationProvider>
+      </ThemeProvider></GestureHandlerRootView>
   );
 }
 

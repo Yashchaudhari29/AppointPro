@@ -3,30 +3,21 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Image,
   TouchableOpacity,
   Dimensions,
-  TextInput,
-  Animated,
-  StatusBar,
   Platform,
   FlatList,
-  Modal,
+  Animated,
 } from 'react-native';
 import { MaterialIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const ITEM_SIZE = width * 0.75;
-const HEADER_HEIGHT = Platform.OS === 'ios' ? 90 : 70;
 const CATEGORY_CARD_SIZE = (width - (16 * 3)) / 2;
 
 const ExploreScreen = ({ navigation }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showFilterModal, setShowFilterModal] = useState(false);
-  const scrollY = useRef(new Animated.Value(0)).current;
   const scrollX = useRef(new Animated.Value(0)).current;
 
   const featuredDoctors = [
@@ -72,7 +63,6 @@ const ExploreScreen = ({ navigation }) => {
       verified: true,
       badges: ['Kid Friendly', 'Highly Rated'],
     },
-    // Add more doctors...
   ];
 
   const categories = [
@@ -111,56 +101,9 @@ const ExploreScreen = ({ navigation }) => {
       color: '#F1C40F',
       count: 45,
     },
-    // Add more categories...
   ];
 
-  const popularServices = [
-    {
-      id: '1',
-      title: 'Full Body Checkup',
-      image: 'https://example.com/checkup.jpg',
-      price: '₹1,999',
-      rating: 4.8,
-      bookings: '1.2k+ bookings',
-    },
-    // Add more services...
-  ];
-
-  // Add filter options
-  const filterOptions = {
-    specialties: [
-      { id: '1', name: 'Cardiology' },
-      { id: '2', name: 'Neurology' },
-      { id: '3', name: 'Pediatrics' },
-      { id: '4', name: 'Dentistry' },
-      { id: '5', name: 'Orthopedics' },
-    ],
-    availability: [
-      { id: '1', name: 'Available Today' },
-      { id: '2', name: 'Available Tomorrow' },
-      { id: '3', name: 'This Week' },
-    ],
-    rating: [
-      { id: '1', name: '4.5+' },
-      { id: '2', name: '4.0+' },
-      { id: '3', name: '3.5+' },
-    ],
-    price: [
-      { id: '1', name: '₹0-500' },
-      { id: '2', name: '₹501-1000' },
-      { id: '3', name: '₹1001-2000' },
-      { id: '4', name: '₹2000+' },
-    ],
-  };
-
-  const [selectedFilters, setSelectedFilters] = useState({
-    specialties: [],
-    availability: [],
-    rating: [],
-    price: [],
-  });
-
-  // Add animation values for category cards
+  // Animation values for category cards
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateX = useRef(new Animated.Value(50)).current;
 
@@ -178,78 +121,6 @@ const ExploreScreen = ({ navigation }) => {
       }),
     ]).start();
   }, []);
-
-  const renderFilterModal = () => (
-    <Modal
-      visible={showFilterModal}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={() => setShowFilterModal(false)}
-    >
-      <View style={styles.modalContainer}>
-        <BlurView intensity={100} style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Filter</Text>
-            <TouchableOpacity onPress={() => setShowFilterModal(false)}>
-              <Ionicons name="close" size={24} color="#333" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Filter Sections */}
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {/* Specialties */}
-            <View style={styles.filterSection}>
-              <Text style={styles.filterSectionTitle}>Specialties</Text>
-              <View style={styles.filterOptions}>
-                {filterOptions.specialties.map((specialty) => (
-                  <TouchableOpacity
-                    key={specialty.id}
-                    style={[
-                      styles.filterChip,
-                      selectedFilters.specialties.includes(specialty.id) && styles.filterChipSelected,
-                    ]}
-                    onPress={() => toggleFilter('specialties', specialty.id)}
-                  >
-                    <Text style={[
-                      styles.filterChipText,
-                      selectedFilters.specialties.includes(specialty.id) && styles.filterChipTextSelected,
-                    ]}>
-                      {specialty.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            {/* Add similar sections for availability, rating, and price */}
-          </ScrollView>
-
-          <View style={styles.modalFooter}>
-            <TouchableOpacity 
-              style={styles.clearButton}
-              onPress={() => setSelectedFilters({
-                specialties: [],
-                availability: [],
-                rating: [],
-                price: [],
-              })}
-            >
-              <Text style={styles.clearButtonText}>Clear All</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.applyButton}
-              onPress={() => {
-                // Apply filters logic here
-                setShowFilterModal(false);
-              }}
-            >
-              <Text style={styles.applyButtonText}>Apply Filters</Text>
-            </TouchableOpacity>
-          </View>
-        </BlurView>
-      </View>
-    </Modal>
-  );
 
   const renderFeaturedDoctor = ({ item, index }) => {
     const inputRange = [
@@ -315,7 +186,7 @@ const ExploreScreen = ({ navigation }) => {
     );
   };
 
-  const renderCategory = ({ item, index }) => (
+  const renderCategory = ({ item }) => (
     <Animated.View
       style={[
         styles.categoryCard,
@@ -344,39 +215,6 @@ const ExploreScreen = ({ navigation }) => {
           </Text>
         </LinearGradient>
       </TouchableOpacity>
-    </Animated.View>
-  );
-
-  const renderHeader = () => (
-    <Animated.View style={[styles.header, {
-      transform: [{
-        translateY: scrollY.interpolate({
-          inputRange: [0, 50],
-          outputRange: [0, -HEADER_HEIGHT],
-          extrapolate: 'clamp',
-        })
-      }]
-    }]}>
-      <BlurView intensity={100} style={styles.headerContent}>
-        <View style={styles.searchBarContainer}>
-          <View style={styles.searchBar}>
-            <MaterialIcons name="search" size={24} color="#666" />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search doctors, specialties..."
-              placeholderTextColor="#999"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-          </View>
-          <TouchableOpacity 
-            style={styles.filterButton}
-            onPress={() => setShowFilterModal(true)}
-          >
-            <MaterialIcons name="tune" size={24} color="#2E86DE" />
-          </TouchableOpacity>
-        </View>
-      </BlurView>
     </Animated.View>
   );
 
@@ -411,49 +249,26 @@ const ExploreScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" />
+      <View style={styles.featuredSection}>
+        <Text style={styles.sectionTitle}>Featured Specialists</Text>
+        <Animated.FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={featuredDoctors}
+          renderItem={renderFeaturedDoctor}
+          keyExtractor={item => item.id}
+          snapToInterval={ITEM_SIZE}
+          decelerationRate="fast"
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+            { useNativeDriver: true }
+          )}
+          scrollEventThrottle={16}
+          contentContainerStyle={styles.featuredList}
+        />
+      </View>
 
-      {renderHeader()}
-
-      <Animated.ScrollView
-        showsVerticalScrollIndicator={false}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
-        )}
-        scrollEventThrottle={16}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* Featured Doctors */}
-        <View style={styles.featuredSection}>
-          <Text style={styles.sectionTitle}>Featured Specialists</Text>
-          <Animated.FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={featuredDoctors}
-            renderItem={renderFeaturedDoctor}
-            keyExtractor={item => item.id}
-            snapToInterval={ITEM_SIZE}
-            decelerationRate="fast"
-            onScroll={Animated.event(
-              [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-              { useNativeDriver: true }
-            )}
-            scrollEventThrottle={16}
-            contentContainerStyle={styles.featuredList}
-          />
-        </View>
-
-        {renderCategories()}
-
-        {/* Popular Services */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Popular Services</Text>
-          {/* Add popular services list */}
-        </View>
-      </Animated.ScrollView>
-
-      {renderFilterModal()}
+      {renderCategories()}
     </View>
   );
 };
@@ -462,58 +277,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
-  },
-  header: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: HEADER_HEIGHT,
-    zIndex: 100,
-    backgroundColor: 'rgba(255,255,255,0.95)',
-  },
-  headerContent: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    paddingBottom: 10,
-  },
-  searchBarContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    marginTop: Platform.OS === 'ios' ? 40 : StatusBar.currentHeight,
-  },
-  searchBar: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    height: 46,
-    marginRight: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    marginLeft: 12,
-    color: '#333',
-  },
-  filterButton: {
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   section: {
     marginTop: 20,
@@ -661,82 +424,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
   },
-  filterSection: {
-    marginBottom: 24,
-  },
-  filterSectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  filterOptions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  filterChipSelected: {
-    backgroundColor: '#2E86DE',
-  },
-  filterChipText: {
-    color: '#666',
-  },
-  filterChipTextSelected: {
-    color: '#fff',
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    minHeight: height * 0.7,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  modalFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-  },
-  clearButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-  },
-  clearButtonText: {
-    color: '#666',
-  },
-  applyButton: {
-    backgroundColor: '#2E86DE',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 24,
-  },
-  applyButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
   categoryCard: {
     width: CATEGORY_CARD_SIZE,
     height: CATEGORY_CARD_SIZE,
@@ -785,10 +472,6 @@ const styles = StyleSheet.create({
   },
   featuredList: {
     paddingVertical: 10,
-  },
-  scrollContent: {
-    paddingTop: HEADER_HEIGHT + 10,
-    paddingBottom: 20,
   },
 });
 
