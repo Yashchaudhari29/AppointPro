@@ -15,6 +15,7 @@ import ProviderScreen from './screens/Login/ProviderScreen';
 import HomeScreen from './screens/home/ConsumerScreen';
 import CategoriesScreen from './screens/Booking/Categories';
 import AppointmentScreen from './screens/Booking/square';
+import EditAppointment from './screens/Booking/Booking';
 import WelcomePage from './screens/Login/welcome';
 import RegisterScreen from './screens/Login/Register_page';
 import ForgotPasswordScreen from './screens/Login/Forgot_password';
@@ -31,7 +32,7 @@ import ChangePasswordScreen from './screens/Profile/ChangePasswordScreen';
 import TwoFactorAuthScreen from './screens/Profile/TwoFactorAuthScreen';
 import ChatDetail from './screens/Messages/ChatDetail';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
+import Specific_detail from './screens/Booking/Specific_detail';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -85,6 +86,10 @@ export default function App() {
                 component={WelcomePage}
               />
               <Stack.Screen
+                name="booking"
+                component={EditAppointment}
+              />
+              <Stack.Screen
                 name="Login"
                 component={LoginScreen}
               />
@@ -129,7 +134,10 @@ export default function App() {
                   title: 'My Appointments',
                 }}
               />
-
+              <Stack.Screen
+                name="Specific_detail"
+                component={Specific_detail}
+              />
               <Stack.Screen name="MainApp" component={TabNavigator} options={{ headerShown: false }} />
               <Stack.Screen name="Notifications" component={NotificationsScreen} />
               <Stack.Screen name="Privacy" component={PrivacyScreen} />

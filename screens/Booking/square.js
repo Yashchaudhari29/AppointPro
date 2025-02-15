@@ -104,7 +104,7 @@ const AppointmentScreen = () => {
           </View>
         </View>
         <TouchableOpacity 
-          style={[styles.bookButton, { backgroundColor: iconColor }]}
+          style={[styles.bookButton, { backgroundColor: iconColor }]} onPress={() => navigation.navigate('booking')}
         >
           <Text style={styles.bookButtonText}>Book</Text>
         </TouchableOpacity>

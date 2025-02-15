@@ -1,478 +1,789 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   Image,
+  StyleSheet,
   TouchableOpacity,
-  Dimensions,
-  Platform,
-  FlatList,
   Animated,
+  Alert,
+  ScrollView,
+  Platform,
 } from 'react-native';
-import { MaterialIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Calendar } from 'react-native-calendars';
+import { StatusBar } from 'react-native';
+import { BlurView } from '@react-native-community/blur';
 
-const { width } = Dimensions.get('window');
-const ITEM_SIZE = width * 0.75;
-const CATEGORY_CARD_SIZE = (width - (16 * 3)) / 2;
+// Constants
+const DOCTOR_DATA = {
+  name: 'Dr. Kristin Watson',
+  specialty: 'Heart Specialist',
+  location: 'New York, United States',
+  stats: {
+    patients: '7,500+',
+    experience: '10+',
+    rating: '4.9+',
+    reviews: '4,956',
+  },
+  about: 'With over a decade of experience, Dr. Kristin Watson is a highly skilled Heart Specialist in New York. He has treated more than 7,500 patients...',
+  fees: {
+    secondOpinion: '80.00',
+    consultation: '150.00',
+    followUp: '100.00',
+  },
+};
 
-const ExploreScreen = ({ navigation }) => {
-  const scrollX = useRef(new Animated.Value(0)).current;
+// Mock data for booked slots
+const bookedSlots = {
+  '2025-02-20': ['09:00 AM', '11:00 AM'],
+  '2025-02-21': ['10:00 AM', '02:00 PM'],
+  '2025-02-22': ['08:00 AM', '03:00 PM'],
+};
 
-  const featuredDoctors = [
-    {
-      id: '1',
-      name: 'Dr. Sarah Connor',
-      specialty: 'Cardiologist',
-      hospital: 'Mayo Clinic',
-      rating: 4.9,
-      reviews: 482,
-      image: 'https://example.com/sarah.jpg',
-      nextSlot: '10:00 AM Today',
-      price: '₹2,000',
-      experience: '15 years',
-      verified: true,
-      badges: ['Top Rated', 'Quick Response'],
-    },
-    {
-      id: '2',
-      name: 'Dr. John Smith',
-      specialty: 'Neurologist',
-      hospital: 'Apollo Hospital',
-      rating: 4.8,
-      reviews: 356,
-      image: 'https://example.com/john.jpg',
-      nextSlot: '11:30 AM Today',
-      price: '₹2,500',
-      experience: '12 years',
-      verified: true,
-      badges: ['Expert', '24/7 Available'],
-    },
-    {
-      id: '3',
-      name: 'Dr. Emily Brown',
-      specialty: 'Pediatrician',
-      hospital: 'Children\'s Hospital',
-      rating: 4.9,
-      reviews: 624,
-      image: 'https://example.com/emily.jpg',
-      nextSlot: '2:00 PM Today',
-      price: '₹1,800',
-      experience: '10 years',
-      verified: true,
-      badges: ['Kid Friendly', 'Highly Rated'],
-    },
-  ];
+// Mock data for doctor's availability
+const doctorAvailability = {
+  '2025-02-20': { available: true },
+  '2025-02-21': { available: true },
+  '2025-02-22': { available: true },
+  '2025-02-24': { available: false },
+  '2025-02-25': { available: false },
+};
 
-  const categories = [
-    {
-      id: '1',
-      title: 'Emergency Care',
-      icon: 'heartbeat',
-      color: '#FF4757',
-      count: 28,
-    },
-    {
-      id: '2',
-      title: 'Dental Care',
-      icon: 'tooth',
-      color: '#2E86DE',
-      count: 42,
-    },
-    {
-      id: '3',
-      title: 'Eye Care',
-      icon: 'eye',
-      color: '#1DD1A1',
-      count: 35,
-    },
-    {
-      id: '4',
-      title: 'Mental Health',
-      icon: 'brain',
-      color: '#9B59B6',
-      count: 31,
-    },
-    {
-      id: '5',
-      title: 'Pediatrics',
-      icon: 'baby',
-      color: '#F1C40F',
-      count: 45,
-    },
-  ];
-
-  // Animation values for category cards
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const translateX = useRef(new Animated.Value(50)).current;
-
+const DoctorBookingScreen = () => {
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [modalAnimation] = useState(new Animated.Value(0));
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [fadeAnim] = useState(new Animated.Value(0));
   useEffect(() => {
-    Animated.parallel([
+    if (modalVisible) {
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 1000,
+        duration: 300,
         useNativeDriver: true,
-      }),
-      Animated.timing(translateX, {
+      }).start();
+    } else {
+      Animated.timing(fadeAnim, {
         toValue: 0,
-        duration: 1000,
+        duration: 300,
         useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
+      }).start();
+    }
+  }, [modalVisible, fadeAnim]);
 
-  const renderFeaturedDoctor = ({ item, index }) => {
-    const inputRange = [
-      (index - 1) * ITEM_SIZE,
-      index * ITEM_SIZE,
-      (index + 1) * ITEM_SIZE,
-    ];
+  const showModal = () => {
+    Animated.spring(modalAnimation, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
 
-    const scale = scrollX.interpolate({
-      inputRange,
-      outputRange: [0.9, 1, 0.9],
+  const hideModal = () => {
+    Animated.timing(modalAnimation, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setModalVisible(false);
     });
+  };
 
-    return (
-      <TouchableOpacity
-        onPress={() => navigation.navigate('DoctorDetail', { doctor: item })}
-      >
-        <Animated.View style={[styles.doctorCard, { transform: [{ scale }] }]}>
-          <Image source={{ uri: item.image }} style={styles.doctorImage} />
-          <LinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.9)']}
-            style={styles.doctorInfo}
-          >
-            <View style={styles.badgeContainer}>
-              {item.badges.map((badge, idx) => (
-                <View key={idx} style={styles.badge}>
-                  <Text style={styles.badgeText}>{badge}</Text>
-                </View>
-              ))}
-            </View>
-            
-            <View style={styles.nameContainer}>
-              <Text style={styles.doctorName}>{item.name}</Text>
-              {item.verified && (
-                <Ionicons name="checkmark-circle" size={20} color="#2E86DE" />
-              )}
-            </View>
-            
-            <Text style={styles.specialty}>{item.specialty}</Text>
-            <Text style={styles.hospital}>{item.hospital}</Text>
-            
-            <View style={styles.statsContainer}>
-              <View style={styles.stat}>
-                <Ionicons name="star" size={16} color="#FFD700" />
-                <Text style={styles.statText}>{item.rating}</Text>
-                <Text style={styles.statSubtext}>({item.reviews})</Text>
-              </View>
-              <View style={styles.stat}>
-                <Ionicons name="time-outline" size={16} color="#fff" />
-                <Text style={styles.statText}>{item.experience}</Text>
-              </View>
-            </View>
+  const generateTimeSlots = () => {
+    const slots = [];
+    for (let i = 8; i <= 17; i++) {
+      const time = `${i.toString().padStart(2, '0')}:00 ${i < 12 ? 'AM' : 'PM'}`;
+      const isBooked = bookedSlots[selectedDate]?.includes(time);
+      const availability = Math.floor(Math.random() * 6);
+      slots.push({ time, isBooked, availability });
+    }
+    return slots;
+  };
 
-            <View style={styles.bottomRow}>
-              <View style={styles.nextSlot}>
-                <Text style={styles.slotText}>{item.nextSlot}</Text>
-              </View>
-              <Text style={styles.price}>{item.price}</Text>
-            </View>
-          </LinearGradient>
-        </Animated.View>
-      </TouchableOpacity>
+  const handleBooking = () => {
+    if (!selectedDate || !selectedTime) {
+      Alert.alert('Error', 'Please select both date and time');
+      return;
+    }
+    showModal();
+    // alert('Booking confirmed');
+  };
+
+  const confirmBooking = () => {
+    hideModal();
+    Alert.alert(
+      'Booking Confirmed',
+      `Your appointment has been scheduled for ${selectedDate} at ${selectedTime}`,
+      [
+        {
+          text: 'OK',
+          onPress: () => {
+            setSelectedDate(null);
+            setSelectedTime(null);
+          },
+        },
+      ]
     );
   };
 
-  const renderCategory = ({ item }) => (
-    <Animated.View
-      style={[
-        styles.categoryCard,
-        {
-          opacity: fadeAnim,
-          transform: [{ translateX }],
-        },
-      ]}
-    >
-      <TouchableOpacity 
-        onPress={() => navigation.navigate('CategoryDetail', { category: item })}
-        style={styles.categoryButton}
-      >
-        <LinearGradient
-          colors={[`${item.color}10`, `${item.color}20`]}
-          style={styles.categoryGradient}
-        >
-          <View style={[styles.iconContainer, { backgroundColor: item.color }]}>
-            <FontAwesome5 name={item.icon} size={24} color="#fff" />
-          </View>
-          <Text style={styles.categoryTitle} numberOfLines={1}>
-            {item.title}
+  const renderStats = () => (
+    <View style={styles.stats}>
+      {Object.entries(DOCTOR_DATA.stats).map(([key, value]) => (
+        <View key={key} style={styles.statItem}>
+          <Text style={styles.statNumber}>{value}</Text>
+          <Text style={styles.statLabel}>
+            {key.charAt(0).toUpperCase() + key.slice(1)}
           </Text>
-          <Text style={styles.categoryCount}>
-            {item.count} Specialists
-          </Text>
-        </LinearGradient>
-      </TouchableOpacity>
-    </Animated.View>
+        </View>
+      ))}
+    </View>
   );
 
-  const renderCategories = () => (
-    <View style={styles.section}>
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Browse by Category</Text>
-        <TouchableOpacity 
-          style={styles.viewAllButton}
-          onPress={() => navigation.navigate('Categories')}
-        >
-          <Text style={styles.viewAllText}>View All</Text>
-          <MaterialIcons name="arrow-forward" size={20} color="#2E86DE" />
-        </TouchableOpacity>
-      </View>
-      
-      <View style={styles.categoryIndicator}>
-        <MaterialIcons name="swipe" size={20} color="#666" />
-        <Text style={styles.swipeText}>Swipe to explore</Text>
-      </View>
+  const renderCalendarSection = () => {
+    const today = new Date();
+    const maxDate = new Date();
+    maxDate.setMonth(maxDate.getMonth() + 3);
 
-      <FlatList
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        data={categories}
-        renderItem={renderCategory}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.categoriesList}
-      />
+    const markedDates = {};
+    Object.keys(doctorAvailability).forEach(date => {
+      if (date === selectedDate) {
+        markedDates[date] = {
+          selected: true,
+          selectedColor: '#007AFF',
+        };
+      } else if (!doctorAvailability[date].available) {
+        markedDates[date] = {
+          disabled: true,
+          disableTouchEvent: true,
+          dotColor: 'red',
+          marked: true
+        };
+      } else if (bookedSlots[date]) {
+        markedDates[date] = {
+          marked: true,
+          dotColor: '#FFB067'
+        };
+      } else {
+        markedDates[date] = {
+          marked: true,
+          dotColor: '#50C878'
+        };
+      }
+    });
+
+    return (
+      <View style={styles.section}>
+        <View style={styles.calendarHeader}>
+          <Text style={styles.sectionTitle}>Schedule Date</Text>
+          <TouchableOpacity
+            style={styles.calendarToggle}
+            onPress={() => setShowCalendar(!showCalendar)}
+          >
+            <Text style={styles.calendarToggleText}>
+              {showCalendar ? 'Show Quick Dates' : 'Open Calendar'}
+            </Text>
+            <Icon
+              name={showCalendar ? 'calendar-today' : 'date-range'}
+              size={20}
+              color="#007AFF"
+            />
+          </TouchableOpacity>
+        </View>
+
+        {showCalendar ? (
+          <Calendar
+            current={today.toISOString().split('T')[0]}
+            minDate={today.toISOString().split('T')[0]}
+            maxDate={maxDate.toISOString().split('T')[0]}
+            onDayPress={(day) => {
+              if (doctorAvailability[day.dateString]?.available !== false) {
+                setSelectedDate(day.dateString);
+                setSelectedTime(null);
+              }
+            }}
+            markedDates={markedDates}
+            theme={{
+              todayTextColor: '#007AFF',
+              selectedDayBackgroundColor: '#007AFF',
+              selectedDayTextColor: '#ffffff',
+              calendarBackground: '#ffffff',
+              textSectionTitleColor: '#b6c1cd',
+              selectedDotColor: '#ffffff',
+              arrowColor: '#007AFF',
+              monthTextColor: '#2d4150',
+              textDayFontFamily: Platform.select({ ios: 'System', android: 'Roboto' }),
+              textMonthFontFamily: Platform.select({ ios: 'System', android: 'Roboto' }),
+              textDayHeaderFontFamily: Platform.select({ ios: 'System', android: 'Roboto' }),
+            }}
+            style={styles.calendar}
+          />
+        ) : (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.dateContainer}>
+              {[...Array(7)].map((_, index) => {
+                const date = new Date(today);
+                date.setDate(today.getDate() + index);
+                const dateString = date.toISOString().split('T')[0];
+                const isSelected = dateString === selectedDate;
+                
+                return (
+                  <TouchableOpacity
+                    key={dateString}
+                    style={[
+                      styles.dateButton,
+                      isSelected && styles.selectedDate,
+                      !doctorAvailability[dateString]?.available && styles.unavailableDate,
+                    ]}
+                    onPress={() => {
+                      if (doctorAvailability[dateString]?.available !== false) {
+                        setSelectedDate(dateString);
+                        setSelectedTime(null);
+                      }
+                    }}
+                    disabled={!doctorAvailability[dateString]?.available}
+                  >
+                    <Text style={[styles.dateText, isSelected && styles.selectedDateText]}>
+                      {date.getDate()}
+                    </Text>
+                    <Text style={[styles.dayText, isSelected && styles.selectedDateText]}>
+                      {date.toLocaleDateString('en-US', { weekday: 'short' })}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </ScrollView>
+        )}
+
+        <View style={styles.legendContainer}>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: '#50C878' }]} />
+            <Text style={styles.legendText}>Available</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: '#FFB067' }]} />
+            <Text style={styles.legendText}>Partially Booked</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: 'red' }]} />
+            <Text style={styles.legendText}>Unavailable</Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  const renderTimeSlots = () => (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>Select Time</Text>
+      {selectedDate ? (
+        <View style={styles.timeContainer}>
+          {generateTimeSlots().map(({ time, isBooked, availability }) => (
+            <TouchableOpacity
+              key={time}
+              style={[
+                styles.timeSlotContainer,
+                selectedTime === time && styles.selectedTimeSlot,
+                isBooked && styles.bookedTimeSlot,
+              ]}
+              onPress={() => !isBooked && setSelectedTime(time)}
+              disabled={isBooked}
+            >
+              <Text style={[
+                styles.timeText,
+                selectedTime === time && styles.selectedTimeText,
+                isBooked && styles.bookedTimeText,
+              ]}>
+                {time}
+              </Text>
+              {!isBooked && (
+                <Text style={[
+                  styles.availabilityText,
+                  availability <= 2 && styles.lowAvailability,
+                  availability > 2 && availability <= 4 && styles.mediumAvailability,
+                  availability > 4 && styles.highAvailability,
+                ]}>
+                  {availability <= 2 ? 'Few slots left' :
+                   availability <= 4 ? 'Going fast' : 'Available'}
+                </Text>
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+      ) : (
+        <Text style={styles.noDateSelected}>Please select a date first</Text>
+      )}
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.featuredSection}>
-        <Text style={styles.sectionTitle}>Featured Specialists</Text>
-        <Animated.FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={featuredDoctors}
-          renderItem={renderFeaturedDoctor}
-          keyExtractor={item => item.id}
-          snapToInterval={ITEM_SIZE}
-          decelerationRate="fast"
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-            { useNativeDriver: true }
-          )}
-          scrollEventThrottle={16}
-          contentContainerStyle={styles.featuredList}
-        />
-      </View>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      <ScrollView>
+        <View style={styles.header}>
+          <TouchableOpacity>
+            <Icon name="arrow-back" size={24} color="#000" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Doctor Details</Text>
+          <TouchableOpacity>
+            <Icon name="favorite-border" size={24} color="#000" />
+          </TouchableOpacity>
+        </View>
 
-      {renderCategories()}
-    </View>
+        <View style={styles.doctorInfo}>
+          <Image
+            source={{ uri: 'https://via.placeholder.com/100' }}
+            style={styles.doctorImage}
+          />
+          <View style={styles.doctorDetails}>
+            <Text style={styles.doctorName}>{DOCTOR_DATA.name}</Text>
+            <Text style={styles.specialty}>{DOCTOR_DATA.specialty}</Text>
+            <View style={styles.location}>
+              <Icon name="location-on" size={16} color="#666" />
+              <Text style={styles.locationText}>{DOCTOR_DATA.location}</Text>
+            </View>
+          </View>
+        </View>
+
+        {renderStats()}
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>About</Text>
+          <Text style={styles.aboutText}>{DOCTOR_DATA.about}</Text>
+        </View>
+
+        {renderCalendarSection()}
+        {renderTimeSlots()}
+
+        <View style={styles.fees}>
+          <View style={styles.feeItem}>
+            <Text style={styles.feeLabel}>Second Opinion</Text>
+            <Text style={styles.feeAmount}>€{DOCTOR_DATA.fees.secondOpinion}</Text>
+          </View>
+          <View style={styles.feeItem}>
+            <Text style={styles.feeLabel}>Consultation</Text>
+            <Text style={styles.feeAmount}>€{DOCTOR_DATA.fees.consultation}</Text>
+          </View>
+          <View style={styles.feeItem}>
+            <Text style={styles.feeLabel}>Follow-Up</Text>
+            <Text style={styles.feeAmount}>€{DOCTOR_DATA.fees.followUp}</Text>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          style={styles.bookButton}
+          onPress={handleBooking}
+        >
+          <Text style={styles.bookButtonText}>Book Appointment</Text>
+        </TouchableOpacity>
+      </ScrollView>
+
+      {modalVisible && (
+        <Animated.View 
+          style={[
+            styles.modalOverlay,
+            {
+              opacity: fadeAnim,
+            }
+          ]}
+        >
+          <BlurView
+            style={styles.absolute}
+            blurType="light"
+            blurAmount={10}
+          />
+          <Animated.View
+            style={[
+              styles.modal,
+              {
+                transform: [
+                  {
+                    translateY: modalAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [600, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+
+            >
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Confirm Appointment</Text>
+                <TouchableOpacity onPress={hideModal}>
+                  <Icon name="close" size={24} color="#666" />
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.appointmentDetails}>
+                <View style={styles.appointmentDetailItem}>
+                  <Icon name="person" size={20} color="#007AFF" />
+                  <Text style={styles.appointmentDetailText}>{DOCTOR_DATA.name}</Text>
+                </View>
+                <View style={styles.appointmentDetailItem}>
+                  <Icon name="event" size={20} color="#007AFF" />
+                  <Text style={styles.appointmentDetailText}>
+                    {new Date(selectedDate).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </Text>
+                </View>
+                <View style={styles.appointmentDetailItem}>
+                  <Icon name="access-time" size={20} color="#007AFF" />
+                  <Text style={styles.appointmentDetailText}>{selectedTime}</Text>
+                </View>
+                <View style={styles.appointmentDetailItem}>
+                  <Icon name="euro" size={20} color="#007AFF" />
+                  <Text style={styles.appointmentDetailText}>
+                    €{DOCTOR_DATA.fees.consultation} (Consultation Fee)
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={hideModal}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.confirmButton]}
+                  onPress={confirmBooking}
+                >
+                  <Text style={styles.confirmButtonText}>Confirm Booking</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Animated.View>
+        </Animated.View>
+      )}
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#fff',
   },
-  section: {
-    marginTop: 20,
-    paddingHorizontal: 16,
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
-  sectionTitle: {
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  doctorInfo: {
+    flexDirection: 'row',
+    padding: 16,
+    alignItems: 'center',
+  },
+  doctorImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#f0f0f0',
+  },
+  doctorDetails: {
+    marginLeft: 16,
+    flex: 1,
+  },
+  doctorName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#2d4150',
   },
-  doctorCard: {
-    width: ITEM_SIZE,
-    height: ITEM_SIZE * 1.2,
-    marginHorizontal: 10,
-    borderRadius: 16,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
+  specialty: {
+    color: '#666',
+    marginTop: 4,
+  },
+  location: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  locationText: {
+    color: '#666',
+    marginLeft: 4,
+  },
+  stats: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 16,
+    backgroundColor: '#f8f8f8',
+    marginHorizontal: 16,
+    borderRadius: 12,
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#2d4150',
+  },
+  statLabel: {
+    color: '#666',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  section: {
+    padding: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2d4150',
+    marginBottom: 12,
+  },
+  aboutText: {
+    color: '#666',
+    lineHeight: 22,
+  },
+  calendar: {
+    borderRadius: 12,
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 4,
+    backgroundColor: '#fff',
+    marginVertical: 10,
   },
-  doctorImage: {
-    width: '100%',
-    height: '100%',
+  calendarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  doctorInfo: {
+  calendarToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+  },
+  calendarToggleText: {
+    color: '#007AFF',
+    marginRight: 8,
+  },
+  dateContainer: {
+    flexDirection: 'row',
+    paddingVertical: 8,
+  },
+  dateButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#f0f0f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  selectedDate: {
+    backgroundColor: '#007AFF',
+  },
+  unavailableDate: {
+    backgroundColor: '#f8f8f8',
+    opacity: 0.5,
+  },
+  dateText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2d4150',
+  },
+  dayText: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+  },
+  selectedDateText: {
+    color: '#fff',
+  },
+  legendContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: '#f8f8f8',
+    borderRadius: 12,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  legendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 6,
+  },
+  legendText: {
+    fontSize: 12,
+    color: '#666',
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  timeSlotContainer: {
+    width: '48%',
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f8f8f8',
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  selectedTimeSlot: {
+    backgroundColor: '#007AFF',
+  },
+  bookedTimeSlot: {
+    backgroundColor: '#f0f0f0',
+    opacity: 0.5,
+  },
+  timeText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#2d4150',
+  },
+  selectedTimeText: {
+    color: '#fff',
+  },
+  bookedTimeText: {
+    color: '#666',
+  },
+  availabilityText: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  lowAvailability: {
+    color: '#FF6B6B',
+  },
+  mediumAvailability: {
+    color: '#FFB067',
+  },
+  highAvailability: {
+    color: '#50C878',
+  },
+  fees: {
+    padding: 16,
+    backgroundColor: '#f8f8f8',
+    marginHorizontal: 16,
+    borderRadius: 12,
+    marginVertical: 16,
+  },
+  feeItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  feeLabel: {
+    color: '#666',
+  },
+  feeAmount: {
+    fontWeight: 'bold',
+    color: '#2d4150',
+  },
+  bookButton: {
+    backgroundColor: '#007AFF',
+    margin: 16,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  bookButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalOverlay: {
     position: 'absolute',
-    bottom: 0,
+    top: 0,
     left: 0,
     right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  absolute: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+  },
+  modal: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     padding: 20,
   },
-  badgeContainer: {
-    flexDirection: 'row',
-    marginBottom: 12,
-  },
-  badge: {
-    backgroundColor: 'rgba(46, 134, 222, 0.9)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginRight: 8,
-  },
-  badgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  nameContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  doctorName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginRight: 8,
-  },
-  specialty: {
-    fontSize: 16,
-    color: '#fff',
-    opacity: 0.9,
-    marginBottom: 4,
-  },
-  hospital: {
-    fontSize: 14,
-    color: '#fff',
-    opacity: 0.8,
-    marginBottom: 12,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  stat: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  statText: {
-    color: '#fff',
-    marginLeft: 4,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  statSubtext: {
-    color: '#fff',
-    opacity: 0.8,
-    marginLeft: 4,
-    fontSize: 14,
-  },
-  bottomRow: {
+  modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 20,
   },
-  nextSlot: {
-    backgroundColor: 'rgba(29, 209, 161, 0.9)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  slotText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  price: {
-    color: '#fff',
+  modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    color: '#2d4150',
   },
-  sectionHeader: {
+  appointmentDetails: {
+    marginBottom: 24,
+  },
+  appointmentDetailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  appointmentDetailText: {
+    marginLeft: 12,
+    fontSize: 16,
+    color: '#2d4150',
+  },
+  modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-    paddingRight: 8,
   },
-  viewAllButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-  },
-  viewAllText: {
-    fontSize: 14,
-    color: '#2E86DE',
-    marginRight: 4,
-  },
-  categoryIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-    opacity: 0.6,
-  },
-  swipeText: {
-    marginLeft: 8,
-    fontSize: 12,
-    color: '#666',
-  },
-  categoryCard: {
-    width: CATEGORY_CARD_SIZE,
-    height: CATEGORY_CARD_SIZE,
-    margin: 8,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  categoryButton: {
-    flex: 1,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  categoryGradient: {
+  modalButton: {
     flex: 1,
     padding: 16,
-    justifyContent: 'center',
+    borderRadius: 12,
     alignItems: 'center',
   },
-  iconContainer: {
-    width: CATEGORY_CARD_SIZE * 0.25,
-    height: CATEGORY_CARD_SIZE * 0.25,
-    borderRadius: (CATEGORY_CARD_SIZE * 0.25) / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
+  cancelButton: {
+    backgroundColor: '#f0f0f0',
+    marginRight: 8,
   },
-  categoryTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-    textAlign: 'center',
+  confirmButton: {
+    backgroundColor: '#007AFF',
+    marginLeft: 8,
   },
-  categoryCount: {
-    fontSize: 13,
+  cancelButtonText: {
     color: '#666',
+    fontWeight: 'bold',
+  },
+  confirmButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  noDateSelected: {
     textAlign: 'center',
-  },
-  categoriesList: {
-    paddingHorizontal: 8,
-    paddingVertical: 10,
-  },
-  featuredSection: {
-    marginTop: 10,
-    paddingHorizontal: 16,
-  },
-  featuredList: {
-    paddingVertical: 10,
+    color: '#666',
+    padding: 20,
+    fontStyle: 'italic',
   },
 });
 
-export default ExploreScreen;
+export default DoctorBookingScreen;

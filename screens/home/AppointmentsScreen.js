@@ -86,7 +86,7 @@ export default function AppointmentsScreen() {
           text: "Reschedule",
           onPress: () => {
             // Add reschedule logic here
-            Alert.alert("Success", "Your appointment has been rescheduled.");
+            navigation.navigate('booking');
           }
         }
       ]
