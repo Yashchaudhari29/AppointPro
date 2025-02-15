@@ -191,7 +191,7 @@ function HomeScreen() {
         const userDocRef = doc(db1, "users",user.uid ); // Replace with actual user ID
         const userSnap = await getDoc(userDocRef);
         const userData = userSnap.data();
-        console.log(userData)
+        // console.log(userData)
 
         if (userSnap.exists()) {
           setName(userData.name); 
@@ -357,20 +357,26 @@ function HomeScreen() {
         setUserLocation('Location access denied');
         return;
       }
-
+  
       const location = await Location.getCurrentPositionAsync({});
       const [address] = await Location.reverseGeocodeAsync({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
       });
-
-      const formattedAddress = `${address.street || ''}, ${address.city || ''}`;
-      setUserLocation(formattedAddress);
+  
+      if (address) {
+        const formattedAddress = `${address.city || ''} - ${address.postalCode || ''}`;
+        setUserLocation(formattedAddress);
+        console.log('Full Address:', formattedAddress);
+      } else {
+        setUserLocation('Address not found');
+      }
     } catch (error) {
       console.error('Error getting location:', error);
       setUserLocation('Location unavailable');
     }
   };
+  
 
   const handleSearchOpen = () => {
     setShowSearch(true);
@@ -698,10 +704,9 @@ function HomeScreen() {
         <View style={styles.heroHeader}>
           <View>
             <Text style={styles.welcomeText}>Hello, {name} 👋</Text>
-            <TouchableOpacity style={styles.locationPicker} onPress={getUserLocation}>
+            <TouchableOpacity style={styles.locationPicker}>
               <Icon name="location-sharp" size={18} color="#FF4757" />
               <Text style={styles.locationText} numberOfLines={1}>{userLocation}</Text>
-              {/* <Icon name="chevron-down" size={16} color="#666" /> */}
             </TouchableOpacity>
           </View>
           <View style={styles.headerActions}>
