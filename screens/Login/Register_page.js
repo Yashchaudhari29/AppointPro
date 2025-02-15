@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, StatusBar, ScrollView, ActivityIndicator } from 'react-native';
-import { SelectList } from 'react-native-dropdown-select-list';
+import { Dropdown } from 'react-native-element-dropdown';
 import Icon from 'react-native-vector-icons/Feather';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
@@ -76,55 +76,80 @@ const RegisterScreen = ({ navigation }) => {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar 
+          backgroundColor="#f5f5f5"
+          barStyle="dark-content"
+          translucent={true}
+        />
         <View style={styles.formContainer}>
-          <Text style={styles.header}>Get Started with AppointPro</Text>
+          <Text style={styles.header}>Create Account</Text>
+          <Text style={styles.subHeader}>Join AppointPro and streamline your appointments</Text>
 
           {/* Name Input */}
-          <TextInput
-            placeholder="Full Name"
-            value={name}
-            onChangeText={setName}
-            style={[styles.input, errors.name && styles.errorInput]}
-          />
+          <View style={styles.inputWrapper}>
+            <Icon name="user" size={20} color="#666" style={styles.inputIcon} />
+            <TextInput
+              placeholder="Full Name"
+              value={name}
+              onChangeText={setName}
+              style={[styles.input, errors.name && styles.errorInput]}
+              placeholderTextColor="#666"
+            />
+          </View>
           {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
 
           {/* Email Input */}
-          <TextInput
-            placeholder="Email Address"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            style={[styles.input, errors.email && styles.errorInput]}
-          />
+          <View style={styles.inputWrapper}>
+            <Icon name="mail" size={20} color="#666" style={styles.inputIcon} />
+            <TextInput
+              placeholder="Email Address"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              style={[styles.input, errors.email && styles.errorInput]}
+              placeholderTextColor="#666"
+            />
+          </View>
           {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
           {/* Mobile Input */}
-          <TextInput
-            placeholder="Mobile Number"
-            value={mobile}
-            onChangeText={setMobile}
-            keyboardType="phone-pad"
-            style={[styles.input, errors.mobile && styles.errorInput]}
-          />
+          <View style={styles.inputWrapper}>
+            <Icon name="phone" size={20} color="#666" style={styles.inputIcon} />
+            <TextInput
+              placeholder="Mobile Number"
+              value={mobile}
+              onChangeText={setMobile}
+              keyboardType="phone-pad"
+              style={[styles.input, errors.mobile && styles.errorInput]}
+              placeholderTextColor="#666"
+            />
+          </View>
           {errors.mobile && <Text style={styles.errorText}>{errors.mobile}</Text>}
 
           {/* Role Selection */}
-          <View style={[styles.selectContainer, errors.role && styles.errorInput]}>
-            <SelectList
-              setSelected={setRole}
+          <View style={[styles.inputWrapper, errors.role && styles.errorInput]}>
+            <Icon name="users" size={20} color="#666" style={styles.inputIcon} />
+            <Dropdown
+              style={styles.dropdown}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
               data={[
-                { key: 'provider', value: 'Service Provider' },
-                { key: 'consumer', value: 'Service Consumer' },
+                { label: 'Service Provider', value: 'provider' },
+                { label: 'Service Consumer', value: 'consumer' },
               ]}
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
               placeholder="Select Role"
-              search={false}
+              value={role}
+              onChange={item => setRole(item.value)}
             />
           </View>
           {errors.role && <Text style={styles.errorText}>{errors.role}</Text>}
 
           {/* Password Input */}
-          <View style={styles.passwordContainer}>
+          <View style={styles.inputWrapper}>
+            <Icon name="lock" size={20} color="#666" style={styles.inputIcon} />
             <TextInput
               placeholder="Password"
               secureTextEntry={!passwordVisible}
@@ -132,18 +157,20 @@ const RegisterScreen = ({ navigation }) => {
               onChangeText={setPassword}
               autoCapitalize="none"
               style={[styles.input, errors.password && styles.errorInput]}
+              placeholderTextColor="#666"
             />
             <TouchableOpacity
               style={styles.eyeButton}
               onPress={() => setPasswordVisible(!passwordVisible)}
             >
-              <Icon name={passwordVisible ? 'eye-off' : 'eye'} size={20} color="#888" />
+              <Icon name={passwordVisible ? 'eye-off' : 'eye'} size={20} color="#666" />
             </TouchableOpacity>
           </View>
           {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
           {/* Confirm Password Input */}
-          <View style={styles.passwordContainer}>
+          <View style={styles.inputWrapper}>
+            <Icon name="lock" size={20} color="#666" style={styles.inputIcon} />
             <TextInput
               placeholder="Confirm Password"
               secureTextEntry={!confirmPasswordVisible}
@@ -151,12 +178,13 @@ const RegisterScreen = ({ navigation }) => {
               onChangeText={setConfirmPassword}
               autoCapitalize="none"
               style={[styles.input, errors.confirmPassword && styles.errorInput]}
+              placeholderTextColor="#666"
             />
             <TouchableOpacity
               style={styles.eyeButton}
               onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
             >
-              <Icon name={confirmPasswordVisible ? 'eye-off' : 'eye'} size={20} color="#888" />
+              <Icon name={confirmPasswordVisible ? 'eye-off' : 'eye'} size={20} color="#666" />
             </TouchableOpacity>
           </View>
           {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
@@ -164,17 +192,17 @@ const RegisterScreen = ({ navigation }) => {
 
           {/* Register Button */}
           {isLoading ? (
-            <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />
+            <ActivityIndicator size="large" color="#007AFF" style={styles.loadingIndicator} />
           ) : (
             <TouchableOpacity style={styles.registerButton} onPress={handleSubmit}>
-              <Text style={styles.registerButtonText}>Sign Up</Text>
+              <Text style={styles.registerButtonText}>Create Account</Text>
             </TouchableOpacity>
           )}
 
           {/* Login Link */}
           <TouchableOpacity style={styles.registerContainer} onPress={() => navigation.goBack()}>
             <Text style={styles.registerText}>
-            Already have an account? <Text style={styles.signUpText}>Log In</Text>
+              Already have an account? <Text style={styles.signUpText}>Sign In</Text>
             </Text>
           </TouchableOpacity>
         </View>
@@ -188,56 +216,105 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFE7',
+    backgroundColor: '#f5f5f5',
     paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   formContainer: {
     width: '100%',
     maxWidth: 400,
-    padding: 20,
-    borderRadius: 10,
-    backgroundColor: 'transparent',
+    padding: 25,
+    borderRadius: 15,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
   },
   header: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
     color: '#333',
   },
-  input: {
-    height: 50,
+  subHeader: {
+    fontSize: 14,
+    textAlign: 'center',
+    color: '#666',
+    marginBottom: 30,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    backgroundColor: '#fff',
     paddingHorizontal: 15,
-    marginBottom: 10,
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    height: 50,
     fontSize: 16,
+    color: '#333',
+  },
+  selectWrapper: {
+    marginBottom: 15,
   },
   selectContainer: {
-    borderColor:'#ccc',
-    width: '100%',
-    marginVertical: 10,
+    flex: 1,
   },
-  passwordContainer: {
-    position: 'relative',
+  selectBox: {
+    borderWidth: 0,
+    paddingLeft: 0,
+  },
+  selectInput: {
+    color: '#333',
+    fontSize: 16,
+  },
+  dropdown: {
+    flex: 1,
+    height: 50,
+    backgroundColor: 'transparent',
+  },
+  placeholderStyle: {
+    fontSize: 16,
+    color: '#666',
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+    color: '#333',
   },
   eyeButton: {
-    position: 'absolute',
-    right: 15,
-    top: '50%',
-    transform: [{ translateY: -12 }],
+    padding: 8,
   },
   registerButton: {
-    backgroundColor: 'black',
+    backgroundColor: '#007AFF',
     padding: 15,
-    borderRadius: 5,
-    marginVertical: 10,
+    borderRadius: 10,
+    marginTop: 20,
     alignItems: 'center',
+    shadowColor: '#007AFF',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   registerButtonText: {
     color: '#fff',
@@ -245,34 +322,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   errorInput: {
-    borderColor: 'red',
-    borderWidth: 1,
+    borderColor: '#ff3b30',
   },
   errorText: {
-    color: 'red',
+    color: '#ff3b30',
     fontSize: 12,
-    marginTop: 5,
-  },
-  loginLink: {
-    marginTop: 15,
-    alignItems: 'center',
-  },
-  loginLinkText: {
-    color: '#007BFF',
-    fontSize: 14,
-    fontWeight: 'bold',
+    marginTop: -10,
+    marginBottom: 10,
+    marginLeft: 5,
   },
   registerContainer: {
-    marginTop:20,
+    marginTop: 25,
     alignItems: 'center',
   },
   registerText: {
-    color: '#888',
+    color: '#666',
+    fontSize: 15,
   },
   signUpText: {
-    color:'black',
+    color: '#007AFF',
     fontWeight: 'bold',
-  }
+  },
+  loadingIndicator: {
+    marginTop: 20,
+  },
 });
 
 export default RegisterScreen;

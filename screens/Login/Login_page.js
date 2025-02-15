@@ -20,6 +20,7 @@ import {
 } from 'firebase/auth';
 import { auth, db } from '../../firebase';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { MaterialIcons } from '@expo/vector-icons';
 const db1 = getFirestore();
 
 const LoginScreen = ({ navigation }) => {
@@ -113,78 +114,76 @@ const LoginScreen = ({ navigation }) => {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-
+        <StatusBar 
+          backgroundColor="#f5f5f5"
+          barStyle="dark-content"
+          translucent={true}
+        />
         <View style={styles.formContainer}>
-          <Text style={styles.header}>Log in to your Account</Text>
-          {/* <Text style={styles.smallheader}>Please, enter your information</Text> */}
+          <View style={styles.logoContainer}>
+            <MaterialIcons name="calendar-today" size={60} color="#007AFF" />
+          </View>
+          <Text style={styles.header}>Welcome Back</Text>
+          <Text style={styles.subHeader}>Sign in to continue</Text>
 
-          {/* Google Sign in Button */}
-          {/* <TouchableOpacity style={styles.googleButton}>
-            <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150" width={30} height={30}>
-              <Path
-                fill="#4285F4"
-                d="M120,76.1c0-3.1-0.3-6.3-0.8-9.3H75.9v17.7h24.8c-1,5.7-4.3,10.7-9.2,13.9l14.8,11.5C115,101.8,120,90,120,76.1L120,76.1z"
-              />
-              <Path
-                fill="#34A853"
-                d="M75.9,120.9c12.4,0,22.8-4.1,30.4-11.1L91.5,98.4c-4.1,2.8-9.4,4.4-15.6,4.4c-12,0-22.1-8.1-25.8-18.9L34.9,95.6C42.7,111.1,58.5,120.9,75.9,120.9z"
-              />
-              <Path
-                fill="#FBBC05"
-                d="M50.1,83.8c-1.9-5.7-1.9-11.9,0-17.6L34.9,54.4c-6.5,13-6.5,28.3,0,41.2L50.1,83.8z"
-              />
-              <Path
-                fill="#EA4335"
-                d="M75.9,47.3c6.5-0.1,12.9,2.4,17.6,6.9L106.6,41C98.3,33.2,87.3,29,75.9,29.1c-17.4,0-33.2,9.8-41,25.3l15.2,11.8C53.8,55.3,63.9,47.3,75.9,47.3z"
-              />
-            </Svg>
-            <Text style={styles.googleButtonText}>Sign in with Google</Text>
-          </TouchableOpacity> */}
-
-          <TextInput
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            style={[styles.input, errors.email && styles.errorInput]}
-          />
+          {/* Email Input */}
+          <View style={[styles.inputWrapper, errors.email && styles.errorInput]}>
+            <Icon name="mail" size={20} color="#666" style={styles.inputIcon} />
+            <TextInput
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              style={styles.input}
+              placeholderTextColor="#666"
+            />
+          </View>
           {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-          <View style={styles.passwordContainer}>
+          {/* Password Input */}
+          <View style={[styles.inputWrapper, errors.password && styles.errorInput]}>
+            <Icon name="lock" size={20} color="#666" style={styles.inputIcon} />
             <TextInput
               placeholder="Password"
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
               autoCapitalize="none"
-              style={[styles.input, errors.password && styles.errorInput]}
+              style={styles.input}
+              placeholderTextColor="#666"
             />
             <TouchableOpacity 
               onPress={() => setShowPassword(!showPassword)}
               style={styles.eyeButton}
             >
-              <Icon name={showPassword ? "eye-off" : "eye"} size={20} color="#888" />
+              <Icon name={showPassword ? "eye-off" : "eye"} size={20} color="#666" />
             </TouchableOpacity>
           </View>
           {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-          <TouchableOpacity style={styles.forgotPasswordContainer} onPress={() => navigation.navigate('Forgot_Password')}>
+
+          <TouchableOpacity 
+            style={styles.forgotPasswordContainer} 
+            onPress={() => navigation.navigate('Forgot_Password')}
+          >
             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
-  {loading ? (
-    <ActivityIndicator size="small" color="#FFFFE7" /> // Show the loading spinner
-  ) : (
-    <View style={styles.buttonContent}>
-      <Text style={styles.loginButtonText}>Login</Text>
-      <Icon name="arrow-right-circle" size={24} style={styles.arrowIcon} />
-    </View> // Show the button text with the right arrow
-  )}
-</TouchableOpacity>
 
-          
+          <TouchableOpacity 
+            style={styles.loginButton} 
+            onPress={handleLogin} 
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.loginButtonText}>Login</Text>
+            )}
+          </TouchableOpacity>
 
-          <TouchableOpacity style={styles.registerContainer} onPress={() => navigation.navigate('Register')}>
+          <TouchableOpacity 
+            style={styles.registerContainer} 
+            onPress={() => navigation.navigate('Register')}
+          >
             <Text style={styles.registerText}>
               Don't have an account? <Text style={styles.signUpText}>Sign Up</Text>
             </Text>
@@ -200,122 +199,119 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFE7',
+    backgroundColor: '#f5f5f5',
     paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   formContainer: {
     width: '100%',
     maxWidth: 400,
-    padding: 20,
-    borderRadius: 10,
-    backgroundColor: 'transparent',
-    
+    padding: 25,
+    borderRadius: 15,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
   },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+    padding: 15,
+  },
   header: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
-
-    marginBottom: 30,
+    marginBottom: 10,
     color: '#333',
   },
-  smallheader: {
-    fontSize: 15,
-    fontWeight: '500',
-    marginBottom: 20,
+  subHeader: {
+    fontSize: 14,
     textAlign: 'center',
-    color: '#333',
+    color: '#666',
+    marginBottom: 30,
   },
-  googleButton: {
+  inputWrapper: {
     flexDirection: 'row',
-    backgroundColor: 'white',
-    borderWidth: 2,
-    borderColor: '#4285F4', 
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 20,
-    justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    paddingHorizontal: 15,
+    height: 50,
   },
-  googleButtonText: {
-    marginLeft: 10,
-    color: '#4285F4',
-    fontSize: 16,
-    fontWeight: '500',
+  inputIcon: {
+    marginRight: 10,
   },
   input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    paddingHorizontal: 15,
-    marginBottom: 10,
+    flex: 1,
     fontSize: 16,
-  },
-  errorInput: {
-    borderColor: '#FF0000',
-  },
-  errorText: {
-    color: '#FF0000',
-    fontSize: 12,
-    marginBottom: 10,
-  },
-  passwordContainer: {
-    position: 'relative',
+    color: '#333',
   },
   eyeButton: {
-    position: 'absolute',
-    top: 12,
-    right: 15,
+    padding: 8,
   },
-  loginButton: {
-    backgroundColor: 'black',
-    paddingVertical: 15,
-    borderRadius: 5,
-    marginBottom: 20,
-    marginTop: 35,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    width: '100%',
-    maxWidth: 400,
+  errorInput: {
+    borderColor: '#ff3b30',
   },
-  buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  loginButtonText: {
-    fontSize: 18,
-    color: '#FFFFE7',
-    fontWeight: 'bold',
-    marginRight: 2, // Space between text and icon
-  },
-  arrowIcon: {
-    marginLeft: 1,
-    color:'#FFFFE7'
+  errorText: {
+    color: '#ff3b30',
+    fontSize: 12,
+    marginTop: -10,
+    marginBottom: 10,
+    marginLeft: 5,
   },
   forgotPasswordContainer: {
-    marginBottom: 10,
-    // alignItems: 'center',
+    alignItems: 'flex-end',
+    marginBottom: 20,
   },
   forgotPasswordText: {
-    color:'black'
-    // color: '#4285F4',
+    color: '#007AFF',
+    fontSize: 14,
+  },
+  loginButton: {
+    backgroundColor: '#007AFF',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 10,
+    alignItems: 'center',
+    shadowColor: '#007AFF',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   registerContainer: {
+    marginTop: 25,
     alignItems: 'center',
   },
   registerText: {
-    color: '#888',
+    color: '#666',
+    fontSize: 15,
   },
   signUpText: {
-    color:'black',
+    color: '#007AFF',
     fontWeight: 'bold',
-  }
+  },
 });
 
 export default LoginScreen;
