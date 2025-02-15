@@ -1,3 +1,5 @@
+//FOR VIEW ANIMATION AFTER BOOKING
+
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Dimensions, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';

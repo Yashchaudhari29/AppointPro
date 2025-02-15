@@ -1,3 +1,6 @@
+// FOR DOCTOR DETAIL PAGE
+
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
