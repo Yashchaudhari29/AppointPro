@@ -91,31 +91,31 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { NotificationProvider } from './screens/Login/NotificationsScreen';
+import { NotificationProvider } from './screens/home/NotificationsScreen';
 import { ThemeProvider } from './contexts/ThemeContext';  //for theme
 
 // Import your screens
 import LoginScreen from './screens/Login/Login_page';
-import AdminScreen from './screens/Login/AdminScreen';
+// import AdminScreen from './screens/Login/AdminScreen';
 import ProviderScreen from './screens/Login/ProviderScreen';
-import HomeScreen from './screens/Login/ConsumerScreen';
-import CategoriesScreen from './screens/Login/Categories';
-import AppointmentScreen from './screens/Login/square';
+import HomeScreen from './screens/home/ConsumerScreen';
+import CategoriesScreen from './screens/Booking/Categories';
+import AppointmentScreen from './screens/Booking/square';
 import WelcomePage from './screens/Login/welcome';
 import RegisterScreen from './screens/Login/Register_page';
 import ForgotPasswordScreen from './screens/Login/Forgot_password';
-import NotificationsScreen from './screens/Login/NotificationsScreen';
-import PrivacyScreen from './screens/Login/PrivacyScreen';
-import SupportScreen from './screens/Login/SupportScreen';
-import PaymentMethodsScreen from './screens/Login/PaymentMethodsScreen';
-import PersonalInfoScreen from './screens/Login/PersonalInfoScreen';
-import ExploreScreen from './screens/Login/ExploreScreen';
-import MessagesScreen from './screens/Login/MessagesScreen';
-import ProfileScreen from './screens/Login/ProfileScreen';
-import AppointmentsScreen from './screens/Login/AppointmentsScreen';
-import ChangePasswordScreen from './screens/Login/ChangePasswordScreen';
-import TwoFactorAuthScreen from './screens/Login/TwoFactorAuthScreen';
-import ChatDetail from './screens/Login/ChatDetail';
+import NotificationsScreen from './screens/home/NotificationsScreen';
+import PrivacyScreen from './screens/Profile/PrivacyScreen';
+import SupportScreen from './screens/Profile/SupportScreen';
+import PaymentMethodsScreen from './screens/Profile/PaymentMethodsScreen';
+import PersonalInfoScreen from './screens/Profile/PersonalInfoScreen';
+import ExploreScreen from './screens/Explore/ExploreScreen';
+import MessagesScreen from './screens/Messages/MessagesScreen';
+import ProfileScreen from './screens/Profile/ProfileScreen';
+import AppointmentsScreen from './screens/home/AppointmentsScreen';
+import ChangePasswordScreen from './screens/Profile/ChangePasswordScreen';
+import TwoFactorAuthScreen from './screens/Profile/TwoFactorAuthScreen';
+import ChatDetail from './screens/Messages/ChatDetail';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Stack = createNativeStackNavigator();
@@ -182,10 +182,10 @@ export default function App() {
                 name="Forgot_Password"
                 component={ForgotPasswordScreen}
               />
-              <Stack.Screen
+              {/* <Stack.Screen
                 name="admin"
                 component={AdminScreen}
-              />
+              /> */}
               <Stack.Screen
                 name="consumer"
                 component={HomeScreen}

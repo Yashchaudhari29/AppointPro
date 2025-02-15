@@ -23,10 +23,10 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import AppointmentScreen from './square';
+import AppointmentScreen from '../Booking/square';
 import { auth, db } from '../../firebase';
-import ExploreScreen from './ExploreScreen';
-import MessagesScreen from './MessagesScreen';
+import ExploreScreen from '../Explore/ExploreScreen';
+import MessagesScreen from '../Messages/MessagesScreen';
 import { MaterialIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useNotifications } from './NotificationsScreen';
 import { BlurView } from 'expo-blur';
@@ -367,7 +367,6 @@ function HomeScreen() {
       if (address) {
         const formattedAddress = `${address.city || ''} - ${address.postalCode || ''}`;
         setUserLocation(formattedAddress);
-        console.log('Full Address:', formattedAddress);
       } else {
         setUserLocation('Address not found');
       }
