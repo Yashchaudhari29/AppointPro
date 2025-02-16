@@ -85,7 +85,7 @@ export default function AppointmentsScreen() {
         {
           text: "Reschedule",
           onPress: () => {
-            // Add reschedule logic here
+            
             navigation.navigate('booking');
           }
         }

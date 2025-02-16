@@ -18,7 +18,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Calendar } from 'react-native-calendars';
 import { StatusBar } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
-import { getFirestore, doc, setDoc,collection, addDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc,collection, addDoc, arrayUnion } from 'firebase/firestore';
 import { auth } from '../../firebase';
 
 const db = getFirestore();
@@ -83,11 +83,11 @@ const DoctorBookingScreen = ({ route, navigation }) => {
     }
   }, [modalVisible, fadeAnim]);
 
-  const RedirectedSuccess = () => {
-    Animated.spring(modalAnimation, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start();
+  const RedirectedSuccess = (appointmentId, provider) => {
+    navigation.navigate('ConfirmBooking', {
+      appointmentId: appointmentId,
+      providers: provider,
+    });
   };
 
   const hideModal = () => {
@@ -116,32 +116,55 @@ const DoctorBookingScreen = ({ route, navigation }) => {
       Alert.alert('Error', 'Please select both date and time');
       return;
     }
-  
-    try {
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        Alert.alert('Error', 'Please login to book an appointment');
-        return;
-      }
-  
-      // Create new appointment in Firestore
-      const appointmentRef = await addDoc(collection(db, 'Appointments'), {
-        consumerId: currentUser.uid,
-        providerId: providerId,
-        date: selectedDate,
-        time: selectedTime,
-        consultation: provider.consultation,
-        status: 'pending',  // You might want to track appointment status
-        createdAt: new Date(),
-      });
-  
-      // If successfully added to database, show the confirmation modal
-      setModalVisible(true);
-      // showModal();
-    } catch (error) {
-      console.error('Error booking appointment:', error);
-      Alert.alert('Error', 'Failed to book appointment. Please try again.');
-    }
+    Alert.alert(
+      "Confirm Appointment",
+      `Would you like to confirm your appointment?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Confirm",
+          onPress: async() => {
+            
+            try {
+              const currentUser = auth.currentUser;
+              if (!currentUser) {
+                Alert.alert('Error', 'Please login to book an appointment');
+                return;
+              }
+          
+              // Create new appointment in Firestore
+              const appointmentRef = await addDoc(collection(db, 'Appointments'), {
+                consumerId: currentUser.uid,
+                providerId: providerId,
+                providerName: provider.name,
+                serviceName: provider.job,
+                date: selectedDate,
+                time: selectedTime,
+                consultation: provider.consultation,
+                status: 'pending',
+                createdAt: new Date(),
+              });
+          
+              // Add appointment ID to consumer's appointments collection
+              const consumerAppointmentRef = doc(db, 'ConsumerAppointments', currentUser.uid);
+              await setDoc(consumerAppointmentRef, {
+                appointments: arrayUnion(appointmentRef.id)
+              }, { merge: true });
+          
+              // Navigate to confirmation screen
+              RedirectedSuccess(appointmentRef.id, provider);
+            } catch (error) {
+              console.error('Error booking appointment:', error);
+              Alert.alert('Error', 'Failed to book appointment. Please try again.');
+            }
+          }
+        }
+      ]
+    );
+    
   };
 
   const confirmBooking = () => {

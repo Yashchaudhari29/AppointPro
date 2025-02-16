@@ -33,6 +33,7 @@ import TwoFactorAuthScreen from './screens/Profile/TwoFactorAuthScreen';
 import ChatDetail from './screens/Messages/ChatDetail';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Specific_detail from './screens/Booking/Specific_detail';
+import ConfirmBooking from './screens/Booking/ConfirmBooking';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -88,6 +89,10 @@ export default function App() {
               <Stack.Screen
                 name="booking"
                 component={EditAppointment}
+              />
+              <Stack.Screen
+                name="ConfirmBooking"
+                component={ConfirmBooking}
               />
               <Stack.Screen
                 name="Login"

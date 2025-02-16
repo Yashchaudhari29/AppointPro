@@ -24,7 +24,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AppointmentScreen from '../Booking/square';
-import { auth, db } from '../../firebase';
+import { auth } from '../../firebase';
 import ExploreScreen from '../Explore/ExploreScreen';
 import MessagesScreen from '../Messages/MessagesScreen';
 import { MaterialIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
@@ -98,24 +98,9 @@ function HomeScreen() {
   const searchAnimation = useSharedValue(0);
   const [name, setName] = useState('User');
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
-  const [upcomingAppointments, setUpcomingAppointments] = useState([
-    {
-      id: '1',
-      serviceName: 'Dental Checkup',
-      providerName: 'Dr. Smith',
-      date: '2024-03-20',
-      time: '10:00 AM',
-      status: 'Confirmed'
-    },
-    {
-      id: '2',
-      serviceName: 'Home Cleaning',
-      providerName: 'CleanPro Services',
-      date: '2024-03-22',
-      time: '2:00 PM',
-      status: 'Pending'
-    }
-  ]);
+  const [appointmentIds, setAppointmentIds] = useState([]);
+const [upcomingAppointments, setUpcomingAppointments] = useState([]);
+const [allAppointments, setAllAppointments] = useState([]);
 
   const [featuredDoctors] = useState([
     {
@@ -225,7 +210,64 @@ function HomeScreen() {
   useEffect(() => {
     getUserLocation();
   }, []);
+useEffect(() => {
+    const fetchAppointmentIds = async () => {
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
 
+        const consumerAppointmentRef = doc(db1, 'ConsumerAppointments', user.uid);
+        const consumerAppointmentSnap = await getDoc(consumerAppointmentRef);
+        
+        if (consumerAppointmentSnap.exists()) {
+          const ids = consumerAppointmentSnap.data().appointments || [];
+          const invertedIds = [...ids].reverse();
+          setAppointmentIds(invertedIds);
+        }
+      } catch (error) {
+        console.error('Error fetching appointment IDs:', error);
+      }
+    };
+
+    fetchAppointmentIds();
+  }, []);
+
+  useEffect(() => {
+    const fetchAppointmentDetails = async () => {
+      try {
+        if (appointmentIds.length === 0) return;
+
+        const appointmentPromises = appointmentIds.map(async (id) => {  // Only fetch first 4
+          const appointmentRef = doc(db1, 'Appointments', id);
+          const appointmentSnap = await getDoc(appointmentRef);
+          
+          if (appointmentSnap.exists()) {
+            const data = appointmentSnap.data();
+            return {
+              id: id,
+              serviceName: data.serviceName,
+              providerName: data.providerName,
+              date: data.date,
+              time: data.time,
+              status: data.status || 'Pending'
+            };
+          }
+          return null;
+        });
+
+        const allAppointments = (await Promise.all(appointmentPromises))
+          .filter(appointment => appointment !== null);
+
+        // Set state with only the first 2 appointments
+        setUpcomingAppointments(allAppointments.slice(0, 2));
+        setAllAppointments(allAppointments)
+      } catch (error) {
+        console.error('Error fetching appointment details:', error);
+      }
+    };
+
+    fetchAppointmentDetails();
+  }, [appointmentIds]);
   // useEffect(() => {
   //   const fetchUserInfo = async () => {
   //     try {
@@ -735,7 +777,9 @@ function HomeScreen() {
           <View style={styles.upcomingSection}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Upcoming Appointments</Text>
-              <TouchableOpacity style={styles.viewAllButton} onPress={() => navigation.navigate('UserAppointments')}>
+              <TouchableOpacity style={styles.viewAllButton} onPress={() => navigation.navigate('UserAppointments',{ 
+              appointment_detail: allAppointments,
+            })}>
                 <Text style={styles.viewAllText}>View all</Text>
                 <MaterialIcons name="arrow-forward" size={20} color="#2E86DE" />
 
@@ -746,6 +790,7 @@ function HomeScreen() {
               showsHorizontalScrollIndicator={false}
               data={upcomingAppointments}
               renderItem={({ item }) => (
+                // console.log(item),
                 <TouchableOpacity 
                   style={styles.appointmentCard}
                   onPress={() => navigation.navigate('AppointmentDetails', { id: item.id })}
@@ -755,7 +800,8 @@ function HomeScreen() {
                     <Text style={styles.appointmentDate}>{item.date}</Text>
                   </View>
                   <View style={styles.appointmentContent}>
-                    <Text style={styles.serviceName}>{item.serviceName}</Text>
+                  
+                    <Text style={styles.serviceName}>{item.serviceName} Appointment</Text>
                     <Text style={styles.providerName}>{item.providerName}</Text>
                     <View style={[styles.statusBadge, 
                       { backgroundColor: item.status === 'Confirmed' ? '#E3FCEF' : '#FFF5E6' }]}>
