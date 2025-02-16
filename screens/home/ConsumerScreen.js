@@ -15,6 +15,7 @@ import {
   Dimensions,
   Modal,
   Animated,
+  RefreshControl
 } from 'react-native';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -101,6 +102,7 @@ function HomeScreen() {
   const [appointmentIds, setAppointmentIds] = useState([]);
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
   const [allAppointments, setAllAppointments] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [featuredDoctors] = useState([
     {
@@ -171,27 +173,44 @@ function HomeScreen() {
   const scrollX = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateX = useRef(new Animated.Value(50)).current;
-  useEffect(() => {
-    const fetchUserData = async (user) => {
-      try {
-        user = auth.currentUser;
-        const userDocRef = doc(db1, "users", user.uid); // Replace with actual user ID
-        const userSnap = await getDoc(userDocRef);
-        const userData = userSnap.data();
-        // console.log(userData)
 
-        if (userSnap.exists()) {
-          setName(userData.firstName);
-        } else {
-          console.log("No user data found!");
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+  // Extract fetchUserData function
+  const fetchUserData = async () => {
+    try {
+      const user = auth.currentUser;
+      const userDocRef = doc(db1, "users", user.uid);
+      const userSnap = await getDoc(userDocRef);
+      const userData = userSnap.data();
+
+      if (userSnap.exists()) {
+        setName(userData.firstName);
+      } else {
+        console.log("No user data found!");
       }
-    };
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
 
-    fetchUserData();
-  }, []);
+  // Extract fetchAppointmentIds function
+  const fetchAppointmentIds = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const consumerAppointmentRef = doc(db1, 'ConsumerAppointments', user.uid);
+      const consumerAppointmentSnap = await getDoc(consumerAppointmentRef);
+
+      if (consumerAppointmentSnap.exists()) {
+        const ids = consumerAppointmentSnap.data().appointments || [];
+        const invertedIds = [...ids].reverse();
+        setAppointmentIds(invertedIds);
+      }
+    } catch (error) {
+      console.error('Error fetching appointment IDs:', error);
+    }
+  };
+
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -209,27 +228,6 @@ function HomeScreen() {
 
   useEffect(() => {
     getUserLocation();
-  }, []);
-  useEffect(() => {
-    const fetchAppointmentIds = async () => {
-      try {
-        const user = auth.currentUser;
-        if (!user) return;
-
-        const consumerAppointmentRef = doc(db1, 'ConsumerAppointments', user.uid);
-        const consumerAppointmentSnap = await getDoc(consumerAppointmentRef);
-
-        if (consumerAppointmentSnap.exists()) {
-          const ids = consumerAppointmentSnap.data().appointments || [];
-          const invertedIds = [...ids].reverse();
-          setAppointmentIds(invertedIds);
-        }
-      } catch (error) {
-        console.error('Error fetching appointment IDs:', error);
-      }
-    };
-
-    fetchAppointmentIds();
   }, []);
 
   useEffect(() => {
@@ -262,7 +260,7 @@ function HomeScreen() {
           .filter(appointment => appointment !== null);
 
         // Set state with only the first 2 appointments
-        setUpcomingAppointments(allAppointments.slice(0, 2));
+        setUpcomingAppointments(allAppointments.slice(0, 4));
         setAllAppointments(allAppointments)
       } catch (error) {
         console.error('Error fetching appointment details:', error);
@@ -271,22 +269,6 @@ function HomeScreen() {
 
     fetchAppointmentDetails();
   }, [appointmentIds]);
-  // useEffect(() => {
-  //   const fetchUserInfo = async () => {
-  //     try {
-  //       setUserInfo({
-  //         name: auth.currentUser?.displayName || 'User',
-  //         email: auth.currentUser?.email || '',
-  //         profileImage: auth.currentUser?.photoURL || 'https://via.placeholder.com/40',
-  //         location: userLocation
-  //       });
-  //     } catch (error) {
-  //       console.error('Error fetching user info:', error);
-  //     }
-  //   };
-
-  //   fetchUserInfo();
-  // }, [userLocation]);
 
   const [categories] = useState([
     {
@@ -572,9 +554,15 @@ function HomeScreen() {
       <View style={styles.appointmentHeader}>
         <Text style={styles.serviceName}>{item.serviceName}</Text>
         <View style={[styles.statusBadge,
-        { backgroundColor: item.status === 'Confirmed' ? '#e3f2fd' : '#fff3e0' }]}>
+        { backgroundColor: 
+            item.status === 'Confirmed' ? '#E3FCEF' : 
+            item.status === 'Cancelled' ? '#FFE5E5' : '#FFF5E6' 
+        }]}>
           <Text style={[styles.statusText,
-          { color: item.status === 'Confirmed' ? '#1a73e8' : '#f57c00' }]}>
+          { color: 
+              item.status === 'Confirmed' ? '#1CB66C' : 
+              item.status === 'Cancelled' ? '#FF3B30' : '#FF9500'
+          }]}>
             {item.status}
           </Text>
         </View>
@@ -741,6 +729,31 @@ function HomeScreen() {
     },
   });
 
+  // Update onRefresh function
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        fetchUserData(),
+        fetchAppointmentIds(),
+        // getUserLocation()
+      ]);
+    } catch (error) {
+      console.error('Error refreshing:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
+  // Update original useEffects to use these functions
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    fetchAppointmentIds();
+  }, []);
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={theme.statusBar} backgroundColor={theme.background} />
@@ -773,13 +786,23 @@ function HomeScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
-
+      <ScrollView 
+        style={styles.mainContent} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#1a73e8']} // Android
+            tintColor="#1a73e8" // iOS
+          />
+        }
+      >
         {/* Upcoming Appointments */}
         {upcomingAppointments.length > 0 && (
           <View style={styles.upcomingSection}>
             <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>Upcoming Appointments</Text>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Appointments</Text>
 
               <TouchableOpacity style={styles.viewAllButton} onPress={() => navigation.navigate('UserAppointments', { appointment_detail: allAppointments })}>
                 <Text style={styles.viewAllText}>View all</Text>
@@ -806,9 +829,15 @@ function HomeScreen() {
                     <Text style={styles.serviceName}>{item.serviceName} Appointment</Text>
                     <Text style={styles.providerName}>{item.providerName}</Text>
                     <View style={[styles.statusBadge,
-                    { backgroundColor: item.status === 'Confirmed' ? '#E3FCEF' : '#FFF5E6' }]}>
+                    { backgroundColor: 
+                        item.status === 'Confirmed' ? '#E3FCEF' : 
+                        item.status === 'Cancelled' ? '#FFE5E5' : '#FFF5E6' 
+                    }]}>
                       <Text style={[styles.statusText,
-                      { color: item.status === 'Confirmed' ? '#1CB66C' : '#FF9500' }]}>
+                      { color: 
+                          item.status === 'Confirmed' ? '#1CB66C' : 
+                          item.status === 'Cancelled' ? '#FF3B30' : '#FF9500'
+                      }]}>
                         {item.status}
                       </Text>
                     </View>

@@ -136,7 +136,10 @@ const ConfirmBooking = ({ route, navigation }) => {
 
                         <TouchableOpacity
                             style={styles.primaryButton}
-                            onPress={() => navigation.goBack()}
+                            onPress={() => navigation.reset({
+                                index: 0,
+                                routes: [{ name: 'consumer', params: { screen: 'Home' } }]
+                            })}
                         >
                             <Text style={styles.buttonText}>Home</Text>
                         </TouchableOpacity>

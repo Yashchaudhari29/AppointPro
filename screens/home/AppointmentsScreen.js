@@ -118,36 +118,27 @@ export default function AppointmentsScreen({ route }) {
           onPress: async () => {
             try {
               const userId = auth.currentUser.uid;
-            
-              // Fetch the ConsumerAppointments/{userId} document
-              const appointmentRef = doc(db, "ConsumerAppointments", userId);
-              const appointmentData = (await getDoc(appointmentRef)).data();
-            
-              console.log("Fetched appointment data:", appointmentData);
-            
-              if (!appointmentData || !appointmentData.appointments) {
-                console.log("No appointments found for this user.");
-                return;
-              }
-            
-              const appointmentIds = appointmentData.appointments; // List of appointment IDs
-              console.log("Appointment IDs:", appointmentIds);
-            
-              // Check if the appointment exists in the list
-              if (appointmentIds.includes(appointment.id)) {
-                const specificAppointmentRef = doc(db, "Appointments", appointment.id);
-            
-                // Update the actual appointment in the Appointments collection
-                await updateDoc(specificAppointmentRef, {
-                  status: "Cancelled",
-                  appointment_Status: "Cancelled",
-                });
-            
-                Alert.alert("Success", "Your appointment has been cancelled.");
-              } else {
-                console.log("Appointment ID not found in ConsumerAppointments.");
-              }
-            
+              const appointmentRef = doc(db, "Appointments", appointment.id);
+              
+              // Update appointment status in a single operation
+              await updateDoc(appointmentRef, {
+                status: "Cancelled",
+                appointment_Status: "Cancelled",
+              });
+
+              // Refresh the appointments list
+              const updatedAppointments = allAppointments.map(apt => 
+                apt.id === appointment.id 
+                  ? { ...apt, appointment_Status: "Cancelled", status: "Cancelled" }
+                  : apt
+              );
+              
+              // Update the route params to trigger a re-render
+              navigation.setParams({
+                appointment_detail: updatedAppointments
+              });
+
+              Alert.alert("Success", "Your appointment has been cancelled.");
             } catch (error) {
               console.error("Error cancelling appointment:", error);
               Alert.alert("Error", "Something went wrong while cancelling.");

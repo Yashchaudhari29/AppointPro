@@ -374,7 +374,7 @@ const DoctorBookingScreen = ({ route, navigation }) => {
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Icon name="arrow-back" size={24} color="#000" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{category} Details</Text>
+          <Text style={styles.headerTitle}>Details</Text>
           <TouchableOpacity>
             <Icon name="favorite-border" size={24} color="#000" />
           </TouchableOpacity>
