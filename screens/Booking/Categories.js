@@ -125,7 +125,7 @@ const CategoriesScreen = ({ navigation }) => {
         renderItem={({ item }) => (
           <TouchableOpacity 
             style={[styles.categoryCard, { 
-              backgroundColor: theme.card,
+              backgroundColor: categoryIcons[item.title]?.bgColor || '#F3F4F6',
               ...theme.shadow
             }]}
             onPress={() => navigation.navigate('Specific_detail', { 
@@ -215,12 +215,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconContainer: {
+    border:1,
     width: 56,
     height: 56,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
   },
   textContainer: {
     alignItems: 'center',

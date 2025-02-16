@@ -328,7 +328,7 @@ function HomeScreen() {
         </Text>
         <TouchableOpacity 
           style={styles.viewAllButton}
-          onPress={() => navigation.navigate('Categories')}
+          onPress={() => navigation.navigate('Booking')}
         >
           <Text style={styles.viewAllText}>View All</Text>
           <MaterialIcons name="arrow-forward" size={20} color="#2E86DE" />
