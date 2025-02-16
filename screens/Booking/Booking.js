@@ -18,7 +18,10 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Calendar } from 'react-native-calendars';
 import { StatusBar } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
+import { getFirestore, doc, setDoc,collection, addDoc } from 'firebase/firestore';
+import { auth } from '../../firebase';
 
+const db = getFirestore();
 // Constants
 const DOCTOR_DATA = {
   name: 'Dr. Kristin Watson',
@@ -55,7 +58,7 @@ const doctorAvailability = {
 };
 
 const DoctorBookingScreen = ({ route, navigation }) => {
-  const { providerId, category, provider } = route.params;  // Get provider from route params
+  const { providerId, category, provider } = route.params; 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [modalAnimation] = useState(new Animated.Value(0));
@@ -80,7 +83,7 @@ const DoctorBookingScreen = ({ route, navigation }) => {
     }
   }, [modalVisible, fadeAnim]);
 
-  const showModal = () => {
+  const RedirectedSuccess = () => {
     Animated.spring(modalAnimation, {
       toValue: 1,
       useNativeDriver: true,
@@ -108,12 +111,37 @@ const DoctorBookingScreen = ({ route, navigation }) => {
     return slots;
   };
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
     if (!selectedDate || !selectedTime) {
       Alert.alert('Error', 'Please select both date and time');
       return;
     }
-    showModal();
+  
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        Alert.alert('Error', 'Please login to book an appointment');
+        return;
+      }
+  
+      // Create new appointment in Firestore
+      const appointmentRef = await addDoc(collection(db, 'Appointments'), {
+        consumerId: currentUser.uid,
+        providerId: providerId,
+        date: selectedDate,
+        time: selectedTime,
+        consultation: provider.consultation,
+        status: 'pending',  // You might want to track appointment status
+        createdAt: new Date(),
+      });
+  
+      // If successfully added to database, show the confirmation modal
+      setModalVisible(true);
+      // showModal();
+    } catch (error) {
+      console.error('Error booking appointment:', error);
+      Alert.alert('Error', 'Failed to book appointment. Please try again.');
+    }
   };
 
   const confirmBooking = () => {
@@ -423,11 +451,11 @@ const DoctorBookingScreen = ({ route, navigation }) => {
                 <View style={styles.appointmentDetailItem}>
                   <Icon name="event" size={20} color="#007AFF" />
                   <Text style={styles.appointmentDetailText}>
-                    {new Date(selectedDate).toLocaleDateString('en-US', {
-                      weekday: 'long',
+                    {new Date(selectedDate).toLocaleDateString('en-IN', {
+                      day: '2-digit',
+                      month: '2-digit',
                       year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
+                      weekday: 'long'
                     })}
                   </Text>
                 </View>
