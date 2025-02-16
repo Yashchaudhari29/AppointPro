@@ -18,7 +18,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Calendar } from 'react-native-calendars';
 import { StatusBar } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
-import { getFirestore, doc, setDoc,collection, addDoc, arrayUnion } from 'firebase/firestore';
+import { getFirestore, doc, setDoc,collection, addDoc, arrayUnion, updateDoc } from 'firebase/firestore';
 import { auth } from '../../firebase';
 
 const db = getFirestore();
@@ -145,7 +145,14 @@ const DoctorBookingScreen = ({ route, navigation }) => {
                 time: selectedTime,
                 consultation: provider.consultation,
                 status: 'pending',
+                appointment_Status:'upcoming',
+                provider_image:provider.image || "https://media.istockphoto.com/id/1332100919/vector/man-icon-black-icon-person-symbol.jpg?s=612x612&w=0&k=20&c=AVVJkvxQQCuBhawHrUhDRTCeNQ3Jgt0K1tXjJsFy1eg=",
+                location:provider.Location,
                 createdAt: new Date(),
+              });
+
+              await updateDoc(doc(db, "Appointments", appointmentRef.id), {
+                appointmentId: appointmentRef.id,
               });
           
               // Add appointment ID to consumer's appointments collection

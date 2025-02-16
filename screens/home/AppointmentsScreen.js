@@ -1,3 +1,5 @@
+// 3 types:upcoming,completed and cancelled
+// status: pending and confirmed
 import React, { useState } from 'react';
 import {
   View,
@@ -11,11 +13,19 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import { getFirestore, doc, setDoc,collection, addDoc, arrayUnion, getDoc, getDocs, updateDoc } from 'firebase/firestore';
+import { auth } from '../../firebase';
 
-export default function AppointmentsScreen() {
+const db = getFirestore();
+export default function AppointmentsScreen({ route }) {
+  const { appointment_detail: allAppointments } = route.params; 
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('upcoming');
   const [refreshing, setRefreshing] = useState(false);
+  // const [Upcomingappointments, UpcomingsetAppointments] = useState([])
+  // const [Completedappointments, CompletedsetAppointments] = useState([])
+  // const [Cancelledappointments, CancelledsetAppointments] = useState([])
+  
   const [appointments, setAppointments] = useState({
     upcoming: [
       {
@@ -64,7 +74,6 @@ export default function AppointmentsScreen() {
       },
     ]
   });
-
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     // Simulate data refresh
@@ -72,7 +81,9 @@ export default function AppointmentsScreen() {
       setRefreshing(false);
     }, 1500);
   }, []);
-
+  const filteredAppointments = allAppointments.filter(
+    (item) => item.appointment_Status.toLowerCase() === activeTab.toLowerCase()
+  );
   const handleReschedule = (appointment) => {
     Alert.alert(
       "Reschedule Appointment",
@@ -104,15 +115,43 @@ export default function AppointmentsScreen() {
         },
         {
           text: "Yes, Cancel",
-          onPress: () => {
-            // Move appointment to cancelled list
-            const updatedAppointments = {
-              ...appointments,
-              upcoming: appointments.upcoming.filter(app => app.id !== appointment.id),
-              cancelled: [...appointments.cancelled, { ...appointment, status: 'Cancelled' }]
-            };
-            setAppointments(updatedAppointments);
-            Alert.alert("Cancelled", "Your appointment has been cancelled.");
+          onPress: async () => {
+            try {
+              const userId = auth.currentUser.uid;
+            
+              // Fetch the ConsumerAppointments/{userId} document
+              const appointmentRef = doc(db, "ConsumerAppointments", userId);
+              const appointmentData = (await getDoc(appointmentRef)).data();
+            
+              console.log("Fetched appointment data:", appointmentData);
+            
+              if (!appointmentData || !appointmentData.appointments) {
+                console.log("No appointments found for this user.");
+                return;
+              }
+            
+              const appointmentIds = appointmentData.appointments; // List of appointment IDs
+              console.log("Appointment IDs:", appointmentIds);
+            
+              // Check if the appointment exists in the list
+              if (appointmentIds.includes(appointment.id)) {
+                const specificAppointmentRef = doc(db, "Appointments", appointment.id);
+            
+                // Update the actual appointment in the Appointments collection
+                await updateDoc(specificAppointmentRef, {
+                  status: "Cancelled",
+                  appointment_Status: "Cancelled",
+                });
+            
+                Alert.alert("Success", "Your appointment has been cancelled.");
+              } else {
+                console.log("Appointment ID not found in ConsumerAppointments.");
+              }
+            
+            } catch (error) {
+              console.error("Error cancelling appointment:", error);
+              Alert.alert("Error", "Something went wrong while cancelling.");
+            }
           },
           style: "destructive"
         }
@@ -190,9 +229,9 @@ export default function AppointmentsScreen() {
           </TouchableOpacity>
         ))}
       </View>
-
+        
       <FlatList
-        data={appointments[activeTab]}
+        data={filteredAppointments}
         renderItem={renderAppointment}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.listContainer}

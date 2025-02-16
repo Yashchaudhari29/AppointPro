@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { 
+import {
   View,
-  Text, 
-  TextInput, 
-  FlatList, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ScrollView, 
-  Image, 
-  StatusBar, 
-  KeyboardAvoidingView, 
-  Platform, 
+  Text,
+  TextInput,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   Dimensions,
   Modal,
@@ -99,8 +99,8 @@ function HomeScreen() {
   const [name, setName] = useState('User');
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
   const [appointmentIds, setAppointmentIds] = useState([]);
-const [upcomingAppointments, setUpcomingAppointments] = useState([]);
-const [allAppointments, setAllAppointments] = useState([]);
+  const [upcomingAppointments, setUpcomingAppointments] = useState([]);
+  const [allAppointments, setAllAppointments] = useState([]);
 
   const [featuredDoctors] = useState([
     {
@@ -159,7 +159,7 @@ const [allAppointments, setAllAppointments] = useState([]);
     { id: '4', term: 'DevOps Engineer', icon: 'server-outline' },
   ];
 
-  const [animations] = useState(() => 
+  const [animations] = useState(() =>
     Array(6).fill(0).map(() => ({
       fadeAnim: new Animated.Value(0),
       translateX: new Animated.Value(50)
@@ -175,13 +175,13 @@ const [allAppointments, setAllAppointments] = useState([]);
     const fetchUserData = async (user) => {
       try {
         user = auth.currentUser;
-        const userDocRef = doc(db1, "users",user.uid ); // Replace with actual user ID
+        const userDocRef = doc(db1, "users", user.uid); // Replace with actual user ID
         const userSnap = await getDoc(userDocRef);
         const userData = userSnap.data();
         // console.log(userData)
 
         if (userSnap.exists()) {
-          setName(userData.firstName); 
+          setName(userData.firstName);
         } else {
           console.log("No user data found!");
         }
@@ -210,7 +210,7 @@ const [allAppointments, setAllAppointments] = useState([]);
   useEffect(() => {
     getUserLocation();
   }, []);
-useEffect(() => {
+  useEffect(() => {
     const fetchAppointmentIds = async () => {
       try {
         const user = auth.currentUser;
@@ -218,7 +218,7 @@ useEffect(() => {
 
         const consumerAppointmentRef = doc(db1, 'ConsumerAppointments', user.uid);
         const consumerAppointmentSnap = await getDoc(consumerAppointmentRef);
-        
+
         if (consumerAppointmentSnap.exists()) {
           const ids = consumerAppointmentSnap.data().appointments || [];
           const invertedIds = [...ids].reverse();
@@ -240,7 +240,7 @@ useEffect(() => {
         const appointmentPromises = appointmentIds.map(async (id) => {  // Only fetch first 4
           const appointmentRef = doc(db1, 'Appointments', id);
           const appointmentSnap = await getDoc(appointmentRef);
-          
+          const data = appointmentSnap.data();
           if (appointmentSnap.exists()) {
             const data = appointmentSnap.data();
             return {
@@ -249,7 +249,10 @@ useEffect(() => {
               providerName: data.providerName,
               date: data.date,
               time: data.time,
-              status: data.status || 'Pending'
+              status: data.status || 'Pending',
+              appointment_Status:data.appointment_Status,
+              image:data.provider_image,
+              location:data.location,
             };
           }
           return null;
@@ -340,7 +343,7 @@ useEffect(() => {
         },
       ]}
     >
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={() => navigation.navigate('CategoryDetail', { category: item })}
         style={styles.categoryButton}
       >
@@ -368,7 +371,7 @@ useEffect(() => {
         <Text style={[styles.sectionTitle, { color: theme.text }]}>
           Browse by Category
         </Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.viewAllButton}
           onPress={() => navigation.navigate('Booking')}
         >
@@ -376,7 +379,7 @@ useEffect(() => {
           <MaterialIcons name="arrow-forward" size={20} color="#2E86DE" />
         </TouchableOpacity>
       </View>
-      
+
       <View style={styles.categoryIndicator}>
         <MaterialIcons name="swipe" size={20} color="#666" />
         <Text style={styles.swipeText}>Swipe to explore</Text>
@@ -396,18 +399,18 @@ useEffect(() => {
   const getUserLocation = async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      
+
       if (status !== 'granted') {
         setUserLocation('Location access denied');
         return;
       }
-  
+
       const location = await Location.getCurrentPositionAsync({});
       const [address] = await Location.reverseGeocodeAsync({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
       });
-  
+
       if (address) {
         const formattedAddress = `${address.city || ''} - ${address.postalCode || ''}`;
         setUserLocation(formattedAddress);
@@ -419,7 +422,7 @@ useEffect(() => {
       setUserLocation('Location unavailable');
     }
   };
-  
+
 
   const handleSearchOpen = () => {
     setShowSearch(true);
@@ -448,14 +451,14 @@ useEffect(() => {
     const animatedStyle = useAnimatedStyle(() => ({
       opacity: searchAnimation.value,
       transform: [
-        { 
-          translateY: withSpring(searchAnimation.value * -20) 
+        {
+          translateY: withSpring(searchAnimation.value * -20)
         }
       ]
     }));
 
     return (
-      <Animated.View 
+      <Animated.View
         style={[styles.searchOverlay, animatedStyle]}
       >
         <BlurView intensity={90} style={StyleSheet.absoluteFill} />
@@ -472,7 +475,7 @@ useEffect(() => {
                 autoFocus
               />
               {searchQuery.length > 0 && (
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => setSearchQuery('')}
                   style={styles.clearButton}
                 >
@@ -480,7 +483,7 @@ useEffect(() => {
                 </TouchableOpacity>
               )}
             </View>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={handleSearchClose}
               style={styles.cancelButton}
             >
@@ -500,7 +503,7 @@ useEffect(() => {
                       </TouchableOpacity>
                     </View>
                     {searchHistory.map((item, index) => (
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         key={index}
                         style={styles.searchItem}
                         onPress={() => setSearchQuery(item)}
@@ -514,7 +517,7 @@ useEffect(() => {
                 <View style={styles.searchSection}>
                   <Text style={styles.sectionTitle}>Popular Searches</Text>
                   {popularSearches.map((item) => (
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       key={item.id}
                       style={styles.searchItem}
                       onPress={() => setSearchQuery(item.term)}
@@ -528,7 +531,7 @@ useEffect(() => {
             ) : (
               <View style={styles.suggestionsContainer}>
                 {filteredSuggestions.map((item, index) => (
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     key={index}
                     style={styles.suggestionItem}
                     onPress={() => {
@@ -552,7 +555,7 @@ useEffect(() => {
     'House Cleaning', 'AC Repair', 'Painter',
     'Beauty Salon', 'Massage', 'Personal Trainer',
     'Yoga Instructor', 'Dentist', 'Doctor'
-  ].filter(item => 
+  ].filter(item =>
     item.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -562,16 +565,16 @@ useEffect(() => {
   };
 
   const renderAppointmentCard = ({ item }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.appointmentCard}
       onPress={() => navigation.navigate('Appointments', { appointment: item })}
     >
       <View style={styles.appointmentHeader}>
         <Text style={styles.serviceName}>{item.serviceName}</Text>
-        <View style={[styles.statusBadge, 
-          { backgroundColor: item.status === 'Confirmed' ? '#e3f2fd' : '#fff3e0' }]}>
-          <Text style={[styles.statusText, 
-            { color: item.status === 'Confirmed' ? '#1a73e8' : '#f57c00' }]}>
+        <View style={[styles.statusBadge,
+        { backgroundColor: item.status === 'Confirmed' ? '#e3f2fd' : '#fff3e0' }]}>
+          <Text style={[styles.statusText,
+          { color: item.status === 'Confirmed' ? '#1a73e8' : '#f57c00' }]}>
             {item.status}
           </Text>
         </View>
@@ -615,17 +618,17 @@ useEffect(() => {
                 </View>
               ))}
             </View>
-            
+
             <View style={styles.nameContainer}>
               <Text style={styles.doctorName}>{item.name}</Text>
               {item.verified && (
                 <Ionicons name="checkmark-circle" size={20} color="#2E86DE" />
               )}
             </View>
-            
+
             <Text style={styles.specialty}>{item.specialty}</Text>
             <Text style={styles.hospital}>{item.hospital}</Text>
-            
+
             <View style={styles.statsContainer}>
               <View style={styles.stat}>
                 <Ionicons name="star" size={16} color="#FFD700" />
@@ -649,7 +652,7 @@ useEffect(() => {
       </TouchableOpacity>
     );
   };
-  
+
   const renderCategoryGrid = () => (
     <View style={styles.categoryGrid}>
       {categories.map((category) => (
@@ -666,7 +669,7 @@ useEffect(() => {
       ))}
     </View>
   );
-  
+
   const additionalStyles = StyleSheet.create({
     categoryCard: {
       width: CATEGORY_CARD_SIZE,
@@ -741,7 +744,7 @@ useEffect(() => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={theme.statusBar} backgroundColor={theme.background} />
-      
+
       {/* Hero Section with Location & Profile */}
       <View style={styles.heroSection}>
         <View style={styles.heroHeader}>
@@ -753,13 +756,13 @@ useEffect(() => {
             </TouchableOpacity>
           </View>
           <View style={styles.headerActions}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.iconButton}
               onPress={() => setShowSearch(true)}
             >
               <Icon name="search" size={24} color="#666" />
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.iconButton}
               onPress={() => navigation.navigate('Notifications')}
             >
@@ -771,15 +774,14 @@ useEffect(() => {
       </View>
 
       <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
-    
+
         {/* Upcoming Appointments */}
         {upcomingAppointments.length > 0 && (
           <View style={styles.upcomingSection}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Upcoming Appointments</Text>
-              <TouchableOpacity style={styles.viewAllButton} onPress={() => navigation.navigate('UserAppointments',{ 
-              appointment_detail: allAppointments,
-            })}>
+
+              <TouchableOpacity style={styles.viewAllButton} onPress={() => navigation.navigate('UserAppointments', { appointment_detail: allAppointments })}>
                 <Text style={styles.viewAllText}>View all</Text>
                 <MaterialIcons name="arrow-forward" size={20} color="#2E86DE" />
 
@@ -791,7 +793,7 @@ useEffect(() => {
               data={upcomingAppointments}
               renderItem={({ item }) => (
                 // console.log(item),
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.appointmentCard}
                   onPress={() => navigation.navigate('AppointmentDetails', { id: item.id })}
                 >
@@ -800,13 +802,13 @@ useEffect(() => {
                     <Text style={styles.appointmentDate}>{item.date}</Text>
                   </View>
                   <View style={styles.appointmentContent}>
-                  
+
                     <Text style={styles.serviceName}>{item.serviceName} Appointment</Text>
                     <Text style={styles.providerName}>{item.providerName}</Text>
-                    <View style={[styles.statusBadge, 
-                      { backgroundColor: item.status === 'Confirmed' ? '#E3FCEF' : '#FFF5E6' }]}>
-                      <Text style={[styles.statusText, 
-                        { color: item.status === 'Confirmed' ? '#1CB66C' : '#FF9500' }]}>
+                    <View style={[styles.statusBadge,
+                    { backgroundColor: item.status === 'Confirmed' ? '#E3FCEF' : '#FFF5E6' }]}>
+                      <Text style={[styles.statusText,
+                      { color: item.status === 'Confirmed' ? '#1CB66C' : '#FF9500' }]}>
                         {item.status}
                       </Text>
                     </View>
