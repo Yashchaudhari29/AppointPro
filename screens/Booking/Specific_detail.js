@@ -13,31 +13,15 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 const db = getFirestore();
 
 const Specific_detail = ({ route, navigation }) => {
-  const { category } = route.params;
-  const [providers, setProviders] = useState([]);
+  const { category, providers } = route.params;
+  const [filteredProviders, setFilteredProviders] = useState([]);
 
   useEffect(() => {
-    fetchProviders();
-  }, [category]);
-
-  const fetchProviders = async () => {
-    try {
-      const q = query(
-        collection(db, 'users'),
-        where('job', '==', category)
-      );
-      const querySnapshot = await getDocs(q);
-      const providersData = [];
-      
-      querySnapshot.forEach((doc) => {
-        providersData.push({ id: doc.id, ...doc.data() });
-      });
-      
-      setProviders(providersData);
-    } catch (error) {
-      console.error('Error fetching providers:', error);
+    if (providers) {
+      const filtered = providers.filter(provider => provider.job === category);
+      setFilteredProviders(filtered);
     }
-  };
+  }, [category, providers]);
 
   const handleBooking = (providerId) => {
     navigation.navigate('BookAppointment', {
@@ -48,7 +32,7 @@ const Specific_detail = ({ route, navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-      {providers.map((provider) => (
+      {filteredProviders.map((provider) => (
         <View key={provider.id} style={styles.card}>
           <View style={styles.providerHeader}>
             <Image

@@ -7,7 +7,6 @@ import { getFirestore, collection, getDocs } from 'firebase/firestore';
 const db1 = getFirestore();
 const screenWidth = Dimensions.get('window').width;
 
-// Icon mapping for different provider types
 const getProviderIcon = (job) => {
   const iconMap = {
     'Doctor': 'user-md',

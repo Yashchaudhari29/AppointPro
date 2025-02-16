@@ -34,6 +34,8 @@ import { useSharedValue } from 'react-native-reanimated';
 import { useTheme } from '../../contexts/ThemeContext';
 import * as Location from 'expo-location';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import CategoriesScreen from '../Booking/Categories';
+
 const db1 = getFirestore();
 const { width } = Dimensions.get('window');
 const ITEM_SIZE = width * 0.75;
@@ -1002,7 +1004,7 @@ export default function App() {
             iconName = 'home-outline';
           } else if (route.name === 'Explore') {
             iconName = 'compass-outline';
-          } else if (route.name === 'Appointments') {
+          } else if (route.name === 'Booking') {
             iconName = 'calendar-outline';
           } else if (route.name === 'Messages') {
             iconName = 'chatbubble-outline';
@@ -1023,7 +1025,7 @@ export default function App() {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Explore" component={ExploreScreen} />
-      <Tab.Screen name="Appointments" component={AppointmentScreen} />
+      <Tab.Screen name="Booking" component={CategoriesScreen} />
       <Tab.Screen name="Messages" component={MessagesScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>

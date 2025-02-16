@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, FlatList, TextInput, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -11,11 +11,13 @@ const CategoriesScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
+  const [categoryCounts, setCategoryCounts] = useState({});
+  const [providers, setProviders] = useState([]);
 
   // Map of category names to their respective icons
   const categoryIcons = {
     'doctor': { icon: 'medical-bag', color: '#FF6B6B', bgColor: '#FFE8E8' },
-    'electrician': { icon: 'flash-circle', color: '#4D96FF', bgColor: '#E6F0FF' },
+    'electrician': { icon: 'power-plug', color: '#4D96FF', bgColor: '#E6F0FF' },
     'plumber': { icon: 'pipe', color: '#48BFE3', bgColor: '#E3F6FC' },
     'Mechanic': { icon: 'car-cog', color: '#FF8C42', bgColor: '#FFE8D6' },
     'Photographer': { icon: 'camera-wireless', color: '#845EC2', bgColor: '#F1EAFC' },
@@ -30,37 +32,44 @@ const CategoriesScreen = ({ navigation }) => {
     'Gym': { icon: 'weight-lifter', color: '#4D96FF', bgColor: '#E6F0FF' }
   };
 
-  useEffect(() => {
+  useMemo(() => {
+    const fetchCategories = async () => {
+      try {
+        const usersRef = collection(db, 'users');
+        const snapshot = await getDocs(usersRef);
+        
+        // Store all providers data
+        const providersData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setProviders(providersData);
+        
+        const uniqueCategories = new Set();
+        const counts = {};
+        
+        providersData.forEach((userData) => {
+          if (userData.job) {
+            uniqueCategories.add(userData.job);
+            counts[userData.job] = (counts[userData.job] || 0) + 1;
+          }
+        });
+
+        const categoriesArray = Array.from(uniqueCategories).map((category, index) => ({
+          id: (index + 1).toString(),
+          title: category
+        }));
+
+        setCategories(categoriesArray);
+        setFilteredCategories(categoriesArray);
+        setCategoryCounts(counts);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
     fetchCategories();
   }, []);
-
-  const fetchCategories = async () => {
-    try {
-      const usersRef = collection(db, 'users');
-      const snapshot = await getDocs(usersRef);
-      
-      // Create a Set to store unique categories
-      const uniqueCategories = new Set();
-      
-      snapshot.forEach((doc) => {
-        const userData = doc.data();
-        if (userData.job) {
-          uniqueCategories.add(userData.job);
-        }
-      });
-
-      // Convert Set to array and format for FlatList
-      const categoriesArray = Array.from(uniqueCategories).map((category, index) => ({
-        id: (index + 1).toString(),
-        title: category
-      }));
-
-      setCategories(categoriesArray);
-      setFilteredCategories(categoriesArray);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
 
   // Function to handle search query change
   const handleSearch = (query) => {
@@ -75,57 +84,76 @@ const CategoriesScreen = ({ navigation }) => {
     }
   };
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity 
-      style={[styles.categoryCard, { 
-        backgroundColor: theme.card,
-        ...theme.shadow
-      }]}
-      onPress={() => navigation.navigate('Specific_detail', { category: item.title })}
-    >
-      <View style={[styles.iconContainer, { 
-        backgroundColor: categoryIcons[item.title]?.bgColor || '#F0F0F0'
-      }]}>
-        <MaterialCommunityIcons 
-          name={categoryIcons[item.title]?.icon || 'help-circle'}
-          size={32}
-          color={categoryIcons[item.title]?.color || theme.text}
-        />
-      </View>
-      <View style={styles.textContainer}>
-        <Text style={[styles.categoryTitle, { color: theme.text }]}>
-          {item.title}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
-
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={theme.statusBar} backgroundColor={theme.background} />
       
-      <Text style={[styles.header, { color: theme.text }]}>Categories</Text>
+      {/* Updated Header Section */}
+      <View style={styles.headerContainer}>
+        <Text style={[styles.header, { color: theme.text }]}>Book a Service</Text>
+        <Text style={[styles.subHeader, { color: theme.textSecondary }]}>
+          Choose a category to find your service provider
+        </Text>
+      </View>
 
-      {/* Search Input */}
-      <TextInput
-        style={[styles.searchInput, { 
-          backgroundColor: theme.searchBackground,
-          color: theme.text,
-          borderColor: theme.border
-        }]}
-        placeholder="Search categories..."
-        placeholderTextColor={theme.textSecondary}
-        value={searchQuery}
-        onChangeText={handleSearch}
-      />
+      {/* Search Input with Icon */}
+      <View style={styles.searchContainer}>
+        <MaterialCommunityIcons 
+          name="magnify" 
+          size={24} 
+          color={theme.textSecondary}
+          style={styles.searchIcon}
+        />
+        <TextInput
+          style={[styles.searchInput, { 
+            backgroundColor: theme.searchBackground,
+            color: theme.text,
+          }]}
+          placeholder="What service are you looking for?"
+          placeholderTextColor={theme.textSecondary}
+          value={searchQuery}
+          onChangeText={handleSearch}
+        />
+      </View>
 
-      {/* Categories List */}
+
+      {/* Categories List with Updated Card Design */}
       <FlatList
         data={filteredCategories}
         numColumns={2}
         keyExtractor={(item) => item.id}
-        renderItem={renderItem}
+        renderItem={({ item }) => (
+          <TouchableOpacity 
+            style={[styles.categoryCard, { 
+              backgroundColor: theme.card,
+              ...theme.shadow
+            }]}
+            onPress={() => navigation.navigate('Specific_detail', { 
+              category: item.title,
+              providers: providers
+            })}
+          >
+            <View style={[styles.iconContainer, { 
+              backgroundColor: categoryIcons[item.title]?.bgColor || '#F3F4F6'
+            }]}>
+              <MaterialCommunityIcons 
+                name={categoryIcons[item.title]?.icon || 'help-circle'}
+                size={32}
+                color={categoryIcons[item.title]?.color || theme.text}
+              />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={[styles.categoryTitle, { color: theme.text }]}>
+                {item.title}
+              </Text>
+              <Text style={[styles.categorySubtitle, { color: theme.textSecondary }]}>
+                {categoryCounts[item.title] || 0} Specialists
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
         contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
@@ -134,57 +162,80 @@ const CategoriesScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16
+    padding: 16,
+  },
+  headerContainer: {
+    marginBottom: 24,
   },
   header: {
-    fontSize: 24,
+    fontSize: 25,
     fontWeight: 'bold',
-    marginBottom: 16
+    marginBottom: 8,
+  },
+  subHeader: {
+    fontSize: 16,
+    opacity: 0.7,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
+    padding: 4,
+  },
+  searchIcon: {
+    marginLeft: 12,
   },
   searchInput: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingLeft: 12,
-    marginBottom: 16,
+    flex: 1,
+    height: 48,
+    paddingLeft: 8,
     fontSize: 16,
   },
+  popularSection: {
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
   listContainer: {
-    paddingBottom: 16
+    paddingBottom: 16,
   },
   categoryCard: {
     flex: 1,
     margin: 8,
+    padding: 16,
+    borderRadius: 16,
+    elevation: 2,
+    minHeight: 140,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 150,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    padding: 16,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.5,
+  },
+  iconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
   },
   textContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 8
+    width: '100%',
   },
   categoryTitle: {
     fontSize: 16,
     fontWeight: '600',
-    textAlign: 'center'
+    marginBottom: 4,
+    textAlign: 'center',
   },
-  iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8
+  categorySubtitle: {
+    fontSize: 14,
+    opacity: 0.7,
+    textAlign: 'center',
   },
 });
 
