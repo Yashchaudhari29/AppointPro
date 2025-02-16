@@ -14,7 +14,7 @@ import {
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Specific_detail = ({ route, navigation }) => {
-  const { category, providers } = route.params;
+  const { category, providers, bgcol } = route.params;
   const [filteredProviders, setFilteredProviders] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -54,31 +54,42 @@ const Specific_detail = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: bgcol }]}>
         <TouchableOpacity 
           style={styles.backButton} 
           onPress={() => navigation.goBack()}
         >
-          <MaterialCommunityIcons name="arrow-left" size={24} color="#000" />
+          <MaterialCommunityIcons name="arrow-left" size={24} color="#333" />
         </TouchableOpacity>
-        {/* <Text style={styles.headerTitle}>Back</Text> */}
+        {/* <Text style={styles.headerTitle}>{category}</Text> */}
       </View>
 
-      {/* Search Input with Icon */}
+      {/* Fixed Search Bar */}
+      <View style={[styles.searchWrapper, { backgroundColor: bgcol }]}>
+      {/* styles.searchContainer */}
       <View style={styles.searchContainer}>
-        <MaterialCommunityIcons 
-          name="magnify" 
-          size={24} 
-          color="#666"
-          style={styles.searchIcon}
-        />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search providers..."
-          placeholderTextColor="#666"
-          value={searchQuery}
-          onChangeText={handleSearch}
-        />
+          <MaterialCommunityIcons 
+            name="magnify" 
+            size={20} 
+            color="#666"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search providers..."
+            placeholderTextColor="#999"
+            value={searchQuery}
+            onChangeText={handleSearch}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity 
+              onPress={() => handleSearch('')}
+              style={styles.clearButton}
+            >
+              <MaterialCommunityIcons name="close-circle" size={20} color="#666" />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {isLoading ? (
@@ -98,34 +109,54 @@ const Specific_detail = ({ route, navigation }) => {
               <View key={provider.id} style={styles.card}>
                 <View style={styles.providerInfo}>
                   <Image
-                    source={{ uri: provider.profileImage || 'https://via.placeholder.com/100' }}
+                    source={{ uri: provider.image || 'https://media.istockphoto.com/id/1332100919/vector/man-icon-black-icon-person-symbol.jpg?s=612x612&w=0&k=20&c=AVVJkvxQQCuBhawHrUhDRTCeNQ3Jgt0K1tXjJsFy1eg=' }}
                     style={styles.profileImage}
                   />
                   <View style={styles.textContainer}>
                     <Text style={styles.name}>{provider.name}</Text>
-                    <Text style={styles.specialty}>{provider.specialty || category}</Text>
+                    <Text style={styles.specialty}>{category}</Text>
                     <View style={styles.ratingContainer}>
                       <MaterialCommunityIcons name="star" size={16} color="#FFD700" />
-                      <Text style={styles.rating}>{provider.rating || '4.9'}</Text>
+                      <Text style={styles.rating}>{provider.rating || '-'}</Text>
                     </View>
                   </View>
                 </View>
 
                 <View style={styles.availabilityContainer}>
-                  <View style={styles.availabilityBadge}>
-                    <View style={styles.dotIndicator} />
-                    <Text style={styles.availabilityText}>Available Now</Text>
+                  <View style={[
+                    styles.availabilityBadge,
+                    { backgroundColor: provider.availability ? '#e8f5e9' : '#ffebee' }
+                  ]}>
+                    <View style={[
+                      styles.dotIndicator,
+                      { backgroundColor: provider.availability ? '#4caf50' : '#ff5252' }
+                    ]} />
+                    <Text style={[
+                      styles.availabilityText,
+                      { color: provider.availability ? '#4caf50' : '#ff5252' }
+                    ]}>
+                      {provider.availability ? 'Available Now' : 'Not Available'}
+                    </Text>
                   </View>
                   <Text style={styles.consultationFee}>
-                    ${provider.price || '50'} Consultation Fee
+                    ₹{provider.consultation || '--'} Consultation Fee
                   </Text>
                 </View>
 
                 <TouchableOpacity
-                  style={styles.bookButton}
+                  style={[
+                    styles.bookButton,
+                    { backgroundColor: provider.availability ? '#007AFF' : '#E0E0E0' }
+                  ]}
                   onPress={() => handleBooking(provider.id)}
+                  disabled={!provider.availability}
                 >
-                  <Text style={styles.bookButtonText}>Book Appointment</Text>
+                  <Text style={[
+                    styles.bookButtonText,
+                    { color: provider.availability ? '#fff' : '#666' }
+                  ]}>
+                    {provider.availability ? 'Book Appointment' : 'Currently Unavailable'}
+                  </Text>
                 </TouchableOpacity>
               </View>
             ))
@@ -162,76 +193,95 @@ const Specific_detail = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f8f9fa',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     padding: 16,
     backgroundColor: '#fff',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#000',
-    flex: 1,
-    marginLeft: 5,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#333',
+    marginLeft: 16,
+  },
+  searchWrapper: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    zIndex: 10,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 16,
-    marginBottom: 16,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
-    padding: 4,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 25,
+    paddingHorizontal: 12,
+    height: 44,
   },
   searchIcon: {
-    marginLeft: 12,
+    marginRight: 8,
   },
   searchInput: {
     flex: 1,
-    height: 48,
-    paddingLeft: 8,
     fontSize: 16,
-    color: '#000',
+    color: '#333',
+    height: '100%',
+    paddingVertical: 8,
+  },
+  clearButton: {
+    padding: 4,
   },
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
+    marginTop: 4, // Add some space below the fixed search bar
   },
   card: {
     backgroundColor: '#fff',
+    margin: 16,
+    marginBottom: 8,
+    borderRadius: 16,
     padding: 16,
-    marginBottom: 1,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   providerInfo: {
     flexDirection: 'row',
     marginBottom: 12,
   },
   profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: 12,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    marginRight: 16,
   },
   textContainer: {
     flex: 1,
     justifyContent: 'center',
   },
   name: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#333',
     marginBottom: 4,
   },
   specialty: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#666',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -251,10 +301,9 @@ const styles = StyleSheet.create({
   availabilityBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#e8f5e9',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
   },
   dotIndicator: {
     width: 6,
@@ -273,10 +322,10 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   bookButton: {
-    backgroundColor: '#007AFF',
-    padding: 12,
-    borderRadius: 8,
+    padding: 16,
+    borderRadius: 12,
     alignItems: 'center',
+    marginTop: 12,
   },
   bookButtonText: {
     color: '#fff',

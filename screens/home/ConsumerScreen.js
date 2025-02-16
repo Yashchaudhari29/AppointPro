@@ -196,7 +196,7 @@ function HomeScreen() {
         // console.log(userData)
 
         if (userSnap.exists()) {
-          setName(userData.name); 
+          setName(userData.firstName); 
         } else {
           console.log("No user data found!");
         }
@@ -226,22 +226,22 @@ function HomeScreen() {
     getUserLocation();
   }, []);
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        setUserInfo({
-          name: auth.currentUser?.displayName || 'User',
-          email: auth.currentUser?.email || '',
-          profileImage: auth.currentUser?.photoURL || 'https://via.placeholder.com/40',
-          location: userLocation
-        });
-      } catch (error) {
-        console.error('Error fetching user info:', error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchUserInfo = async () => {
+  //     try {
+  //       setUserInfo({
+  //         name: auth.currentUser?.displayName || 'User',
+  //         email: auth.currentUser?.email || '',
+  //         profileImage: auth.currentUser?.photoURL || 'https://via.placeholder.com/40',
+  //         location: userLocation
+  //       });
+  //     } catch (error) {
+  //       console.error('Error fetching user info:', error);
+  //     }
+  //   };
 
-    fetchUserInfo();
-  }, [userLocation]);
+  //   fetchUserInfo();
+  // }, [userLocation]);
 
   const [categories] = useState([
     {

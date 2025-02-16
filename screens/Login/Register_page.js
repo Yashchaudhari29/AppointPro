@@ -9,7 +9,8 @@ import { auth, db } from '../../firebase';
 const db1 = getFirestore();
 
 const RegisterScreen = ({ navigation }) => {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
   const [role, setRole] = useState('');
@@ -33,7 +34,8 @@ const RegisterScreen = ({ navigation }) => {
     const formErrors = {};
 
     // Form validation
-    if (!name) formErrors.name = 'Name is required';
+    if (!firstName) formErrors.firstName = 'First name is required';
+    if (!lastName) formErrors.lastName = 'Last name is required';
     if (!email) formErrors.email = 'Email is required';
     if (!mobile) formErrors.mobile = 'Mobile number is required';
     if (!role) formErrors.role = 'Role is required';
@@ -59,7 +61,8 @@ const RegisterScreen = ({ navigation }) => {
       const user = userCredentials.user;
 
       await setDoc(doc(db1, 'users', user.uid), {
-        name,
+        firstName,
+        lastName,
         email,
         mobile,
         role,
@@ -85,18 +88,31 @@ const RegisterScreen = ({ navigation }) => {
           <Text style={styles.header}>Create Account</Text>
           <Text style={styles.subHeader}>Join AppointPro and streamline your appointments</Text>
 
-          {/* Name Input */}
+          {/* First Name Input */}
           <View style={styles.inputWrapper}>
             <Icon name="user" size={20} color="#666" style={styles.inputIcon} />
             <TextInput
-              placeholder="Full Name"
-              value={name}
-              onChangeText={setName}
-              style={[styles.input, errors.name && styles.errorInput]}
+              placeholder="First Name"
+              value={firstName}
+              onChangeText={setFirstName}
+              style={[styles.input, errors.firstName && styles.errorInput]}
               placeholderTextColor="#666"
             />
           </View>
-          {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+          {errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>}
+
+          {/* Last Name Input */}
+          <View style={styles.inputWrapper}>
+            <Icon name="user" size={20} color="#666" style={styles.inputIcon} />
+            <TextInput
+              placeholder="Last Name"
+              value={lastName}
+              onChangeText={setLastName}
+              style={[styles.input, errors.lastName && styles.errorInput]}
+              placeholderTextColor="#666"
+            />
+          </View>
+          {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
 
           {/* Email Input */}
           <View style={styles.inputWrapper}>

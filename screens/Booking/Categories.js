@@ -130,7 +130,8 @@ const CategoriesScreen = ({ navigation }) => {
             }]}
             onPress={() => navigation.navigate('Specific_detail', { 
               category: item.title,
-              providers: providers
+              providers: providers,
+              bgcol: categoryIcons[item.title]?.bgColor || '#F3F4F6',
             })}
           >
             <View style={[styles.iconContainer, { 

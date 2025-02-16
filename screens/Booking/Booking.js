@@ -324,7 +324,7 @@ const DoctorBookingScreen = ({ route, navigation }) => {
 
         <View style={styles.doctorInfo}>
           <Image
-            source={{ uri: provider.profileImage || 'https://via.placeholder.com/100' }}
+            source={{ uri: provider.image || 'https://via.placeholder.com/100' }}
             style={styles.doctorImage}
           />
           <View style={styles.doctorDetails}>
@@ -332,22 +332,22 @@ const DoctorBookingScreen = ({ route, navigation }) => {
             <Text style={styles.specialty}>{provider.specialty || category}</Text>
             <View style={styles.location}>
               <Icon name="location-on" size={16} color="#666" />
-              <Text style={styles.locationText}>{provider.location || 'Location not specified'}</Text>
+              <Text style={styles.locationText}>{provider.Location || 'Location not specified'}</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.stats}>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{provider.rating || '4.9'}+</Text>
+            <Text style={styles.statNumber}>{provider.rating || '-'}</Text>
             <Text style={styles.statLabel}>Rating</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{provider.experience || '5'}+</Text>
+            <Text style={styles.statNumber}>{provider.Exp|| '-'}</Text>
             <Text style={styles.statLabel}>Experience</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{provider.reviews || '100'}+</Text>
+            <Text style={styles.statNumber}>{provider.reviews || '-'}</Text>
             <Text style={styles.statLabel}>Reviews</Text>
           </View>
         </View>
@@ -355,7 +355,7 @@ const DoctorBookingScreen = ({ route, navigation }) => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>About</Text>
           <Text style={styles.aboutText}>
-            {provider.about || `Experienced ${category} providing professional services with a focus on customer satisfaction.`}
+            {provider.About || `Not Mentioned`}
           </Text>
         </View>
 
@@ -365,7 +365,7 @@ const DoctorBookingScreen = ({ route, navigation }) => {
         <View style={styles.fees}>
           <View style={styles.feeItem}>
             <Text style={styles.feeLabel}>Consultation</Text>
-            <Text style={styles.feeAmount}>€{provider.price || '50.00'}</Text>
+            <Text style={styles.feeAmount}>₹{provider.consultation || 'Not Mentioned'}</Text>
           </View>
         </View>
 
@@ -436,9 +436,9 @@ const DoctorBookingScreen = ({ route, navigation }) => {
                   <Text style={styles.appointmentDetailText}>{selectedTime}</Text>
                 </View>
                 <View style={styles.appointmentDetailItem}>
-                  <Icon name="euro" size={20} color="#007AFF" />
+                  {/* <Icon name="euro" size={20} color="#007AFF" /> */}
                   <Text style={styles.appointmentDetailText}>
-                    €{provider.price} (Consultation Fee)
+                    Rs. {provider.consultation} (Consultation Fee)
                   </Text>
                 </View>
               </View>
