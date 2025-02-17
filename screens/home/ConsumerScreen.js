@@ -101,29 +101,69 @@ const AppointmentSkeleton = () => (
   </View>
 );
 
-// Add this skeleton component
+// Add this component for the hero section skeleton
+const HeroSectionSkeleton = () => (
+  <View style={styles.heroSection}>
+    <View style={styles.heroHeader}>
+      <View>
+        <View style={[styles.skeleton, { width: 150, height: 28, marginBottom: 8 }]} />
+        <View style={[styles.skeleton, { width: 120, height: 16 }]} />
+      </View>
+      <View style={styles.headerActions}>
+        <View style={[styles.skeleton, { width: 40, height: 40, borderRadius: 12 }]} />
+        <View style={[styles.skeleton, { width: 40, height: 40, borderRadius: 12 }]} />
+      </View>
+    </View>
+  </View>
+);
+
+// Update the FeaturedSpecialistSkeleton
 const FeaturedSpecialistSkeleton = () => (
-  <View style={styles.modernDoctorCard}>
-    <View style={[styles.imageContainer, styles.skeletonBackground]} />
+  <View style={[styles.modernDoctorCard, { backgroundColor: '#fff' }]}>
+    <View style={[styles.skeleton, { 
+      width: '100%', 
+      height: ITEM_SIZE * 0.8,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20
+    }]} />
+    
     <View style={styles.modernDoctorInfo}>
-      <View style={[styles.skeleton, { width: '70%', height: 24, marginBottom: 8 }]} />
-      <View style={[styles.skeleton, { width: '50%', height: 16, marginBottom: 12 }]} />
+      <View style={styles.nameRow}>
+        <View style={[styles.skeleton, { width: '60%', height: 24, marginBottom: 8 }]} />
+        <View style={[styles.skeleton, { width: 45, height: 24, borderRadius: 12 }]} />
+      </View>
       
-      <View style={styles.modernLocationContainer}>
-        <View style={[styles.skeleton, { width: '80%', height: 14 }]} />
+      <View style={[styles.skeleton, { width: '40%', height: 16, marginBottom: 12 }]} />
+      
+      <View style={[styles.modernLocationContainer, { backgroundColor: '#F8F9FA' }]}>
+        <View style={[styles.skeleton, { width: '80%', height: 16 }]} />
       </View>
 
       <View style={styles.modernStatsRow}>
-        <View style={[styles.skeleton, { width: 60, height: 14 }]} />
-        <View style={[styles.skeleton, { width: 60, height: 14 }]} />
-        <View style={[styles.skeleton, { width: 50, height: 14 }]} />
+        <View style={[styles.modernStat, { backgroundColor: '#F8F9FA' }]}>
+          <View style={[styles.skeleton, { width: 80, height: 16 }]} />
+        </View>
+        <View style={[styles.modernStat, { backgroundColor: '#F8F9FA' }]}>
+          <View style={[styles.skeleton, { width: 100, height: 16 }]} />
+        </View>
       </View>
 
       <View style={styles.modernBadgeContainer}>
-        <View style={[styles.skeleton, { width: 80, height: 24, borderRadius: 12 }]} />
-        <View style={[styles.skeleton, { width: 60, height: 24, borderRadius: 12 }]} />
+        <View style={[styles.skeleton, { width: 80, height: 28, borderRadius: 14 }]} />
+        <View style={[styles.skeleton, { width: 60, height: 28, borderRadius: 14 }]} />
       </View>
     </View>
+  </View>
+);
+
+// Add CategorySkeleton component
+const CategorySkeleton = () => (
+  <View style={styles.categoryCard}>
+    <View style={[styles.skeleton, { 
+      width: CATEGORY_CARD_SIZE,
+      height: CATEGORY_CARD_SIZE,
+      borderRadius: 16
+    }]} />
   </View>
 );
 
@@ -148,6 +188,8 @@ function HomeScreen() {
 
   const [featuredDoctors, setFeaturedDoctors] = useState([]);
   const [isFeaturedLoading, setIsFeaturedLoading] = useState(true);
+  const [providers, setProviders] = useState({});
+  const [professions, setProfessions] = useState({});
 
   const [popularServices, setPopularServices] = useState([
     {
@@ -284,50 +326,73 @@ function HomeScreen() {
     fetchAppointmentDetails();
   }, [appointmentIds]);
 
-  const [categories] = useState([
-    {
-      id: '1',
-      title: 'Emergency Care',
-      icon: 'heartbeat',
-      color: '#FF4757',
-      count: 28,
-    },
-    {
-      id: '2',
-      title: 'Dental Care',
-      icon: 'tooth',
-      color: '#2E86DE',
-      count: 42,
-    },
-    {
-      id: '3',
-      title: 'Eye Care',
-      icon: 'eye',
-      color: '#1DD1A1',
-      count: 35,
-    },
-    {
-      id: '4',
-      title: 'Mental Health',
-      icon: 'brain',
-      color: '#9B59B6',
-      count: 31,
-    },
-    {
-      id: '5',
-      title: 'Pediatrics',
-      icon: 'baby',
-      color: '#F1C40F',
-      count: 45,
-    },
-    {
-      id: '6',
-      title: 'General Health',
-      icon: 'user-md',
-      color: '#20bf6b',
-      count: 50,
+  const [categories, setCategories] = useState([]);
+
+  const fetchCategories = async () => {
+    try {
+      const usersRef = collection(db1, 'users');
+      const q = query(usersRef, where('role', '==', 'provider'));
+      const usersSnapshot = await getDocs(q);
+      
+      // Object to store category counts and providers
+      const categoryData = {
+        'Emergency Care': { count: 0, icon: 'heartbeat', color: '#FF4757' },
+        'Automobile': { count: 0, icon: 'car', color: '#2E86DE' },
+        'Home Care': { count: 0, icon: 'home', color: '#1DD1A1' },
+        'Beauty & Spa': { count: 0, icon: 'spa', color: '#9B59B6' },
+        'Education': { count: 0, icon: 'school', color: '#F1C40F' },
+        'General Services': { count: 0, icon: 'tools', color: '#20bf6b' }
+      };
+
+      // Process each user and categorize them
+      usersSnapshot.forEach((doc) => {
+        const userData = { ...doc.data(), id: doc.id };
+        const profession = userData.job?.toLowerCase() || '';
+
+        // Categorize based on profession and store unique professions
+        if (profession.includes('doctor') || profession.includes('nurse')) {
+          categoryData['Emergency Care'].count++;
+        }
+        else if (profession.includes('mechanic') || profession.includes('driver')) {
+          categoryData['Automobile'].count++;
+        }
+        else if (profession.includes('plumber') || profession.includes('electrician') || profession.includes('carpenter')) {
+          categoryData['Home Care'].count++;
+        }
+        else if (profession.includes('beautician') || profession.includes('salon') || profession.includes('spa')) {
+          categoryData['Beauty & Spa'].count++;
+        }
+        else if (profession.includes('teacher') || profession.includes('tutor')) {
+          categoryData['Education'].count++;        } 
+      });
+
+      // Convert to array format for categories
+      const categoriesArray = Object.entries(categoryData).map(([title, data], index) => ({
+        id: (index + 1).toString(),
+        title,
+        icon: data.icon,
+        color: data.color,
+        count: data.count
+      }));
+
+      // Create providers object with all provider details
+      const providersObject = Object.entries(categoryData).reduce((acc, [title, data]) => {
+        acc[title] = data.providers;
+        return acc;
+      }, {});
+
+      // Update state with categories that have providers and all providers
+      setCategories(categoriesArray.filter(cat => cat.count > 0));
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      setCategories([]);
+      setProviders({});
     }
-  ]);
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const renderCategory = ({ item }) => (
     <Animated.View
@@ -340,7 +405,7 @@ function HomeScreen() {
       ]}
     >
       <TouchableOpacity
-        onPress={() => navigation.navigate('CategoryDetail', { category: item })}
+        
         style={styles.categoryButton}
       >
         <LinearGradient
@@ -376,10 +441,10 @@ function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.categoryIndicator}>
+      {/* <View style={styles.categoryIndicator}>
         <MaterialIcons name="swipe" size={20} color="#666" />
         <Text style={styles.swipeText}>Swipe to explore</Text>
-      </View>
+      </View> */}
 
       <FlatList
         horizontal
@@ -799,7 +864,7 @@ function HomeScreen() {
         fetchFeaturedDoctors(),
         fetchUserData(),
         fetchAppointmentIds(),
-        // getUserLocation()
+        fetchCategories(),
       ]);
     } catch (error) {
       console.error('Error refreshing:', error);
@@ -817,37 +882,85 @@ function HomeScreen() {
     fetchAppointmentIds();
   }, []);
 
+  // Add loading states
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
+
+  // Update the fetchData functions to handle loading states
+  const fetchInitialData = async () => {
+    setIsLoading(true);
+    try {
+      await Promise.all([
+        fetchUserData(),
+        fetchAppointmentIds(),
+        fetchFeaturedDoctors(),
+      ]);
+    } catch (error) {
+      console.error('Error fetching initial data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInitialData();
+  }, []);
+
+  // Update the render section for Featured Specialists
+  const renderFeaturedSection = () => (
+    <View style={styles.featuredSection}>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Featured Specialists</Text>
+        <TouchableOpacity style={styles.viewAllButton}>
+          <Text style={styles.viewAllText}>View All</Text>
+          <MaterialIcons name="arrow-forward" size={20} color="#2E86DE" />
+        </TouchableOpacity>
+      </View>
+      
+      <FlatList
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        data={isFeaturedLoading ? [1,2,3] : featuredDoctors}
+        renderItem={isFeaturedLoading ? () => <FeaturedSpecialistSkeleton /> : renderFeaturedDoctor}
+        keyExtractor={(item, index) => isFeaturedLoading ? index.toString() : item.id}
+        contentContainerStyle={styles.featuredList}
+      />
+    </View>
+  );
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={theme.statusBar} backgroundColor={theme.background} />
 
-      {/* Hero Section with Location & Profile */}
-      <View style={styles.heroSection}>
-        <View style={styles.heroHeader}>
-          <View>
-            <Text style={styles.welcomeText}>Hello, {name} 👋</Text>
-            <TouchableOpacity style={styles.locationPicker}>
-              <Icon name="location-sharp" size={18} color="#FF4757" />
-              <Text style={styles.locationText} numberOfLines={1}>{userLocation}</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.headerActions}>
-            <TouchableOpacity
-              style={styles.iconButton}
-              onPress={() => setShowSearch(true)}
-            >
-              <Icon name="search" size={24} color="#666" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.iconButton}
-              onPress={() => navigation.navigate('Notifications')}
-            >
-              <Icon name="notifications-outline" size={24} color="#666" />
-              {unreadCount > 0 && <View style={styles.notificationBadge} />}
-            </TouchableOpacity>
+      {isLoading ? <HeroSectionSkeleton /> : (
+        // Hero Section with Location & Profile
+        <View style={styles.heroSection}>
+          <View style={styles.heroHeader}>
+            <View>
+              <Text style={styles.welcomeText}>Hello, {name} 👋</Text>
+              <TouchableOpacity style={styles.locationPicker}>
+                <Icon name="location-sharp" size={18} color="#FF4757" />
+                <Text style={styles.locationText} numberOfLines={1}>{userLocation}</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.headerActions}>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={() => setShowSearch(true)}
+              >
+                <Icon name="search" size={24} color="#666" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={() => navigation.navigate('Notifications')}
+              >
+                <Icon name="notifications-outline" size={24} color="#666" />
+                {unreadCount > 0 && <View style={styles.notificationBadge} />}
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
+      )}
 
       <ScrollView 
         style={styles.mainContent} 
@@ -924,18 +1037,7 @@ function HomeScreen() {
         )}
 
         {/* Featured Specialists Section */}
-        <View style={styles.featuredSection}>
-          <Text style={styles.sectionTitle}>Featured Specialists</Text>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={isFeaturedLoading ? [1,2,3] : featuredDoctors}
-            renderItem={isFeaturedLoading ? () => <FeaturedSpecialistSkeleton /> : renderFeaturedDoctor}
-            keyExtractor={(item, index) => isFeaturedLoading ? index.toString() : item.id}
-            bounces={false}
-            contentContainerStyle={styles.featuredList}
-          />
-        </View>
+        {renderFeaturedSection()}
 
         {/* Categories Section */}
         {renderCategories()}
@@ -1398,9 +1500,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
   },
-  section: {
-    marginBottom: 24,
-  },
+  // section: {
+  //   marginBottom: 24,
+  // },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -1596,6 +1698,8 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 5,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
   },
   imageWrapper: {
     position: 'relative',
@@ -1632,6 +1736,9 @@ const styles = StyleSheet.create({
   },
   modernDoctorInfo: {
     padding: 16,
+    backgroundColor: '#fff',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   nameRow: {
     flexDirection: 'row',
@@ -1646,20 +1753,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 8,
   },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF9E6',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  ratingText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FFB800',
-    marginLeft: 4,
-  },
   modernSpecialty: {
     fontSize: 14,
     color: '#666',
@@ -1671,8 +1764,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
     backgroundColor: '#F8F9FA',
-    padding: 8,
-    borderRadius: 8,
+    padding: 12,
+    borderRadius: 12,
   },
   modernLocation: {
     fontSize: 13,
@@ -1683,16 +1776,16 @@ const styles = StyleSheet.create({
   modernStatsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
+    gap: 12,
   },
   modernStat: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 16,
     backgroundColor: '#F8F9FA',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
   },
   modernStatText: {
     fontSize: 13,
@@ -1700,21 +1793,17 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontWeight: '500',
   },
-  modernPrice: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
-  },
   modernBadgeContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
+    marginTop: 4,
   },
   modernBadge: {
     backgroundColor: '#E3EFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 14,
   },
   modernBadgeText: {
     fontSize: 12,
@@ -1859,10 +1948,6 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 12,
     color: '#666',
-  },
-  section: {
-    marginTop: 20,
-    paddingHorizontal: 16,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -2026,10 +2111,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
   },
-  section: {
-    marginTop: 20,
-    paddingHorizontal: 16,
-  },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -2111,6 +2192,8 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 5,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
   },
   imageWrapper: {
     position: 'relative',
@@ -2147,6 +2230,9 @@ const styles = StyleSheet.create({
   },
   modernDoctorInfo: {
     padding: 16,
+    backgroundColor: '#fff',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   nameRow: {
     flexDirection: 'row',
@@ -2172,8 +2258,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
     backgroundColor: '#F8F9FA',
-    padding: 8,
-    borderRadius: 8,
+    padding: 12,
+    borderRadius: 12,
   },
   modernLocation: {
     fontSize: 13,
@@ -2184,38 +2270,28 @@ const styles = StyleSheet.create({
   modernStatsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
+    gap: 12,
   },
   modernStat: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 16,
     backgroundColor: '#F8F9FA',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  modernStatText: {
-    fontSize: 13,
-    color: '#666',
-    marginLeft: 4,
-    fontWeight: '500',
-  },
-  modernPrice: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
   },
   modernBadgeContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
+    marginTop: 4,
   },
   modernBadge: {
     backgroundColor: '#E3EFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 14,
   },
   modernBadgeText: {
     fontSize: 12,
@@ -2234,7 +2310,150 @@ const styles = StyleSheet.create({
   },
   skeleton: {
     backgroundColor: '#E1E9EE',
-    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  // Add shimmer animation effect
+  '@keyframes shimmer': {
+    '0%': {
+      backgroundColor: '#E1E9EE',
+    },
+    '50%': {
+      backgroundColor: '#F2F8FC',
+    },
+    '100%': {
+      backgroundColor: '#E1E9EE',
+    },
+  },
+  modernDoctorCard: {
+    width: ITEM_SIZE,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    marginHorizontal: 8,
+    marginVertical: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
+  },
+  imageWrapper: {
+    position: 'relative',
+    width: '100%',
+    height: ITEM_SIZE * 0.8,
+  },
+  modernDoctorImage: {
+    width: '100%',
+    height: '100%',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  imageGradient: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 80,
+    justifyContent: 'flex-end',
+    padding: 12,
+  },
+  verifiedBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 12,
+    padding: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  modernDoctorInfo: {
+    padding: 16,
+    backgroundColor: '#fff',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  modernDoctorName: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    flex: 1,
+    marginRight: 8,
+  },
+  modernSpecialty: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 12,
+    fontWeight: '500',
+  },
+  modernLocationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    backgroundColor: '#F8F9FA',
+    padding: 12,
+    borderRadius: 12,
+  },
+  modernLocation: {
+    fontSize: 13,
+    color: '#666',
+    marginLeft: 4,
+    flex: 1,
+  },
+  modernStatsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 12,
+  },
+  modernStat: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  modernBadgeContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 4,
+  },
+  modernBadge: {
+    backgroundColor: '#E3EFFF',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 14,
+  },
+  modernBadgeText: {
+    fontSize: 12,
+    color: '#2E86DE',
+    fontWeight: '600',
+  },
+  featuredSection: {
+    marginVertical: 16,
+  },
+  featuredList: {
+    paddingHorizontal: 8,
+    paddingVertical: 12,
+  },
+  skeletonBackground: {
+    backgroundColor: '#E1E9EE',
+  },
+  skeleton: {
+    backgroundColor: '#E1E9EE',
     overflow: 'hidden',
   },
 });

@@ -27,7 +27,7 @@ const Specific_detail = ({ route, navigation }) => {
       setIsLoading(false);
     }
   }, [category, providers]);
-
+  
   // Function to handle search query change
   const handleSearch = (query) => {
     setSearchQuery(query);
