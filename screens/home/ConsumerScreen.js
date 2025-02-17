@@ -101,23 +101,7 @@ const AppointmentSkeleton = () => (
   </View>
 );
 
-// Add this component for the hero section skeleton
-const HeroSectionSkeleton = () => (
-  <View style={styles.heroSection}>
-    <View style={styles.heroHeader}>
-      <View>
-        <View style={[styles.skeleton, { width: 150, height: 28, marginBottom: 8 }]} />
-        <View style={[styles.skeleton, { width: 120, height: 16 }]} />
-      </View>
-      <View style={styles.headerActions}>
-        <View style={[styles.skeleton, { width: 40, height: 40, borderRadius: 12 }]} />
-        <View style={[styles.skeleton, { width: 40, height: 40, borderRadius: 12 }]} />
-      </View>
-    </View>
-  </View>
-);
-
-// Update the FeaturedSpecialistSkeleton
+// Add this skeleton component
 const FeaturedSpecialistSkeleton = () => (
   <View style={[styles.modernDoctorCard, { backgroundColor: '#fff' }]}>
     <View style={[styles.skeleton, { 
@@ -164,6 +148,22 @@ const CategorySkeleton = () => (
       height: CATEGORY_CARD_SIZE,
       borderRadius: 16
     }]} />
+  </View>
+);
+
+// Add this component for the hero section skeleton
+const HeroSectionSkeleton = () => (
+  <View style={styles.heroSection}>
+    <View style={styles.heroHeader}>
+      <View>
+        <View style={[styles.skeleton, { width: 150, height: 28, marginBottom: 8 }]} />
+        <View style={[styles.skeleton, { width: 120, height: 16 }]} />
+      </View>
+      <View style={styles.headerActions}>
+        <View style={[styles.skeleton, { width: 40, height: 40, borderRadius: 12 }]} />
+        <View style={[styles.skeleton, { width: 40, height: 40, borderRadius: 12 }]} />
+      </View>
+    </View>
   </View>
 );
 
@@ -736,8 +736,8 @@ function HomeScreen() {
           <Text style={styles.categoryButtonText}>{category.title}</Text>
         </TouchableOpacity>
       ))}
-    </View>
-  );
+        </View>
+      );
 
   const additionalStyles = StyleSheet.create({
     categoryCard: {
@@ -933,7 +933,6 @@ function HomeScreen() {
       <StatusBar barStyle={theme.statusBar} backgroundColor={theme.background} />
 
       {isLoading ? <HeroSectionSkeleton /> : (
-        // Hero Section with Location & Profile
         <View style={styles.heroSection}>
           <View style={styles.heroHeader}>
             <View>
@@ -963,11 +962,11 @@ function HomeScreen() {
       )}
 
       <ScrollView 
-        style={styles.mainContent} 
+        style={styles.mainContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
+          <RefreshControl 
+            refreshing={refreshing} 
             onRefresh={onRefresh}
             colors={['#1a73e8']} // Android
             tintColor="#1a73e8" // iOS
@@ -980,13 +979,13 @@ function HomeScreen() {
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Appointments</Text>
               {upcomingAppointments.length > 0 && (
-                <TouchableOpacity 
-                  style={styles.viewAllButton} 
+              <TouchableOpacity
+                style={styles.viewAllButton}
                   onPress={() => navigation.navigate('UserAppointments', { appointment_detail: allAppointments })}
-                >
+              >
                   <Text style={styles.viewAllText}>View all</Text>
-                  <MaterialIcons name="arrow-forward" size={20} color="#2E86DE" />
-                </TouchableOpacity>
+                <MaterialIcons name="arrow-forward" size={20} color="#2E86DE" />
+              </TouchableOpacity>
               )}
             </View>
             
@@ -1003,9 +1002,9 @@ function HomeScreen() {
                 </>
               ) : upcomingAppointments.length > 0 ? (
                 upcomingAppointments.map(item => (
-                  <TouchableOpacity
+                <TouchableOpacity
                     key={item.id}
-                    style={styles.appointmentCard}
+                  style={styles.appointmentCard}
                     onPress={() => navigation.navigate('AppointmentDetails', { id: item.id })}
                   >
                     <View style={styles.appointmentTimeStrip}>
@@ -1015,25 +1014,25 @@ function HomeScreen() {
                     <View style={styles.appointmentContent}>
                       <Text style={styles.serviceName}>{item.serviceName} Appointment</Text>
                       <Text style={styles.providerName}>{item.providerName}</Text>
-                      <View style={[styles.statusBadge,
-                      { backgroundColor: 
-                          item.status === 'Confirmed' ? '#E3FCEF' : 
-                          item.status === 'Cancelled' ? '#FFE5E5' : '#FFF5E6' 
+                    <View style={[styles.statusBadge,
+                    { backgroundColor: 
+                        item.status === 'Confirmed' ? '#E3FCEF' : 
+                        item.status === 'Cancelled' ? '#FFE5E5' : '#FFF5E6' 
+                    }]}>
+                      <Text style={[styles.statusText,
+                      { color: 
+                          item.status === 'Confirmed' ? '#1CB66C' : 
+                          item.status === 'Cancelled' ? '#FF3B30' : '#FF9500'
                       }]}>
-                        <Text style={[styles.statusText,
-                        { color: 
-                            item.status === 'Confirmed' ? '#1CB66C' : 
-                            item.status === 'Cancelled' ? '#FF3B30' : '#FF9500'
-                        }]}>
-                          {item.status}
-                        </Text>
-                      </View>
+                        {item.status}
+                      </Text>
                     </View>
+                  </View>
                   </TouchableOpacity>
                 ))
               ) : null}
             </ScrollView>
-          </View>
+                  </View>
         )}
 
         {/* Featured Specialists Section */}
@@ -1051,35 +1050,35 @@ function HomeScreen() {
         onRequestClose={() => setShowSearch(false)}
       >
         <View style={[styles.searchModal, { backgroundColor: theme.background }]}>
-          <View style={styles.searchHeader}>
+            <View style={styles.searchHeader}>
             <TouchableOpacity onPress={() => setShowSearch(false)}>
               <MaterialIcons name="arrow-back" size={24} color={theme.text} />
             </TouchableOpacity>
-            <TextInput
+                <TextInput
               style={[styles.searchInput, { color: theme.text }]}
               placeholder="Search specialists, services..."
               placeholderTextColor={theme.placeholder}
-              value={searchQuery}
+                  value={searchQuery}
               onChangeText={handleSearch}
-              autoFocus
-            />
+                  autoFocus
+                />
           </View>
           {showSearchSuggestions && (
             <ScrollView style={styles.suggestionsContainer}>
               {filteredSuggestions.map((suggestion, index) => (
-                <TouchableOpacity
+                  <TouchableOpacity
                   key={index}
                   style={styles.suggestionItem}
                   onPress={() => handleSuggestionPress(suggestion)}
-                >
+                  >
                   <Text style={[styles.suggestionText, { color: theme.text }]}>
                     {suggestion}
                   </Text>
-                </TouchableOpacity>
+                  </TouchableOpacity>
               ))}
             </ScrollView>
-          )}
-        </View>
+                )}
+              </View>
       </Modal>
     </SafeAreaView>
   );
@@ -1176,7 +1175,7 @@ function ProfileScreen() {
             />
             <Text style={styles.profileName}>{userInfo.name}</Text>
             <Text style={styles.profileEmail}>{userInfo.email}</Text>
-          </View>
+            </View>
         </LinearGradient>
 
         <View style={styles.statsContainer}>
@@ -1196,8 +1195,8 @@ function ProfileScreen() {
 
         <View style={styles.menuContainer}>
           {menuItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
+                    <TouchableOpacity
+                      key={item.id}
               style={styles.menuItem}
               onPress={item.onPress}
             >
@@ -1214,11 +1213,11 @@ function ProfileScreen() {
                 size={24}
                 color="#757575"
               />
-            </TouchableOpacity>
-          ))}
-        </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
 
-        <TouchableOpacity
+                    <TouchableOpacity
           style={styles.logoutButton}
           onPress={handleLogout}
         >
@@ -1228,9 +1227,9 @@ function ProfileScreen() {
             color="#fff"
           />
           <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </View>
+                    </TouchableOpacity>
+            </ScrollView>
+          </View>
   );
 }
 
@@ -1793,6 +1792,11 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontWeight: '500',
   },
+  modernPrice: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+  },
   modernBadgeContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1948,6 +1952,10 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 12,
     color: '#666',
+  },
+  section: {
+    // marginTop: 20,
+    // paddingHorizontal: 16,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -2281,149 +2289,16 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 12,
   },
-  modernBadgeContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 4,
-  },
-  modernBadge: {
-    backgroundColor: '#E3EFFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 14,
-  },
-  modernBadgeText: {
-    fontSize: 12,
-    color: '#2E86DE',
-    fontWeight: '600',
-  },
-  featuredSection: {
-    marginVertical: 16,
-  },
-  featuredList: {
-    paddingHorizontal: 8,
-    paddingVertical: 12,
-  },
-  skeletonBackground: {
-    backgroundColor: '#E1E9EE',
-  },
-  skeleton: {
-    backgroundColor: '#E1E9EE',
-    overflow: 'hidden',
-  },
-  // Add shimmer animation effect
-  '@keyframes shimmer': {
-    '0%': {
-      backgroundColor: '#E1E9EE',
-    },
-    '50%': {
-      backgroundColor: '#F2F8FC',
-    },
-    '100%': {
-      backgroundColor: '#E1E9EE',
-    },
-  },
-  modernDoctorCard: {
-    width: ITEM_SIZE,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    marginHorizontal: 8,
-    marginVertical: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-  },
-  imageWrapper: {
-    position: 'relative',
-    width: '100%',
-    height: ITEM_SIZE * 0.8,
-  },
-  modernDoctorImage: {
-    width: '100%',
-    height: '100%',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  imageGradient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 80,
-    justifyContent: 'flex-end',
-    padding: 12,
-  },
-  verifiedBadge: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 12,
-    padding: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  modernDoctorInfo: {
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-  },
-  nameRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  modernDoctorName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    flex: 1,
-    marginRight: 8,
-  },
-  modernSpecialty: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 12,
-    fontWeight: '500',
-  },
-  modernLocationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    backgroundColor: '#F8F9FA',
-    padding: 12,
-    borderRadius: 12,
-  },
-  modernLocation: {
+  modernStatText: {
     fontSize: 13,
     color: '#666',
     marginLeft: 4,
-    flex: 1,
+    fontWeight: '500',
   },
-  modernStatsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    gap: 12,
-  },
-  modernStat: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8F9FA',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
+  modernPrice: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
   },
   modernBadgeContainer: {
     flexDirection: 'row',
@@ -2454,6 +2329,7 @@ const styles = StyleSheet.create({
   },
   skeleton: {
     backgroundColor: '#E1E9EE',
+    borderRadius: 4,
     overflow: 'hidden',
   },
 });

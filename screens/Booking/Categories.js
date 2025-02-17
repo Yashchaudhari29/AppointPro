@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, FlatList, TextInput, StyleSheet, TouchableOpacity, StatusBar, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TextInput, StyleSheet, TouchableOpacity, StatusBar, RefreshControl, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { collection, getDocs,getFirestore, query, distinct } from 'firebase/firestore';
+import { LinearGradient } from 'expo-linear-gradient';
 // import { db } from '../../firebase';
 const db = getFirestore();
+
+const { width } = Dimensions.get('window');
+const CATEGORY_CARD_SIZE = (width - (16 * 3)) / 2;
 
 const CategorySkeleton = () => (
   <View style={[styles.categoryCard, { backgroundColor: '#F3F4F6' }]}>
@@ -189,33 +193,35 @@ const CategoriesScreen = ({ navigation }) => {
             <CategorySkeleton />
           ) : (
             <TouchableOpacity 
-              style={[styles.categoryCard, { 
-                backgroundColor: categoryIcons[item.title]?.bgColor || '#F3F4F6',
-                ...theme.shadow
-              }]}
+              style={styles.categoryCard}
               onPress={() => navigation.navigate('Specific_detail', { 
                 category: item.title,
                 providers: providers,
                 bgcol: categoryIcons[item.title]?.bgColor || '#F3F4F6',
               })}
             >
-              <View style={[styles.iconContainer, { 
-                backgroundColor: categoryIcons[item.title]?.bgColor || '#F3F4F6'
-              }]}>
-                <MaterialCommunityIcons 
-                  name={categoryIcons[item.title]?.icon || 'help-circle'}
-                  size={32}
-                  color={categoryIcons[item.title]?.color || theme.text}
-                />
-              </View>
-              <View style={styles.textContainer}>
-                <Text style={[styles.categoryTitle, { color: theme.text }]}>
-                  {item.title}
-                </Text>
-                <Text style={[styles.categorySubtitle, { color: theme.textSecondary }]}>
-                  {categoryCounts[item.title] || 0} Specialists
-                </Text>
-              </View>
+              <LinearGradient
+                colors={[`${categoryIcons[item.title]?.color}10` || '#F3F4F610', `${categoryIcons[item.title]?.color}20` || '#F3F4F620']}
+                style={styles.categoryGradient}
+              >
+                <View style={[styles.iconContainer, { 
+                  backgroundColor: categoryIcons[item.title]?.color || '#F3F4F6'
+                }]}>
+                  <MaterialCommunityIcons 
+                    name={categoryIcons[item.title]?.icon || 'help-circle'}
+                    size={24}
+                    color="#FFFFFF"
+                  />
+                </View>
+                <View style={styles.textContainer}>
+                  <Text style={styles.categoryTitle}>
+                    {item.title}
+                  </Text>
+                  <Text style={styles.categoryCount}>
+                    {categoryCounts[item.title] || 0} Specialists
+                  </Text>
+                </View>
+              </LinearGradient>
             </TouchableOpacity>
           )
         )}
@@ -272,36 +278,39 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   categoryCard: {
-    flex: 1,
+    width: CATEGORY_CARD_SIZE,
+    height: CATEGORY_CARD_SIZE,
     margin: 8,
-    padding: 16,
     borderRadius: 16,
-    elevation: 2,
-    minHeight: 140,
-    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  categoryGradient: {
+    flex: 1,
+    padding: 16,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   iconContainer: {
-    border:1,
-    width: 56,
-    height: 56,
-    borderRadius: 12,
+    width: CATEGORY_CARD_SIZE * 0.25,
+    height: CATEGORY_CARD_SIZE * 0.25,
+    borderRadius: (CATEGORY_CARD_SIZE * 0.25) / 2,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 12,
   },
   textContainer: {
     alignItems: 'center',
-    width: '100%',
   },
   categoryTitle: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#333',
     marginBottom: 4,
     textAlign: 'center',
   },
-  categorySubtitle: {
-    fontSize: 14,
-    opacity: 0.7,
+  categoryCount: {
+    fontSize: 13,
+    color: '#666',
     textAlign: 'center',
   },
   skeleton: {
