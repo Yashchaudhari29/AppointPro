@@ -1,11 +1,22 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, FlatList, TextInput, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, FlatList, TextInput, StyleSheet, TouchableOpacity, StatusBar, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { collection, getDocs,getFirestore, query, distinct } from 'firebase/firestore';
 // import { db } from '../../firebase';
 const db = getFirestore();
+
+const CategorySkeleton = () => (
+  <View style={[styles.categoryCard, { backgroundColor: '#F3F4F6' }]}>
+    <View style={[styles.skeleton, styles.iconContainer]} />
+    <View style={styles.textContainer}>
+      <View style={[styles.skeleton, { width: '80%', height: 20, marginBottom: 8 }]} />
+      <View style={[styles.skeleton, { width: '60%', height: 16 }]} />
+    </View>
+  </View>
+);
+
 const CategoriesScreen = ({ navigation }) => {
   const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
@@ -13,6 +24,7 @@ const CategoriesScreen = ({ navigation }) => {
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [categoryCounts, setCategoryCounts] = useState({});
   const [providers, setProviders] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Map of category names to their respective icons
   const categoryIcons = {
@@ -71,6 +83,48 @@ const CategoriesScreen = ({ navigation }) => {
     fetchCategories();
   }, []);
 
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    
+    const fetchCategories = async () => {
+      try {
+        const usersRef = collection(db, 'users');
+        const snapshot = await getDocs(usersRef);
+        
+        const providersData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setProviders(providersData);
+        
+        const uniqueCategories = new Set();
+        const counts = {};
+        
+        providersData.forEach((userData) => {
+          if (userData.job) {
+            uniqueCategories.add(userData.job);
+            counts[userData.job] = (counts[userData.job] || 0) + 1;
+          }
+        });
+
+        const categoriesArray = Array.from(uniqueCategories).map((category, index) => ({
+          id: (index + 1).toString(),
+          title: category
+        }));
+
+        setCategories(categoriesArray);
+        setFilteredCategories(categoriesArray);
+        setCategoryCounts(counts);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setRefreshing(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   // Function to handle search query change
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -119,39 +173,51 @@ const CategoriesScreen = ({ navigation }) => {
 
       {/* Categories List with Updated Card Design */}
       <FlatList
-        data={filteredCategories}
+        data={categories.length === 0 && providers.length > 0 ? Array(6).fill({}) : filteredCategories}
         numColumns={2}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => index.toString()}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#2E86DE']} // Android
+            tintColor={theme.text} // iOS
+          />
+        }
         renderItem={({ item }) => (
-          <TouchableOpacity 
-            style={[styles.categoryCard, { 
-              backgroundColor: categoryIcons[item.title]?.bgColor || '#F3F4F6',
-              ...theme.shadow
-            }]}
-            onPress={() => navigation.navigate('Specific_detail', { 
-              category: item.title,
-              providers: providers,
-              bgcol: categoryIcons[item.title]?.bgColor || '#F3F4F6',
-            })}
-          >
-            <View style={[styles.iconContainer, { 
-              backgroundColor: categoryIcons[item.title]?.bgColor || '#F3F4F6'
-            }]}>
-              <MaterialCommunityIcons 
-                name={categoryIcons[item.title]?.icon || 'help-circle'}
-                size={32}
-                color={categoryIcons[item.title]?.color || theme.text}
-              />
-            </View>
-            <View style={styles.textContainer}>
-              <Text style={[styles.categoryTitle, { color: theme.text }]}>
-                {item.title}
-              </Text>
-              <Text style={[styles.categorySubtitle, { color: theme.textSecondary }]}>
-                {categoryCounts[item.title] || 0} Specialists
-              </Text>
-            </View>
-          </TouchableOpacity>
+          categories.length === 0 && providers.length > 0 ? (
+            <CategorySkeleton />
+          ) : (
+            <TouchableOpacity 
+              style={[styles.categoryCard, { 
+                backgroundColor: categoryIcons[item.title]?.bgColor || '#F3F4F6',
+                ...theme.shadow
+              }]}
+              onPress={() => navigation.navigate('Specific_detail', { 
+                category: item.title,
+                providers: providers,
+                bgcol: categoryIcons[item.title]?.bgColor || '#F3F4F6',
+              })}
+            >
+              <View style={[styles.iconContainer, { 
+                backgroundColor: categoryIcons[item.title]?.bgColor || '#F3F4F6'
+              }]}>
+                <MaterialCommunityIcons 
+                  name={categoryIcons[item.title]?.icon || 'help-circle'}
+                  size={32}
+                  color={categoryIcons[item.title]?.color || theme.text}
+                />
+              </View>
+              <View style={styles.textContainer}>
+                <Text style={[styles.categoryTitle, { color: theme.text }]}>
+                  {item.title}
+                </Text>
+                <Text style={[styles.categorySubtitle, { color: theme.textSecondary }]}>
+                  {categoryCounts[item.title] || 0} Specialists
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )
         )}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
@@ -237,6 +303,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     opacity: 0.7,
     textAlign: 'center',
+  },
+  skeleton: {
+    backgroundColor: '#E1E9EE',
+    borderRadius: 4,
+    overflow: 'hidden',
   },
 });
 

@@ -85,6 +85,21 @@ function JobCard({ job }) {
   );
 }
 
+// Add this skeleton component near the top
+const AppointmentSkeleton = () => (
+  <View style={styles.appointmentCard}>
+    <View style={styles.appointmentTimeStrip}>
+      <View style={[styles.skeleton, { width: 80, height: 20 }]} />
+      <View style={[styles.skeleton, { width: 100, height: 20 }]} />
+    </View>
+    <View style={styles.appointmentContent}>
+      <View style={[styles.skeleton, { width: '70%', height: 24, marginBottom: 8 }]} />
+      <View style={[styles.skeleton, { width: '50%', height: 18, marginBottom: 8 }]} />
+      <View style={[styles.skeleton, { width: '30%', height: 24 }]} />
+    </View>
+  </View>
+);
+
 function HomeScreen() {
   const navigation = useNavigation();
   const { unreadCount } = useNotifications();
@@ -727,6 +742,11 @@ function HomeScreen() {
       paddingHorizontal: 8,
       paddingVertical: 10,
     },
+    skeleton: {
+      backgroundColor: '#E1E9EE',
+      borderRadius: 4,
+      overflow: 'hidden',
+    },
   });
 
   // Update onRefresh function
@@ -799,54 +819,64 @@ function HomeScreen() {
         }
       >
         {/* Upcoming Appointments */}
-        {upcomingAppointments.length > 0 && (
+        {appointmentIds.length > 0 && (
           <View style={styles.upcomingSection}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Appointments</Text>
-
-              <TouchableOpacity style={styles.viewAllButton} onPress={() => navigation.navigate('UserAppointments', { appointment_detail: allAppointments })}>
-                <Text style={styles.viewAllText}>View all</Text>
-                <MaterialIcons name="arrow-forward" size={20} color="#2E86DE" />
-
-              </TouchableOpacity>
-            </View>
-            <FlatList
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              data={upcomingAppointments}
-              renderItem={({ item }) => (
-                // console.log(item),
-                <TouchableOpacity
-                  style={styles.appointmentCard}
-                  onPress={() => navigation.navigate('AppointmentDetails', { id: item.id })}
+              {upcomingAppointments.length > 0 && (
+                <TouchableOpacity 
+                  style={styles.viewAllButton} 
+                  onPress={() => navigation.navigate('UserAppointments', { appointment_detail: allAppointments })}
                 >
-                  <View style={styles.appointmentTimeStrip}>
-                    <Text style={styles.appointmentTime}>{item.time}</Text>
-                    <Text style={styles.appointmentDate}>{item.date}</Text>
-                  </View>
-                  <View style={styles.appointmentContent}>
-
-                    <Text style={styles.serviceName}>{item.serviceName} Appointment</Text>
-                    <Text style={styles.providerName}>{item.providerName}</Text>
-                    <View style={[styles.statusBadge,
-                    { backgroundColor: 
-                        item.status === 'Confirmed' ? '#E3FCEF' : 
-                        item.status === 'Cancelled' ? '#FFE5E5' : '#FFF5E6' 
-                    }]}>
-                      <Text style={[styles.statusText,
-                      { color: 
-                          item.status === 'Confirmed' ? '#1CB66C' : 
-                          item.status === 'Cancelled' ? '#FF3B30' : '#FF9500'
-                      }]}>
-                        {item.status}
-                      </Text>
-                    </View>
-                  </View>
+                  <Text style={styles.viewAllText}>View all</Text>
+                  <MaterialIcons name="arrow-forward" size={20} color="#2E86DE" />
                 </TouchableOpacity>
               )}
-              keyExtractor={item => item.id}
+            </View>
+            
+            <ScrollView 
+              horizontal
+              showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.appointmentsList}
-            />
+            >
+              {appointmentIds.length > 0 && upcomingAppointments.length === 0 ? (
+                <>
+                  <AppointmentSkeleton />
+                  <AppointmentSkeleton />
+                  <AppointmentSkeleton />
+                </>
+              ) : upcomingAppointments.length > 0 ? (
+                upcomingAppointments.map(item => (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.appointmentCard}
+                    onPress={() => navigation.navigate('AppointmentDetails', { id: item.id })}
+                  >
+                    <View style={styles.appointmentTimeStrip}>
+                      <Text style={styles.appointmentTime}>{item.time}</Text>
+                      <Text style={styles.appointmentDate}>{item.date}</Text>
+                    </View>
+                    <View style={styles.appointmentContent}>
+                      <Text style={styles.serviceName}>{item.serviceName} Appointment</Text>
+                      <Text style={styles.providerName}>{item.providerName}</Text>
+                      <View style={[styles.statusBadge,
+                      { backgroundColor: 
+                          item.status === 'Confirmed' ? '#E3FCEF' : 
+                          item.status === 'Cancelled' ? '#FFE5E5' : '#FFF5E6' 
+                      }]}>
+                        <Text style={[styles.statusText,
+                        { color: 
+                            item.status === 'Confirmed' ? '#1CB66C' : 
+                            item.status === 'Cancelled' ? '#FF3B30' : '#FF9500'
+                        }]}>
+                          {item.status}
+                        </Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                ))
+              ) : null}
+            </ScrollView>
           </View>
         )}
 
