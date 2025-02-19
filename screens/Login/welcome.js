@@ -22,6 +22,8 @@ export default function WelcomePage({ navigation }) {
   const translateY = useRef(new Animated.Value(50)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
+  const gradientColors = ['#4158D0', '#C850C0', '#FFCC70'];
+
   useEffect(() => {
     // Splash animation
     Animated.parallel([ 
@@ -94,22 +96,30 @@ export default function WelcomePage({ navigation }) {
     return (
       <View style={styles.splashContainer}>
         <LinearGradient 
-          colors={['#FFFFFF', '#F0F4F8']} 
+          colors={gradientColors}
+          start={{x: 0, y: 0}}
+          end={{x: 1, y: 1}}
           style={StyleSheet.absoluteFillObject}
         />
         <Animated.View 
           style={{
             transform: [{ scale: splashScale }],
-            opacity: splashOpacity
+            opacity: splashOpacity,
+            alignItems: 'center',
           }}
         >
           <MaterialCommunityIcons 
             name="calendar-clock" 
-            size={120} 
-            color="#1A237E"
-            style={{ alignSelf: 'center'}}
+            size={150} 
+            color="#FFFFFF"
+            style={{ 
+              alignSelf: 'center',
+              textShadowColor: 'rgba(0, 0, 0, 0.2)',
+              textShadowOffset: { width: 2, height: 2 },
+              textShadowRadius: 5,
+            }}
           />
-          <Text style={[styles.splashText, { color: '#1A237E' }]}>AppointPro</Text>
+          <Text style={[styles.splashText, { color: '#FFFFFF' }]}>AppointPro</Text>
         </Animated.View>
       </View>
     );
@@ -123,7 +133,7 @@ export default function WelcomePage({ navigation }) {
   return (
     <View style={styles.container}>
       <LinearGradient 
-        colors={['#FFFFFF', '#F0F4F8']} 
+        colors={gradientColors}
         style={StyleSheet.absoluteFillObject}
         start={{x: 0, y: 0}} 
         end={{x: 1, y: 1}}
@@ -143,29 +153,25 @@ export default function WelcomePage({ navigation }) {
             }
           ]}
         >
-          <View 
-            style={[
-              styles.logoContainer, 
-              { 
-                backgroundColor: 'transparent',
-                borderWidth: 2,
-                borderColor: 'rgba(26, 35, 126, 0.1)'
-              }
-            ]}
-          >
+          <View style={styles.logoContainer}>
             <MaterialCommunityIcons 
               name="calendar-clock" 
-              size={80} 
-              color="#1A237E"
+              size={100} 
+              color="#FFFFFF"
+              style={{ 
+                textShadowColor: 'rgba(0, 0, 0, 0.2)',
+                textShadowOffset: { width: 2, height: 2 },
+                textShadowRadius: 5,
+              }}
             />
           </View>
 
           <Text style={styles.heading}>
-            Welcome to the Future
+            AppointPro
           </Text>
           
           <Text style={styles.subheading}>
-            Unleash Possibilities, Redefine Experience
+            Book appointments effortlessly
           </Text>
 
           <TouchableOpacity 
@@ -178,7 +184,7 @@ export default function WelcomePage({ navigation }) {
             <MaterialCommunityIcons 
               name="arrow-right-circle" 
               size={30} 
-              color="#FFFFFF"
+              color="#4158D0"
             />
           </TouchableOpacity>
         </Animated.View>
@@ -194,10 +200,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   splashText: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: 40,
+    fontWeight: '800',
     marginTop: 20,
     textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 5,
   },
   container: {
     flex: 1,
@@ -210,10 +219,9 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     marginBottom: 30,
-    borderRadius: 50,
     padding: 20,
-    backgroundColor: 'transparent',
-    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   content: {
     alignItems: 'center',
@@ -221,44 +229,48 @@ const styles = StyleSheet.create({
     maxWidth: 500,
   },
   heading: {
-    fontSize: Platform.OS === 'web' ? 40 : 32,
-    fontWeight: 'bold',
+    fontSize: Platform.OS === 'web' ? 44 : 36,
+    fontWeight: '800',
     textAlign: 'center',
     marginBottom: 20,
-    color: '#1A237E',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 5,
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    color: '#FFFFFF',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 4,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
   },
   subheading: {
-    fontSize: Platform.OS === 'web' ? 20 : 18,
+    fontSize: Platform.OS === 'web' ? 22 : 20,
     textAlign: 'center',
     marginBottom: 40,
     paddingHorizontal: 20,
-    fontStyle: 'italic',
-    color: '#1A237E',
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 3,
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.9)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
   },
   nextButton: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 25,
-    borderRadius: 50,
-    backgroundColor: '#1A237E',
-    elevation: 5,
+    paddingVertical: 18,
+    paddingHorizontal: 35,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    elevation: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 15,
+    transform: [{ scale: 1.05 }],
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   nextButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginRight: 10,
-    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: '700',
+    marginRight: 12,
+    color: '#4158D0',
+    letterSpacing: 0.5,
   },
 });
