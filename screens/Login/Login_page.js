@@ -13,6 +13,7 @@ import {
   ActivityIndicator 
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Svg, { Path } from 'react-native-svg'; 
 import {
   signInWithEmailAndPassword,
@@ -132,7 +133,12 @@ const LoginScreen = ({ navigation }) => {
 
         <View style={styles.formContainer}>
           <View style={styles.logoContainer}>
-            <MaterialIcons name="calendar-today" size={60} color="#007AFF" />
+          <MaterialCommunityIcons 
+              name="calendar-clock" 
+              size={80} 
+              color="#007AFF"
+              style={styles.clock}
+            />
           </View>
           <Text style={styles.header}>Welcome Back</Text>
           <Text style={styles.subHeader}>Sign in to continue</Text>
@@ -206,6 +212,9 @@ const LoginScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  clock:{
+    shadowColor:'#007AFF',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',

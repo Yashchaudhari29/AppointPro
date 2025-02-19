@@ -22,8 +22,6 @@ export default function WelcomePage({ navigation }) {
   const translateY = useRef(new Animated.Value(50)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
-  const gradientColors = ['#4158D0', '#C850C0', '#FFCC70'];
-
   useEffect(() => {
     // Splash animation
     Animated.parallel([ 
@@ -96,30 +94,22 @@ export default function WelcomePage({ navigation }) {
     return (
       <View style={styles.splashContainer}>
         <LinearGradient 
-          colors={gradientColors}
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 1}}
+          colors={['#FFFFFF', '#F0F4F8']} 
           style={StyleSheet.absoluteFillObject}
         />
         <Animated.View 
           style={{
             transform: [{ scale: splashScale }],
-            opacity: splashOpacity,
-            alignItems: 'center',
+            opacity: splashOpacity
           }}
         >
           <MaterialCommunityIcons 
             name="calendar-clock" 
-            size={150} 
-            color="#FFFFFF"
-            style={{ 
-              alignSelf: 'center',
-              textShadowColor: 'rgba(0, 0, 0, 0.2)',
-              textShadowOffset: { width: 2, height: 2 },
-              textShadowRadius: 5,
-            }}
+            size={120} 
+            color="#1A237E"
+            style={{ alignSelf: 'center'}}
           />
-          <Text style={[styles.splashText, { color: '#FFFFFF' }]}>AppointPro</Text>
+          <Text style={[styles.splashText, { color: '#1A237E' }]}>AppointPro</Text>
         </Animated.View>
       </View>
     );
@@ -133,7 +123,7 @@ export default function WelcomePage({ navigation }) {
   return (
     <View style={styles.container}>
       <LinearGradient 
-        colors={gradientColors}
+        colors={['#FFFFFF', '#F0F4F8']} 
         style={StyleSheet.absoluteFillObject}
         start={{x: 0, y: 0}} 
         end={{x: 1, y: 1}}
@@ -153,25 +143,29 @@ export default function WelcomePage({ navigation }) {
             }
           ]}
         >
-          <View style={styles.logoContainer}>
+          <View 
+            style={[
+              styles.logoContainer, 
+              { 
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderColor: 'rgba(26, 35, 126, 0.1)'
+              }
+            ]}
+          >
             <MaterialCommunityIcons 
               name="calendar-clock" 
-              size={100} 
-              color="#FFFFFF"
-              style={{ 
-                textShadowColor: 'rgba(0, 0, 0, 0.2)',
-                textShadowOffset: { width: 2, height: 2 },
-                textShadowRadius: 5,
-              }}
+              size={80} 
+              color="#1A237E"
             />
           </View>
 
           <Text style={styles.heading}>
-            AppointPro
+            Welcome to the Future
           </Text>
           
           <Text style={styles.subheading}>
-            Book appointments effortlessly
+            Unleash Possibilities, Redefine Experience
           </Text>
 
           <TouchableOpacity 
@@ -184,7 +178,7 @@ export default function WelcomePage({ navigation }) {
             <MaterialCommunityIcons 
               name="arrow-right-circle" 
               size={30} 
-              color="#4158D0"
+              color="#FFFFFF"
             />
           </TouchableOpacity>
         </Animated.View>
@@ -200,13 +194,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   splashText: {
-    fontSize: 40,
-    fontWeight: '800',
+    fontSize: 32,
+    fontWeight: 'bold',
     marginTop: 20,
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 5,
   },
   container: {
     flex: 1,
@@ -219,9 +210,10 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     marginBottom: 30,
+    borderRadius: 50,
     padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    borderWidth: 2,
   },
   content: {
     alignItems: 'center',
@@ -229,48 +221,44 @@ const styles = StyleSheet.create({
     maxWidth: 500,
   },
   heading: {
-    fontSize: Platform.OS === 'web' ? 44 : 36,
-    fontWeight: '800',
+    fontSize: Platform.OS === 'web' ? 40 : 32,
+    fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
-    color: '#FFFFFF',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 4,
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    color: '#1A237E',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 5,
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
   },
   subheading: {
-    fontSize: Platform.OS === 'web' ? 22 : 20,
+    fontSize: Platform.OS === 'web' ? 20 : 18,
     textAlign: 'center',
     marginBottom: 40,
     paddingHorizontal: 20,
-    fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.9)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    fontStyle: 'italic',
+    color: '#1A237E',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 3,
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
   },
   nextButton: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 18,
-    paddingHorizontal: 35,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    elevation: 8,
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    borderRadius: 50,
+    backgroundColor: '#1A237E',
+    elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 15,
-    transform: [{ scale: 1.05 }],
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   nextButtonText: {
-    fontSize: 22,
-    fontWeight: '700',
-    marginRight: 12,
-    color: '#4158D0',
-    letterSpacing: 0.5,
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginRight: 10,
+    color: '#FFFFFF',
   },
 });
