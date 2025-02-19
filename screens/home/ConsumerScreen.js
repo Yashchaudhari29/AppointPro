@@ -19,7 +19,7 @@ import {
 } from 'react-native';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { NavigationContainer, useNavigation, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Alert } from 'react-native';
@@ -928,6 +928,30 @@ function HomeScreen() {
     </View>
   );
 
+  // Add this useFocusEffect hook
+  useFocusEffect(
+    useCallback(() => {
+      // Refresh data when screen is focused
+      const refreshOnFocus = async () => {
+        setRefreshing(true);
+        try {
+          await Promise.all([
+            fetchFeaturedDoctors(),
+            fetchUserData(),
+            fetchAppointmentIds(),
+            fetchCategories(),
+          ]);
+        } catch (error) {
+          console.error('Error refreshing on focus:', error);
+        } finally {
+          setRefreshing(false);
+        }
+      };
+
+      refreshOnFocus();
+    }, [])
+  );
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={theme.statusBar} backgroundColor={theme.background} />
@@ -1013,7 +1037,7 @@ function HomeScreen() {
                     </View>
                     <View style={styles.appointmentContent}>
                       <Text style={styles.serviceName}>{item.serviceName} Appointment</Text>
-                      <Text style={styles.providerName}>{item.providerName}</Text>
+                      <Text style={styles.providerName}>{item.serviceName==="Doctor" ? `Dr. ${item.providerName}` : item.providerName}</Text>
                     <View style={[styles.statusBadge,
                     { backgroundColor: 
                         item.status === 'Confirmed' ? '#E3FCEF' : 
@@ -1265,9 +1289,9 @@ export default function App() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Explore" component={ExploreScreen} />
+      {/* <Tab.Screen name="Explore" component={ExploreScreen} /> */}
       <Tab.Screen name="Booking" component={CategoriesScreen} />
-      <Tab.Screen name="Messages" component={MessagesScreen} />
+      {/* <Tab.Screen name="Messages" component={MessagesScreen} /> */}
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
@@ -1952,10 +1976,6 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 12,
     color: '#666',
-  },
-  section: {
-    // marginTop: 20,
-    // paddingHorizontal: 16,
   },
   sectionHeader: {
     flexDirection: 'row',

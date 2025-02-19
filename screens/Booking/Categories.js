@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, FlatList, TextInput, StyleSheet, TouchableOpacity, StatusBar, RefreshControl, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { collection, getDocs,getFirestore, query, distinct } from 'firebase/firestore';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useCallback } from 'react';
 // import { db } from '../../firebase';
 const db = getFirestore();
 
@@ -13,11 +14,16 @@ const CATEGORY_CARD_SIZE = (width - (16 * 3)) / 2;
 
 const CategorySkeleton = () => (
   <View style={[styles.categoryCard, { backgroundColor: '#F3F4F6' }]}>
-    <View style={[styles.skeleton, styles.iconContainer]} />
-    <View style={styles.textContainer}>
-      <View style={[styles.skeleton, { width: '80%', height: 20, marginBottom: 8 }]} />
-      <View style={[styles.skeleton, { width: '60%', height: 16 }]} />
-    </View>
+    <LinearGradient
+      colors={['#F3F4F610', '#F3F4F620']}
+      style={styles.categoryGradient}
+    >
+      <View style={[styles.skeleton, styles.iconContainer]} />
+      <View style={styles.textContainer}>
+        <View style={[styles.skeleton, { width: '80%', height: 20, marginBottom: 8 }]} />
+        <View style={[styles.skeleton, { width: '60%', height: 16 }]} />
+      </View>
+    </LinearGradient>
   </View>
 );
 
@@ -29,6 +35,7 @@ const CategoriesScreen = ({ navigation }) => {
   const [categoryCounts, setCategoryCounts] = useState({});
   const [providers, setProviders] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Map of category names to their respective icons
   const categoryIcons = {
@@ -142,6 +149,50 @@ const CategoriesScreen = ({ navigation }) => {
     }
   };
 
+  // Add useFocusEffect for refresh on tab focus
+  useFocusEffect(
+    useCallback(() => {
+      const fetchCategories = async () => {
+        setIsLoading(true);
+        try {
+          const usersRef = collection(db, 'users');
+          const snapshot = await getDocs(usersRef);
+          
+          const providersData = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          setProviders(providersData);
+          
+          const uniqueCategories = new Set();
+          const counts = {};
+          
+          providersData.forEach((userData) => {
+            if (userData.job) {
+              uniqueCategories.add(userData.job);
+              counts[userData.job] = (counts[userData.job] || 0) + 1;
+            }
+          });
+
+          const categoriesArray = Array.from(uniqueCategories).map((category, index) => ({
+            id: (index + 1).toString(),
+            title: category
+          }));
+
+          setCategories(categoriesArray);
+          setFilteredCategories(categoriesArray);
+          setCategoryCounts(counts);
+        } catch (error) {
+          console.error('Error fetching categories:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchCategories();
+    }, [])
+  );
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={theme.statusBar} backgroundColor={theme.background} />
@@ -177,7 +228,7 @@ const CategoriesScreen = ({ navigation }) => {
 
       {/* Categories List with Updated Card Design */}
       <FlatList
-        data={categories.length === 0 && providers.length > 0 ? Array(6).fill({}) : filteredCategories}
+        data={isLoading ? Array(6).fill({}) : filteredCategories}
         numColumns={2}
         keyExtractor={(item, index) => index.toString()}
         refreshControl={
@@ -189,7 +240,7 @@ const CategoriesScreen = ({ navigation }) => {
           />
         }
         renderItem={({ item }) => (
-          categories.length === 0 && providers.length > 0 ? (
+          isLoading ? (
             <CategorySkeleton />
           ) : (
             <TouchableOpacity 
@@ -215,7 +266,7 @@ const CategoriesScreen = ({ navigation }) => {
                 </View>
                 <View style={styles.textContainer}>
                   <Text style={styles.categoryTitle}>
-                    {item.title}
+                    {item.title}s
                   </Text>
                   <Text style={styles.categoryCount}>
                     {categoryCounts[item.title] || 0} Specialists
@@ -317,6 +368,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E1E9EE',
     borderRadius: 4,
     overflow: 'hidden',
+    opacity: 0.7,
   },
 });
 
