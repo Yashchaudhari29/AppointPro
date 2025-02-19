@@ -22,7 +22,7 @@ const RegisterScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const validatePassword = (password) => {
-    const minLength = password.length >= 8;
+    const minLength = password.length >= 6;
     const hasNumber = /\d/.test(password);
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
     const hasLetter = /[a-zA-Z]/.test(password);
@@ -42,18 +42,19 @@ const RegisterScreen = ({ navigation }) => {
     if (!password) formErrors.password = 'Password is required';
     if (!confirmPassword) formErrors.confirmPassword = 'Confirm password is required';
 
-    // const passwordValidation = validatePassword(password);
-    // if (!passwordValidation.minLength) formErrors.passwordLength = 'Password must be at least 8 characters';
-    // if (!passwordValidation.hasNumber) formErrors.passwordNumber = 'Password must contain at least one number';
-    // if (!passwordValidation.hasSpecialChar) formErrors.passwordSpecialChar = 'Password must contain at least one special character';
-    // if (!passwordValidation.hasLetter) formErrors.passwordLetter = 'Password must contain at least one letter';
+    // Uncommented password validation
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.minLength) formErrors.passwordLength = 'Password must be at least 6 characters';
+    if (!passwordValidation.hasNumber) formErrors.passwordNumber = 'Password must contain at least one number';
+    if (!passwordValidation.hasSpecialChar) formErrors.passwordSpecialChar = 'Password must contain at least one special character';
+    if (!passwordValidation.hasLetter) formErrors.passwordLetter = 'Password must contain at least one letter';
 
-    // if (password !== confirmPassword) formErrors.passwordMatch = 'Passwords do not match';
+    if (password !== confirmPassword) formErrors.passwordMatch = 'Passwords do not match';
 
-    // if (Object.keys(formErrors).length > 0) {
-    //   setErrors(formErrors);
-    //   return;
-    // }
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -84,8 +85,21 @@ const RegisterScreen = ({ navigation }) => {
           barStyle="dark-content"
           translucent={true}
         />
+        
         <View style={styles.formContainer}>
+          
+          {/* Moved Back Button Here */}
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => navigation.goBack()}
+          >
+            <View style={styles.backContainer}>
+              <Icon name="arrow-left" size={24} color="#007AFF" />
+              {/* <Text style={styles.backText}>Back</Text> */}
+            </View>
+          </TouchableOpacity>
           <Text style={styles.header}>Create Account</Text>
+
           <Text style={styles.subHeader}>Join AppointPro and streamline your appointments</Text>
 
           {/* First Name Input */}
@@ -361,6 +375,31 @@ const styles = StyleSheet.create({
   },
   loadingIndicator: {
     marginTop: 20,
+  },
+  backButton: {
+    alignSelf: 'flex-start',
+    marginBottom: 15,
+  },
+  backContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f7ff',
+    padding: 8,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  backText: {
+    marginLeft: 8,
+    color: '#007AFF',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
 

@@ -119,6 +119,17 @@ const LoginScreen = ({ navigation }) => {
           barStyle="dark-content"
           translucent={true}
         />
+        
+        {/* Add Back Button */}
+        <TouchableOpacity 
+          style={styles.backButtonTop} 
+          onPress={() => navigation.goBack()}
+        >
+          <View style={styles.backContainer}>
+            <Icon name="arrow-left" size={24} color="#007AFF" />
+          </View>
+        </TouchableOpacity>
+
         <View style={styles.formContainer}>
           <View style={styles.logoContainer}>
             <MaterialIcons name="calendar-today" size={60} color="#007AFF" />
@@ -199,24 +210,24 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8f9fa',
     paddingHorizontal: 20,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   formContainer: {
     width: '100%',
     maxWidth: 400,
-    padding: 25,
-    borderRadius: 15,
-    backgroundColor: '#fff',
+    padding: 30,
+    borderRadius: 20,
+    backgroundColor: '#ffffff',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowRadius: 12,
+    elevation: 8,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -224,32 +235,35 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 20,
-    padding: 15,
+    marginBottom: 30,
+    backgroundColor: '#f0f7ff',
+    padding: 20,
+    borderRadius: 20,
   },
   header: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 10,
-    color: '#333',
+    color: '#1a1a1a',
+    letterSpacing: 0.5,
   },
   subHeader: {
-    fontSize: 14,
+    fontSize: 16,
     textAlign: 'center',
     color: '#666',
-    marginBottom: 30,
+    marginBottom: 40,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
+    marginBottom: 20,
+    borderWidth: 1.5,
+    borderColor: '#e1e1e1',
+    borderRadius: 12,
     backgroundColor: '#fff',
     paddingHorizontal: 15,
-    height: 50,
+    height: 55,
   },
   inputIcon: {
     marginRight: 10,
@@ -258,6 +272,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: '#333',
+    paddingVertical: 12,
   },
   eyeButton: {
     padding: 8,
@@ -282,23 +297,24 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 10,
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 20,
     alignItems: 'center',
     shadowColor: '#007AFF',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   loginButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
+    fontWeight: '600',
+    fontSize: 18,
+    letterSpacing: 0.5,
   },
   registerContainer: {
     marginTop: 25,
@@ -311,6 +327,25 @@ const styles = StyleSheet.create({
   signUpText: {
     color: '#007AFF',
     fontWeight: 'bold',
+  },
+  backButtonTop: {
+    position: 'absolute',
+    top: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 40,
+    left: 20,
+    zIndex: 1,
+  },
+  backContainer: {
+    backgroundColor: '#f0f7ff',
+    padding: 8,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
 });
 

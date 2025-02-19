@@ -7,7 +7,8 @@ import {
   TouchableOpacity, 
   StyleSheet, 
   StatusBar, 
-  ActivityIndicator 
+  ActivityIndicator,
+  Platform
 } from 'react-native';
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
@@ -38,6 +39,16 @@ const ForgotPasswordScreen = ({ navigation }) => {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       
+      {/* Add Back Button */}
+      <TouchableOpacity 
+        style={styles.backButtonTop} 
+        onPress={() => navigation.goBack()}
+      >
+        <View style={styles.backContainer}>
+          <Icon name="arrow-left" size={24} color="#007AFF" />
+        </View>
+      </TouchableOpacity>
+      
       <View style={styles.formContainer}>
         <Text style={styles.header}>Reset Your Password</Text>
         
@@ -66,16 +77,6 @@ const ForgotPasswordScreen = ({ navigation }) => {
             </View>
           )}
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => navigation.goBack()}
-        >
-          <View style={styles.back_container}>
-          <Icon name="arrow-left" size={17} style={styles.arrowIcon} />
-          <Text style={styles.backText}>Back to Login</Text>
-          </View>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -86,52 +87,71 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFE7',
+    backgroundColor: '#f8f9fa',
     paddingHorizontal: 20,
   },
   formContainer: {
     width: '100%',
     maxWidth: 400,
-    padding: 20,
-    borderRadius: 10,
-    backgroundColor: 'transparent',
+    padding: 30,
+    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
   },
   header: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 30,
-    color: '#333',
+    color: '#1a1a1a',
+    letterSpacing: 0.5,
   },
   input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
+    height: 55,
+    borderWidth: 1.5,
+    borderColor: '#e1e1e1',
+    borderRadius: 12,
     paddingHorizontal: 15,
-    marginBottom: 10,
+    marginBottom: 20,
     fontSize: 16,
+    backgroundColor: '#fff',
+    color: '#333',
   },
   errorInput: {
     borderColor: '#FF0000',
   },
   message: {
-    color: '#FF0000',
+    color: '#dc3545',
     fontSize: 14,
-    marginBottom: 10,
+    marginBottom: 20,
     textAlign: 'center',
+    backgroundColor: '#fdf0f0',
+    padding: 12,
+    borderRadius: 8,
   },
   resetButton: {
-    backgroundColor: 'black',
-    paddingVertical: 15,
-    borderRadius: 5,
-    marginTop:20,
-    marginBottom: 10,
+    backgroundColor: '#007AFF',
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 20,
+    marginBottom: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    flexDirection: 'row',
-    width: '100%',
-    maxWidth: 400,
+    shadowColor: '#007AFF',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   buttonContent: {
     flexDirection: 'row',
@@ -139,26 +159,29 @@ const styles = StyleSheet.create({
   },
   resetButtonText: {
     fontSize: 18,
-    color: '#FFFFE7',
-    fontWeight: 'bold',
+    color: '#fff',
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
-  backButton: {
-    marginTop: 15,
-    alignItems: 'center',
+  backButtonTop: {
+    position: 'absolute',
+    top: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 40,
+    left: 20,
+    zIndex: 1,
   },
-  backText: {
-    color: 'grey',
-    fontSize: 16,
-    // fontWeight: 'bold',
+  backContainer: {
+    backgroundColor: '#f0f7ff',
+    padding: 8,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
-  back_container:{
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  arrowIcon:{
-    color:'grey'
-  }
-  
 });
 
 export default ForgotPasswordScreen;
