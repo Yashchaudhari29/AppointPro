@@ -32,7 +32,7 @@ const CategoriesScreen = ({ navigation }) => {
 
   // Map of category names to their respective icons
   const categoryIcons = {
-    'doctor': { icon: 'medical-bag', color: '#FF6B6B', bgColor: '#FFE8E8' },
+    'Doctor': { icon: 'medical-bag', color: '#FF6B6B', bgColor: '#FFE8E8' },
     'electrician': { icon: 'power-plug', color: '#4D96FF', bgColor: '#E6F0FF' },
     'plumber': { icon: 'pipe', color: '#48BFE3', bgColor: '#E3F6FC' },
     'Mechanic': { icon: 'car-cog', color: '#FF8C42', bgColor: '#FFE8D6' },

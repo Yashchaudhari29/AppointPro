@@ -58,14 +58,13 @@ const doctorAvailability = {
 };
 
 const DoctorBookingScreen = ({ route, navigation }) => {
-  const { providerId, category, provider } = route.params; 
+  const { providerId, provider } = route.params; 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [modalAnimation] = useState(new Animated.Value(0));
   const [showCalendar, setShowCalendar] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0));
-  const scrollViewRef = React.useRef(null);
 
   useEffect(() => {
     if (modalVisible) {
@@ -87,6 +86,8 @@ const DoctorBookingScreen = ({ route, navigation }) => {
     navigation.navigate('ConfirmBooking', {
       appointmentId: appointmentId,
       providers: provider,
+      bookingTime: selectedTime,
+      location: provider.Location || 'Virtual Consultation'
     });
   };
 
@@ -151,9 +152,9 @@ const DoctorBookingScreen = ({ route, navigation }) => {
                 createdAt: new Date(),
               });
 
-              await updateDoc(doc(db, "Appointments", appointmentRef.id), {
-                appointmentId: appointmentRef.id,
-              });
+              // await updateDoc(doc(db, "Appointments", appointmentRef.id), {
+              //   appointmentId: appointmentRef.id,
+              // });
           
               // Add appointment ID to consumer's appointments collection
               const consumerAppointmentRef = doc(db, 'ConsumerAppointments', currentUser.uid);
@@ -386,8 +387,8 @@ const DoctorBookingScreen = ({ route, navigation }) => {
             style={styles.doctorImage}
           />
           <View style={styles.doctorDetails}>
-            <Text style={styles.doctorName}>{provider.name}</Text>
-            <Text style={styles.specialty}>{provider.specialty || category}</Text>
+            <Text style={styles.doctorName}>{provider.job === 'Doctor' ? `Dr. ${provider.name}` : provider.name}</Text>
+            <Text style={styles.specialty}>{provider.job} - {provider.specialist}</Text>
             <View style={styles.location}>
               <Icon name="location-on" size={16} color="#666" />
               <Text style={styles.locationText}>{provider.Location || 'Location not specified'}</Text>
@@ -767,7 +768,7 @@ const styles = StyleSheet.create({
   feeItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    // marginBottom: 12,
   },
   feeLabel: {
     color: '#666',

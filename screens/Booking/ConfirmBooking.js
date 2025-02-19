@@ -16,7 +16,7 @@ const ConfirmBooking = ({ route, navigation }) => {
     const contentOpacity = useRef(new Animated.Value(0)).current;
 
     // Extract the appointment data from route params
-    const { appointmentId, providers } = route.params;
+    const { appointmentId, providers, bookingTime, location } = route.params;
 
     useEffect(() => {
         // Trigger haptic feedback
@@ -115,18 +115,28 @@ const ConfirmBooking = ({ route, navigation }) => {
                                 style={styles.providerImage}
                             />
                             <View style={styles.providerInfo}>
-                                <Text style={styles.providerName}>{providers.name}</Text>
-                                <Text style={styles.providerSpecialty}>Specialist: {providers.job || '-'}</Text>
+                                <Text style={styles.providerName}>{providers.job === 'Doctor' ? `Dr. ${providers.name}` : providers.name}</Text>
+                                <Text style={styles.providerSpecialty}>Specialist : {providers.specialist || '-'}</Text>
                             </View>
                         </View>
 
                         <View style={styles.detailsContainer}>
-
+                            <BookingDetail
+                                icon="clock-outline"
+                                label="Appointment Time"
+                                value={bookingTime}
+                            />
+                            <BookingDetail
+                                icon="map-marker"
+                                label="Location"
+                                value={location}
+                            />
                             <BookingDetail
                                 icon="calendar"
                                 label="Appointment ID"
                                 value={appointmentId}
                             />
+                            
                             <BookingDetail
                                 icon="currency-inr"
                                 label="Consultation Fee"

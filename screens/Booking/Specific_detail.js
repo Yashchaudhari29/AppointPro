@@ -107,57 +107,73 @@ const Specific_detail = ({ route, navigation }) => {
           ) : (
             filteredProviders.map((provider) => (
               <View key={provider.id} style={styles.card}>
-                <View style={styles.providerInfo}>
-                  <Image
-                    source={{ uri: provider.image || 'https://media.istockphoto.com/id/1332100919/vector/man-icon-black-icon-person-symbol.jpg?s=612x612&w=0&k=20&c=AVVJkvxQQCuBhawHrUhDRTCeNQ3Jgt0K1tXjJsFy1eg=' }}
-                    style={styles.profileImage}
-                  />
-                  <View style={styles.textContainer}>
-                    <Text style={styles.name}>{provider.name}</Text>
-                    <Text style={styles.specialty}>{category}</Text>
-                    <View style={styles.ratingContainer}>
-                      <MaterialCommunityIcons name="star" size={16} color="#FFD700" />
-                      <Text style={styles.rating}>{provider.rating || '-'}</Text>
+                <View style={styles.cardHeader}>
+                  <View style={styles.providerInfo}>
+                    <Image
+                      source={{ uri: provider.image || 'https://media.istockphoto.com/id/1332100919/vector/man-icon-black-icon-person-symbol.jpg?s=612x612&w=0&k=20&c=AVVJkvxQQCuBhawHrUhDRTCeNQ3Jgt0K1tXjJsFy1eg=' }}
+                      style={styles.profileImage}
+                    />
+                    <View style={styles.headerInfo}>
+                      <Text style={styles.name}>
+                        {provider.job === 'Doctor' ? `Dr. ${provider.name}` : provider.name}
+                      </Text>
+                      <Text style={styles.specialty}>{provider.specialist}</Text>
+                      <View style={styles.ratingContainer}>
+                        <MaterialCommunityIcons name="star" size={16} color="#FFD700" />
+                        <Text style={styles.rating}>{provider.rating || '4.5'}</Text>
+                        <Text style={styles.reviews}>(124 reviews)</Text>
+                      </View>
                     </View>
                   </View>
-                </View>
-
-                <View style={styles.availabilityContainer}>
-                  <View style={[
-                    styles.availabilityBadge,
-                    { backgroundColor: provider.availability ? '#e8f5e9' : '#ffebee' }
-                  ]}>
-                    <View style={[
-                      styles.dotIndicator,
-                      { backgroundColor: provider.availability ? '#4caf50' : '#ff5252' }
-                    ]} />
-                    <Text style={[
-                      styles.availabilityText,
-                      { color: provider.availability ? '#4caf50' : '#ff5252' }
-                    ]}>
-                      {provider.availability ? 'Available Now' : 'Not Available'}
-                    </Text>
+                  
+                  <View style={styles.experienceContainer}>
+                    <Text style={styles.experienceYears}>{provider.Exp || '--'}</Text>
+                    {/* <Text style={styles.experienceLabel}>Years</Text> */}
                   </View>
-                  <Text style={styles.consultationFee}>
-                    ₹{provider.consultation || '--'} Consultation Fee
-                  </Text>
                 </View>
 
-                <TouchableOpacity
-                  style={[
-                    styles.bookButton,
-                    { backgroundColor: provider.availability ? '#007AFF' : '#E0E0E0' }
-                  ]}
-                  onPress={() => handleBooking(provider.id)}
-                  disabled={!provider.availability}
-                >
-                  <Text style={[
-                    styles.bookButtonText,
-                    { color: provider.availability ? '#fff' : '#666' }
-                  ]}>
-                    {provider.availability ? 'Book Appointment' : 'Currently Unavailable'}
-                  </Text>
-                </TouchableOpacity>
+                <View style={styles.cardBody}>
+                  <View style={styles.infoRow}>
+                    <View style={styles.infoItem}>
+                      <View style={[
+                        styles.availabilityBadge,
+                        { backgroundColor: provider.availability ? '#e8f5e9' : '#ffebee' }
+                      ]}>
+                        <View style={[
+                          styles.dotIndicator,
+                          { backgroundColor: provider.availability ? '#4caf50' : '#ff5252' }
+                        ]} />
+                        <Text style={[
+                          styles.availabilityText,
+                          { color: provider.availability ? '#4caf50' : '#ff5252' }
+                        ]}>
+                          {provider.availability ? 'Available Now' : 'Not Available'}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.infoItem}>
+                      <MaterialCommunityIcons name="map-marker-outline" size={18} color="#666" />
+                      <Text style={styles.infoText}>2.5 km away</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.bottomContainer}>
+                    <View style={styles.feeContainer}>
+                      <Text style={styles.feeLabel}>Consultation Fee</Text>
+                      <Text style={styles.feeAmount}>₹{provider.consultation || '--'}</Text>
+                    </View>
+
+                    <TouchableOpacity
+                      style={[styles.bookButton, !provider.availability && styles.bookButtonDisabled]}
+                      onPress={() => handleBooking(provider.id)}
+                      disabled={!provider.availability}
+                    >
+                      <Text style={styles.bookButtonText}>
+                        {provider.availability ? 'Book Now' : 'Unavailable'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
             ))
           )}
@@ -248,40 +264,46 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#fff',
-    margin: 16,
-    marginBottom: 8,
+    marginHorizontal: 16,
+    marginVertical: 8,
     borderRadius: 16,
     padding: 16,
-    elevation: 2,
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 8,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
   },
   providerInfo: {
     flexDirection: 'row',
-    marginBottom: 12,
+    flex: 1,
   },
   profileImage: {
     width: 70,
     height: 70,
     borderRadius: 35,
-    marginRight: 16,
+    marginRight: 12,
   },
-  textContainer: {
+  headerInfo: {
     flex: 1,
     justifyContent: 'center',
   },
   name: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
-    color: '#333',
+    color: '#222',
     marginBottom: 4,
   },
   specialty: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -289,47 +311,78 @@ const styles = StyleSheet.create({
   },
   rating: {
     fontSize: 14,
+    fontWeight: '600',
     color: '#666',
     marginLeft: 4,
   },
-  availabilityContainer: {
+  reviews: {
+    fontSize: 12,
+    color: '#888',
+    marginLeft: 4,
+  },
+  experienceContainer: {
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+    padding: 8,
+    borderRadius: 8,
+  },
+  experienceYears: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#007AFF',
+  },
+  experienceLabel: {
+    fontSize: 12,
+    color: '#666',
+  },
+  cardBody: {
+    marginTop: 8,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  infoText: {
+    marginLeft: 6,
+    fontSize: 13,
+    color: '#666',
+  },
+  bottomContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginTop: 8,
   },
-  availabilityBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
+  feeContainer: {
+    flex: 1,
   },
-  dotIndicator: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#4caf50',
-    marginRight: 6,
-  },
-  availabilityText: {
+  feeLabel: {
     fontSize: 12,
-    color: '#4caf50',
-    fontWeight: '500',
-  },
-  consultationFee: {
-    fontSize: 14,
     color: '#666',
   },
+  feeAmount: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#222',
+  },
   bookButton: {
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 12,
+    backgroundColor: '#007AFF',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+    marginLeft: 16,
+  },
+  bookButtonDisabled: {
+    backgroundColor: '#E0E0E0',
   },
   bookButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
   },
   searchModal: {
@@ -365,6 +418,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
+  },
+  availabilityBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  dotIndicator: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginRight: 6,
+  },
+  availabilityText: {
+    fontSize: 12,
+    fontWeight: '500',
   },
 });
 
