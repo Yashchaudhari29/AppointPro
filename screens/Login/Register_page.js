@@ -43,18 +43,18 @@ const RegisterScreen = ({ navigation }) => {
     if (!confirmPassword) formErrors.confirmPassword = 'Confirm password is required';
 
     // Uncommented password validation
-    const passwordValidation = validatePassword(password);
-    if (!passwordValidation.minLength) formErrors.passwordLength = 'Password must be at least 6 characters';
-    if (!passwordValidation.hasNumber) formErrors.passwordNumber = 'Password must contain at least one number';
-    if (!passwordValidation.hasSpecialChar) formErrors.passwordSpecialChar = 'Password must contain at least one special character';
-    if (!passwordValidation.hasLetter) formErrors.passwordLetter = 'Password must contain at least one letter';
+    // const passwordValidation = validatePassword(password);
+    // if (!passwordValidation.minLength) formErrors.passwordLength = 'Password must be at least 6 characters';
+    // if (!passwordValidation.hasNumber) formErrors.passwordNumber = 'Password must contain at least one number';
+    // if (!passwordValidation.hasSpecialChar) formErrors.passwordSpecialChar = 'Password must contain at least one special character';
+    // if (!passwordValidation.hasLetter) formErrors.passwordLetter = 'Password must contain at least one letter';
 
-    if (password !== confirmPassword) formErrors.passwordMatch = 'Passwords do not match';
+    // if (password !== confirmPassword) formErrors.passwordMatch = 'Passwords do not match';
 
-    if (Object.keys(formErrors).length > 0) {
-      setErrors(formErrors);
-      return;
-    }
+    // if (Object.keys(formErrors).length > 0) {
+    //   setErrors(formErrors);
+    //   return;
+    // }
 
     try {
       setIsLoading(true);
