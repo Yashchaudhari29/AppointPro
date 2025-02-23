@@ -1,196 +1,259 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, StatusBar, Alert, RefreshControl } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
-import { auth } from '../../firebase';
+import { auth, firestore } from '../../firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getFirestore, doc, getDoc, collection } from 'firebase/firestore';
+
+const db = getFirestore();
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
+  const [imageUri, setImageUri] = useState(null);
+  const [userInfo, setUserInfo] = useState({
+    name: '',
+    email: '',
+    phone: '',
+  });
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchUserData = async () => {
+    try {
+      setLoading(true);
+      const user = auth.currentUser;
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userDocRef);
+        const data = userSnap.data();
+        setUserInfo({
+          name: `${data.firstName} ${data.lastName}`,
+          email: data.email,
+          phone: data.mobile,
+          profileImage: imageUri || 'https://static.vecteezy.com/system/resources/previews/011/490/381/non_2x/happy-smiling-young-man-avatar-3d-portrait-of-a-man-cartoon-character-people-illustration-isolated-on-white-background-vector.jpg'
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadImageUri = async () => {
+    try {
+      const uri = await AsyncStorage.getItem('userProfileImage');
+      if (uri) {
+        setImageUri(uri);
+        setUserInfo(prev => ({ ...prev, profileImage: uri }));
+      }
+    } catch (error) {
+      console.error('Error loading image URI:', error);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadImageUri();
+    await fetchUserData();
+    setRefreshing(false);
+  };
+
+  useEffect(() => {
+    fetchUserData();
+    loadImageUri();
+  }, []);
 
   const menuItems = [
-    {
-      id: '1',
-      title: 'My Appointments',
-      icon: 'calendar-clock',
-      screen: 'Appointments',
-      color: '#4CAF50'
-    },
+    
     {
       id: '2',
       title: 'Personal Information',
       icon: 'account-details',
-      screen: 'PersonalInfo',
-      color: '#2196F3'
+      onPress: () => navigation.navigate('PersonalInfo'),
     },
     {
       id: '3',
       title: 'Payment Methods',
       icon: 'credit-card',
-      screen: 'PaymentMethods',
-      color: '#9C27B0'
+      onPress: () => navigation.navigate('PaymentMethods'),
     },
     {
       id: '4',
       title: 'Notifications',
       icon: 'bell-outline',
-      screen: 'Notifications',
-      color: '#FF9800'
+      onPress: () => navigation.navigate('Notifications'),
     },
     {
       id: '5',
       title: 'Help & Support',
       icon: 'help-circle-outline',
-      screen: 'Support',
-      color: '#607D8B'
+      onPress: () => navigation.navigate('Support'),
     },
     {
       id: '6',
       title: 'Privacy Policy',
       icon: 'shield-check-outline',
-      screen: 'Privacy',
-      color: '#795548'
+      onPress: () => navigation.navigate('Privacy'),
     }
   ];
 
-  const handleLogout = async () => {
-    try {
-      await auth.signOut();
-      navigation.replace('Login');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
+  const handleLogout = () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Logout",
+          onPress: async () => {
+            try {
+              await auth.signOut();
+              navigation.replace('Login');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to logout. Please try again.');
+            }
+          },
+          style: 'destructive'
+        }
+      ]
+    );
   };
 
+  const SkeletonLoader = () => (
+    <View style={styles.skeletonContainer}>
+      <View style={styles.profileHeader}>
+        <View style={styles.profileHeaderContent}>
+          <View style={styles.profileImageSkeleton} />
+          <View style={styles.profileNameSkeleton} />
+          <View style={styles.profileEmailSkeleton} />
+        </View>
+      </View>
+      {/* <View style={styles.statsContainer}>
+        <View style={styles.statItemSkeleton} />
+        <View style={styles.statItemSkeleton} />
+        <View style={styles.statItemSkeleton} />
+      </View> */}
+      <View style={styles.menuContainer}>
+        {menuItems.map((item) => (
+          <View key={item.id} style={styles.menuItemSkeleton} />
+        ))}
+      </View>
+    </View>
+  );
+
   return (
-    <View style={[styles.container, { backgroundColor: '#f5f5f5' }]}>
-      <LinearGradient
-        colors={['#4CAF50', '#2196F3']}
-        style={styles.header}
+    <View style={styles.safeContainer}>
+      <StatusBar barStyle="light-content" backgroundColor="#1a73e8" />
+      <ScrollView
+        style={styles.profileContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
       >
-        <View style={styles.profileSection}>
-          <Image
-            source={{ uri: auth.currentUser?.photoURL || 'https://via.placeholder.com/150' }}
-            style={styles.profileImage}
-          />
-          <View style={styles.profileInfo}>
-            <Text style={styles.name}>{auth.currentUser?.displayName || 'User Name'}</Text>
-            <Text style={styles.email}>{auth.currentUser?.email}</Text>
-          </View>
-          <TouchableOpacity 
-            style={styles.editButton}
-            onPress={() => navigation.navigate('PersonalInfo')}
-          >
-            <Icon name="pencil" size={20} color="#1a73e8" />
-          </TouchableOpacity>
-        </View>
-      </LinearGradient>
-
-      <ScrollView style={styles.content}>
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>12</Text>
-            <Text style={styles.statLabel}>Appointments</Text>
-          </View>
-          <View style={[styles.statItem, styles.statBorder]}>
-            <Text style={styles.statNumber}>4.9</Text>
-            <Text style={styles.statLabel}>Rating</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>8</Text>
-            <Text style={styles.statLabel}>Completed</Text>
-          </View>
-        </View>
-
-        <View style={styles.settingsSection}>
-          <View style={styles.settingItem}>
-            <Icon name="notifications-outline" size={24} color="#666" />
-            <Text style={styles.settingText}>Notifications</Text>
-          </View>
-        </View>
-
-        <View style={[styles.menuContainer, { backgroundColor: '#fff' }]}>
-          {menuItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={[styles.menuItem, { borderBottomColor: '#e0e0e0' }]}
-              onPress={() => navigation.navigate(item.screen)}
+        {loading ? (
+          <SkeletonLoader />
+        ) : (
+          <>
+            <LinearGradient
+              colors={['#1a73e8', '#0d47a1']}
+              style={styles.profileHeader}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
             >
-              <View style={styles.menuItemLeft}>
-                <MaterialCommunityIcons
-                  name={item.icon}
-                  size={24}
-                  color={item.color}
+              <View style={styles.profileHeaderContent}>
+                <Image
+                  source={{ uri: userInfo.profileImage }}
+                  style={styles.profileImage}
                 />
-                <Text style={[styles.menuItemText, { color: '#333' }]}>
-                  {item.title}
-                </Text>
+                <Text style={styles.profileName}>{userInfo.name}</Text>
+                <Text style={styles.profileEmail}>{userInfo.email}</Text>
               </View>
-              <MaterialCommunityIcons
-                name="chevron-right"
-                size={24}
-                color="#666"
-              />
-            </TouchableOpacity>
-          ))}
-        </View>
+            </LinearGradient>
 
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Icon name="log-out-outline" size={24} color="#fff" />
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
+            
+
+            <View style={styles.menuContainer}>
+              {menuItems.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.menuItem}
+                  onPress={item.onPress}
+                >
+                  <View style={styles.menuItemLeft}>
+                    <MaterialCommunityIcons
+                      name={item.icon}
+                      size={24}
+                      color="#d9534f"
+                    />
+                    <Text style={styles.menuItemText}>{item.title}</Text>
+                  </View>
+                  <MaterialCommunityIcons
+                    name="chevron-right"
+                    size={24}
+                    color="#757575"
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}
+            >
+              <MaterialCommunityIcons
+                name="logout"
+                size={24}
+                color="#fff"
+              />
+              <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeContainer: {
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  header: {
+  profileContainer: {
+    flex: 1,
+  },
+  profileHeader: {
     paddingTop: 60,
-    paddingBottom: 30,
+    paddingBottom: 40,
     paddingHorizontal: 20,
   },
-  profileSection: {
-    flexDirection: 'row',
+  profileHeaderContent: {
     alignItems: 'center',
   },
   profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
     borderWidth: 3,
     borderColor: '#fff',
   },
-  profileInfo: {
-    marginLeft: 20,
-    flex: 1,
-  },
-  name: {
+  profileName: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
+    marginTop: 10,
   },
-  email: {
+  profileEmail: {
     fontSize: 14,
     color: '#fff',
     opacity: 0.8,
-  },
-  editButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  content: {
-    flex: 1,
-    paddingTop: 20,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -224,29 +287,9 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 5,
   },
-  settingsSection: {
-    backgroundColor: '#fff',
-    marginHorizontal: 20,
-    marginTop: 20,
-    borderRadius: 15,
-    padding: 10,
-  },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  settingText: {
-    flex: 1,
-    marginLeft: 15,
-    fontSize: 16,
-    color: '#333',
-  },
   menuContainer: {
+    // marginTop: 200,
+    // height: 300,
     backgroundColor: '#fff',
     marginHorizontal: 20,
     marginTop: 20,
@@ -260,6 +303,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 15,
     borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   menuItemLeft: {
     flexDirection: 'row',
@@ -284,5 +328,39 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 10,
+  },
+  skeletonContainer: {
+    flex: 1,
+    padding: 20,
+  },
+  profileImageSkeleton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#e0e0e0',
+  },
+  profileNameSkeleton: {
+    width: 120,
+    height: 20,
+    marginTop: 10,
+    backgroundColor: '#e0e0e0',
+  },
+  profileEmailSkeleton: {
+    width: 180,
+    height: 14,
+    marginTop: 5,
+    backgroundColor: '#e0e0e0',
+  },
+  statItemSkeleton: {
+    flex: 1,
+    height: 50,
+    backgroundColor: '#e0e0e0',
+    marginHorizontal: 5,
+  },
+  menuItemSkeleton: {
+    height: 50,
+    backgroundColor: '#e0e0e0',
+    marginVertical: 5,
+    borderRadius: 5,
   },
 }); 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,11 +13,12 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import { auth } from '../../firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function PersonalInfoScreen({ navigation }) {
   const [isEditing, setIsEditing] = useState(false);
   const [userInfo, setUserInfo] = useState({
-    photoURL: auth.currentUser?.photoURL || 'https://via.placeholder.com/150',
+    photoURL: 'https://via.placeholder.com/150',
     displayName: auth.currentUser?.displayName || 'User Name',
     email: auth.currentUser?.email || '',
     phone: '+1 234 567 8900',
@@ -30,6 +31,21 @@ export default function PersonalInfoScreen({ navigation }) {
       phone: '+1 234 567 8901'
     }
   });
+
+  useEffect(() => {
+    const loadImageUri = async () => {
+      try {
+        const uri = await AsyncStorage.getItem('userProfileImage');
+        if (uri) {
+          setUserInfo(prev => ({ ...prev, photoURL: uri }));
+        }
+      } catch (error) {
+        console.error('Error loading image URI:', error);
+      }
+    };
+
+    loadImageUri();
+  }, []);
 
   const handleImagePick = async () => {
     try {
@@ -48,8 +64,9 @@ export default function PersonalInfoScreen({ navigation }) {
       });
 
       if (!result.canceled) {
-        setUserInfo(prev => ({ ...prev, photoURL: result.assets[0].uri }));
-        // Here you would typically upload the image to your storage service
+        const uri = result.assets[0].uri;
+        setUserInfo(prev => ({ ...prev, photoURL: uri }));
+        await AsyncStorage.setItem('userProfileImage', uri);
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to pick image');

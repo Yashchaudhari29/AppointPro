@@ -36,6 +36,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import * as Location from 'expo-location';
 import { getFirestore, doc, getDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import CategoriesScreen from '../Booking/Categories';
+import ProfileScreen from '../Profile/ProfileScreen';
 import { Provider } from 'react-native-paper';
 
 const db1 = getFirestore();
@@ -1108,154 +1109,154 @@ function HomeScreen() {
   );
 }
 
-function ProfileScreen() {
-  const navigation = useNavigation();
-  const [userInfo, setUserInfo] = useState({
-    name: 'John Doe',
-    email: auth.currentUser?.email || 'Not available',
-    phone: '+91 1234567890',
-    location: 'Ahmedabad, Gujarat',
-    profileImage: 'https://via.placeholder.com/150'
-  });
+// function ProfileScreen() {
+//   const navigation = useNavigation();
+//   const [userInfo, setUserInfo] = useState({
+//     name: auth.currentUser?.firstname,
+//     email: auth.currentUser?.email || 'Not available',
+//     phone: '+91 1234567890',
+//     location: 'Ahmedabad, Gujarat',
+//     profileImage: 'https://via.placeholder.com/150'
+//   });
 
-  const menuItems = [
-    {
-      id: '1',
-      title: 'My Appointments',
-      icon: 'calendar-outline',
-      onPress: () => navigation.navigate('UserAppointments'),
-    },
-    {
-      id: '2',
-      title: 'Personal Information',
-      icon: 'account-details',
-      onPress: () => navigation.navigate('PersonalInfo'),
-    },
-    {
-      id: '3',
-      title: 'Payment Methods',
-      icon: 'credit-card',
-      onPress: () => navigation.navigate('PaymentMethods'),
-    },
-    {
-      id: '4',
-      title: 'Notifications',
-      icon: 'bell-outline',
-      onPress: () => navigation.navigate('Notifications'),
-    },
-    {
-      id: '5',
-      title: 'Help & Support',
-      icon: 'help-circle-outline',
-      onPress: () => navigation.navigate('Support'),
-    },
-    {
-      id: '6',
-      title: 'Privacy Policy',
-      icon: 'shield-check-outline',
-      onPress: () => navigation.navigate('Privacy'),
-    }
-  ];
+//   const menuItems = [
+//     {
+//       id: '1',
+//       title: 'My Appointments',
+//       icon: 'calendar-outline',
+//       onPress: () => navigation.navigate('UserAppointments'),
+//     },
+//     {
+//       id: '2',
+//       title: 'Personal Information',
+//       icon: 'account-details',
+//       onPress: () => navigation.navigate('PersonalInfo'),
+//     },
+//     {
+//       id: '3',
+//       title: 'Payment Methods',
+//       icon: 'credit-card',
+//       onPress: () => navigation.navigate('PaymentMethods'),
+//     },
+//     {
+//       id: '4',
+//       title: 'Notifications',
+//       icon: 'bell-outline',
+//       onPress: () => navigation.navigate('Notifications'),
+//     },
+//     {
+//       id: '5',
+//       title: 'Help & Support',
+//       icon: 'help-circle-outline',
+//       onPress: () => navigation.navigate('Support'),
+//     },
+//     {
+//       id: '6',
+//       title: 'Privacy Policy',
+//       icon: 'shield-check-outline',
+//       onPress: () => navigation.navigate('Privacy'),
+//     }
+//   ];
 
-  const handleLogout = () => {
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        {
-          text: "Logout",
-          onPress: async () => {
-            try {
-              await auth.signOut();
-              navigation.replace('wp');
-            } catch (error) {
-              Alert.alert('Error', 'Failed to logout. Please try again.');
-            }
-          },
-          style: 'destructive'
-        }
-      ]
-    );
-  };
+//   const handleLogout = () => {
+//     Alert.alert(
+//       "Logout",
+//       "Are you sure you want to logout?",
+//       [
+//         {
+//           text: "Cancel",
+//           style: "cancel"
+//         },
+//         {
+//           text: "Logout",
+//           onPress: async () => {
+//             try {
+//               await auth.signOut();
+//               navigation.replace('wp');
+//             } catch (error) {
+//               Alert.alert('Error', 'Failed to logout. Please try again.');
+//             }
+//           },
+//           style: 'destructive'
+//         }
+//       ]
+//     );
+//   };
 
-  return (
-    <View style={styles.safeContainer}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a73e8" />
-      <ScrollView style={styles.profileContainer}>
-        <LinearGradient
-          colors={['#1a73e8', '#0d47a1']}
-          style={styles.profileHeader}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <View style={styles.profileHeaderContent}>
-            <Image
-              source={{ uri: userInfo.profileImage }}
-              style={styles.profileImage}
-            />
-            <Text style={styles.profileName}>{userInfo.name}</Text>
-            <Text style={styles.profileEmail}>{userInfo.email}</Text>
-            </View>
-        </LinearGradient>
+//   return (
+//     <View style={styles.safeContainer}>
+//       <StatusBar barStyle="light-content" backgroundColor="#1a73e8" />
+//       <ScrollView style={styles.profileContainer}>
+//         <LinearGradient
+//           colors={['#1a73e8', '#0d47a1']}
+//           style={styles.profileHeader}
+//           start={{ x: 0, y: 0 }}
+//           end={{ x: 1, y: 1 }}
+//         >
+//           <View style={styles.profileHeaderContent}>
+//             <Image
+//               source={{ uri: userInfo.profileImage }}
+//               style={styles.profileImage}
+//             />
+//             <Text style={styles.profileName}>{userInfo.name}</Text>
+//             <Text style={styles.profileEmail}>{userInfo.email}</Text>
+//             </View>
+//         </LinearGradient>
 
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>12</Text>
-            <Text style={styles.statLabel}>Appointments</Text>
-          </View>
-          <View style={[styles.statItem, styles.statBorder]}>
-            <Text style={styles.statNumber}>4</Text>
-            <Text style={styles.statLabel}>Upcoming</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>8</Text>
-            <Text style={styles.statLabel}>Completed</Text>
-          </View>
-        </View>
+//         <View style={styles.statsContainer}>
+//           <View style={styles.statItem}>
+//             <Text style={styles.statNumber}>12</Text>
+//             <Text style={styles.statLabel}>Appointments</Text>
+//           </View>
+//           <View style={[styles.statItem, styles.statBorder]}>
+//             <Text style={styles.statNumber}>4</Text>
+//             <Text style={styles.statLabel}>Upcoming</Text>
+//           </View>
+//           <View style={styles.statItem}>
+//             <Text style={styles.statNumber}>8</Text>
+//             <Text style={styles.statLabel}>Completed</Text>
+//           </View>
+//         </View>
 
-        <View style={styles.menuContainer}>
-          {menuItems.map((item) => (
-                    <TouchableOpacity
-                      key={item.id}
-              style={styles.menuItem}
-              onPress={item.onPress}
-            >
-              <View style={styles.menuItemLeft}>
-                <MaterialCommunityIcons
-                  name={item.icon}
-                  size={24}
-                  color="#d9534f"
-                />
-                <Text style={styles.menuItemText}>{item.title}</Text>
-              </View>
-              <MaterialCommunityIcons
-                name="chevron-right"
-                size={24}
-                color="#757575"
-              />
-                    </TouchableOpacity>
-                  ))}
-                </View>
+//         <View style={styles.menuContainer}>
+//           {menuItems.map((item) => (
+//                     <TouchableOpacity
+//                       key={item.id}
+//               style={styles.menuItem}
+//               onPress={item.onPress}
+//             >
+//               <View style={styles.menuItemLeft}>
+//                 <MaterialCommunityIcons
+//                   name={item.icon}
+//                   size={24}
+//                   color="#d9534f"
+//                 />
+//                 <Text style={styles.menuItemText}>{item.title}</Text>
+//               </View>
+//               <MaterialCommunityIcons
+//                 name="chevron-right"
+//                 size={24}
+//                 color="#757575"
+//               />
+//                     </TouchableOpacity>
+//                   ))}
+//                 </View>
 
-                    <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={handleLogout}
-        >
-          <MaterialCommunityIcons
-            name="logout"
-            size={24}
-            color="#fff"
-          />
-          <Text style={styles.logoutText}>Logout</Text>
-                    </TouchableOpacity>
-            </ScrollView>
-          </View>
-  );
-}
+//                     <TouchableOpacity
+//           style={styles.logoutButton}
+//           onPress={handleLogout}
+//         >
+//           <MaterialCommunityIcons
+//             name="logout"
+//             size={24}
+//             color="#fff"
+//           />
+//           <Text style={styles.logoutText}>Logout</Text>
+//                     </TouchableOpacity>
+//             </ScrollView>
+//           </View>
+//   );
+// }
 
 const Tab = createBottomTabNavigator();
 
