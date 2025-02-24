@@ -68,6 +68,7 @@ const RegisterScreen = ({ navigation }) => {
         mobile,
         role,
         password,
+        location: '',
       });
       navigation.replace('Login');
     } catch (error) {

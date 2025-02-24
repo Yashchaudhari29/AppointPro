@@ -32,9 +32,12 @@ export default function ProfileScreen() {
         const data = userSnap.data();
         setUserInfo({
           name: `${data.firstName} ${data.lastName}`,
+          firstName: data.firstName,
+          lastName: data.lastName,
           email: data.email,
           phone: data.mobile,
-          profileImage: imageUri || 'https://static.vecteezy.com/system/resources/previews/011/490/381/non_2x/happy-smiling-young-man-avatar-3d-portrait-of-a-man-cartoon-character-people-illustration-isolated-on-white-background-vector.jpg'
+          profileImage: imageUri || 'https://static.vecteezy.com/system/resources/previews/011/490/381/non_2x/happy-smiling-young-man-avatar-3d-portrait-of-a-man-cartoon-character-people-illustration-isolated-on-white-background-vector.jpg',
+          location: data.location
         });
       }
     } catch (error) {

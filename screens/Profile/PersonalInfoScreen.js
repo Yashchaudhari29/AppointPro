@@ -14,7 +14,10 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import { auth } from '../../firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import firebase from '../../firebase';
+import { getFirestore, doc, getDoc, collection, updateDoc } from 'firebase/firestore';
 
+const db = getFirestore();
 export default function PersonalInfoScreen({ navigation, route }) {
   const [isEditing, setIsEditing] = useState(false);
   const [userInfo, setUserInfo] = useState(route.params.userInfo);
@@ -62,10 +65,23 @@ export default function PersonalInfoScreen({ navigation, route }) {
 
   const handleSave = async () => {
     try {
-      // Here you would typically update the user info in your backend
-      setIsEditing(false);
-      Alert.alert('Success', 'Profile information updated successfully');
+      const userId = auth.currentUser.uid;
+      const userRef = doc(db, "users", userId);
+
+      const updatedData = {};
+      if (userInfo.firstName !== undefined) updatedData.firstName = userInfo.firstName;
+      if (userInfo.lastName !== undefined) updatedData.lastName = userInfo.lastName;
+      if (userInfo.phone !== undefined) updatedData.mobile = userInfo.phone;
+
+      if (Object.keys(updatedData).length > 0) {
+        await updateDoc(userRef, updatedData);
+        setIsEditing(false);
+        Alert.alert('Success', 'Profile information updated successfully');
+      } else {
+        Alert.alert('Error', 'No valid data to update');
+      }
     } catch (error) {
+      console.error('Error updating profile:', error);
       Alert.alert('Error', 'Failed to update profile');
     }
   };
@@ -78,14 +94,17 @@ export default function PersonalInfoScreen({ navigation, route }) {
     navigation.navigate('TwoFactorAuth');
   };
 
-  const renderField = (label, value, key) => (
+  const renderField = (label, value, key, editable = true) => (
     <View style={styles.fieldContainer}>
       <Text style={styles.fieldLabel}>{label}</Text>
-      {isEditing ? (
+      {isEditing && editable ? (
         <TextInput
           style={styles.input}
           value={value}
-          onChangeText={(text) => setUserInfo(prev => ({ ...prev, [key]: text }))}
+          onChangeText={(text) => {
+            // console.log(`Updating ${key}:`, text);
+            setUserInfo(prev => ({ ...prev, [key]: text }));
+          }}
           placeholder={`Enter ${label.toLowerCase()}`}
         />
       ) : (
@@ -123,10 +142,22 @@ export default function PersonalInfoScreen({ navigation, route }) {
       <View style={styles.content}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Basic Information</Text>
-          {renderField('Full Name', userInfo.name, 'displayName')}
-          {renderField('Email', userInfo.email, 'email')}
-          {renderField('Phone', userInfo.phone || 'Not set', 'phone')}
-          {renderField('Location', userInfo.location || 'Not set', 'location')}
+          {isEditing ? (
+            <>
+              {renderField('First Name', userInfo.firstName, 'firstName')}
+              {renderField('Last Name', userInfo.lastName, 'lastName')}
+              {renderField('Email', userInfo.email, 'email', false)}
+              {renderField('Phone', userInfo.phone, 'phone')}
+              {renderField('Location', userInfo.location || 'Not set', 'location', false)}
+            </>
+          ) : (
+            <>
+              {renderField('Full Name', `${userInfo.firstName} ${userInfo.lastName}`, 'displayName', false)}
+              {renderField('Email', userInfo.email, 'email', false)}
+              {renderField('Phone', userInfo.phone, 'phone', false)}
+              {renderField('Location', userInfo.location || 'Not set', 'location', false)}
+            </>
+          )}
         </View>
 
         <View style={styles.section}>

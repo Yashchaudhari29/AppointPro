@@ -34,7 +34,7 @@ import { BlurView } from 'expo-blur';
 import { useSharedValue } from 'react-native-reanimated';
 import { useTheme } from '../../contexts/ThemeContext';
 import * as Location from 'expo-location';
-import { getFirestore, doc, getDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, query, where, getDocs, limit, updateDoc } from 'firebase/firestore';
 import CategoriesScreen from '../Booking/Categories';
 import ProfileScreen from '../Profile/ProfileScreen';
 import { Provider } from 'react-native-paper';
@@ -457,7 +457,16 @@ function HomeScreen() {
       />
     </View>
   );
-
+  const updateUserLocationInDB = async (location) => {
+    try {
+      const userId = auth.currentUser.uid;
+      const userRef = doc(db1, "users", userId);
+      await updateDoc(userRef, { location });
+      console.log('User location updated in database');
+    } catch (error) {
+      console.error('Error updating user location:', error);
+    }
+  };
   const getUserLocation = async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -476,6 +485,7 @@ function HomeScreen() {
       if (address) {
         const formattedAddress = `${address.city || ''} - ${address.postalCode || ''}`;
         setUserLocation(formattedAddress);
+        updateUserLocationInDB(formattedAddress);
       } else {
         setUserLocation('Address not found');
       }
@@ -485,11 +495,6 @@ function HomeScreen() {
     }
   };
 
-
-  const handleSearchOpen = () => {
-    setShowSearch(true);
-    searchAnimation.value = withSpring(1);
-  };
 
   const handleSearchClose = () => {
     searchAnimation.value = withSpring(0);
