@@ -18,7 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function PersonalInfoScreen({ navigation, route }) {
   const [isEditing, setIsEditing] = useState(false);
   const [userInfo, setUserInfo] = useState(route.params.userInfo);
-  console.log(userInfo);
+  // console.log(userInfo);
   useEffect(() => {
     const loadImageUri = async () => {
       try {
