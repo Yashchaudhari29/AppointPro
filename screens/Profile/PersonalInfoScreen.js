@@ -15,23 +15,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { auth } from '../../firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function PersonalInfoScreen({ navigation }) {
+export default function PersonalInfoScreen({ navigation, route }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [userInfo, setUserInfo] = useState({
-    photoURL: 'https://via.placeholder.com/150',
-    displayName: auth.currentUser?.displayName || 'User Name',
-    email: auth.currentUser?.email || '',
-    phone: '+1 234 567 8900',
-    location: 'New York, USA',
-    dateOfBirth: '1990-01-01',
-    gender: 'Male',
-    emergencyContact: {
-      name: 'Jane Doe',
-      relation: 'Spouse',
-      phone: '+1 234 567 8901'
-    }
-  });
-
+  const [userInfo, setUserInfo] = useState(route.params.userInfo);
+  console.log(userInfo);
   useEffect(() => {
     const loadImageUri = async () => {
       try {
@@ -110,6 +97,9 @@ export default function PersonalInfoScreen({ navigation }) {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Icon name="arrow-back" size={24} color="#1a73e8" />
+        </TouchableOpacity>
         <View style={styles.photoContainer}>
           <Image source={{ uri: userInfo.photoURL }} style={styles.profilePhoto} />
           {isEditing && (
@@ -133,19 +123,10 @@ export default function PersonalInfoScreen({ navigation }) {
       <View style={styles.content}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Basic Information</Text>
-          {renderField('Full Name', userInfo.displayName, 'displayName')}
+          {renderField('Full Name', userInfo.name, 'displayName')}
           {renderField('Email', userInfo.email, 'email')}
-          {renderField('Phone', userInfo.phone, 'phone')}
-          {renderField('Location', userInfo.location, 'location')}
-          {renderField('Date of Birth', userInfo.dateOfBirth, 'dateOfBirth')}
-          {renderField('Gender', userInfo.gender, 'gender')}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Emergency Contact</Text>
-          {renderField('Name', userInfo.emergencyContact.name, 'emergencyContactName')}
-          {renderField('Relation', userInfo.emergencyContact.relation, 'emergencyContactRelation')}
-          {renderField('Phone', userInfo.emergencyContact.phone, 'emergencyContactPhone')}
+          {renderField('Phone', userInfo.phone || 'Not set', 'phone')}
+          {renderField('Location', userInfo.location || 'Not set', 'location')}
         </View>
 
         <View style={styles.section}>
@@ -179,21 +160,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    backgroundColor: '#1a73e8',
+    backgroundColor: 'transparent',
     padding: 20,
     alignItems: 'center',
     paddingTop: Platform.OS === 'ios' ? 60 : 20,
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 40 : 20,
+    left: 20,
   },
   photoContainer: {
     position: 'relative',
     marginBottom: 20,
   },
   profilePhoto: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 4,
-    borderColor: '#fff',
+    width: 150,
+    height: 150,
+    borderRadius: 100,
+    borderWidth: 6,
+    borderColor: '#1a73e8',
   },
   changePhotoButton: {
     position: 'absolute',
@@ -211,7 +198,7 @@ const styles = StyleSheet.create({
   editButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: '#1a73e8',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,

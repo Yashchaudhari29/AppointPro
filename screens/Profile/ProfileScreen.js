@@ -17,6 +17,7 @@ export default function ProfileScreen() {
     name: '',
     email: '',
     phone: '',
+    location: '',
   });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -73,7 +74,7 @@ export default function ProfileScreen() {
       id: '2',
       title: 'Personal Information',
       icon: 'account-details',
-      onPress: () => navigation.navigate('PersonalInfo'),
+      onPress: () => navigation.navigate('PersonalInfo',{userInfo}),
     },
     {
       id: '3',
@@ -150,7 +151,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.safeContainer}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a73e8" />
+      <StatusBar barStyle="dark-content" backgroundColor="#f0f0f3" />
       <ScrollView
         style={styles.profileContainer}
         refreshControl={
@@ -161,46 +162,39 @@ export default function ProfileScreen() {
           <SkeletonLoader />
         ) : (
           <>
-            <LinearGradient
-              colors={['#1a73e8', '#0d47a1']}
-              style={styles.profileHeader}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            >
-              <View style={styles.profileHeaderContent}>
-                <Image
-                  source={{ uri: userInfo.profileImage }}
-                  style={styles.profileImage}
-                />
-                <Text style={styles.profileName}>{userInfo.name}</Text>
-                <Text style={styles.profileEmail}>{userInfo.email}</Text>
-              </View>
-            </LinearGradient>
+            <View style={styles.profileHeader}>
+              <Image
+                source={{ uri: userInfo.profileImage }}
+                style={styles.profileImage}
+              />
+              <Text style={styles.profileName}>{userInfo.name}</Text>
+              <Text style={styles.profileEmail}>{userInfo.email}</Text>
+            </View>
 
-            
-
-            <View style={styles.menuContainer}>
-              {menuItems.map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={styles.menuItem}
-                  onPress={item.onPress}
-                >
-                  <View style={styles.menuItemLeft}>
+            <View style={styles.card}>
+              <View style={styles.menuContainer}>
+                {menuItems.map((item) => (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.menuItem}
+                    onPress={item.onPress}
+                  >
+                    <View style={styles.menuItemLeft}>
+                      <MaterialCommunityIcons
+                        name={item.icon}
+                        size={24}
+                        color="#6c63ff"
+                      />
+                      <Text style={styles.menuItemText}>{item.title}</Text>
+                    </View>
                     <MaterialCommunityIcons
-                      name={item.icon}
+                      name="chevron-right"
                       size={24}
-                      color="#d9534f"
+                      color="#b0b0b0"
                     />
-                    <Text style={styles.menuItemText}>{item.title}</Text>
-                  </View>
-                  <MaterialCommunityIcons
-                    name="chevron-right"
-                    size={24}
-                    color="#757575"
-                  />
-                </TouchableOpacity>
-              ))}
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
 
             <TouchableOpacity
@@ -224,76 +218,55 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f0f0f3',
   },
   profileContainer: {
     flex: 1,
   },
   profileHeader: {
-    paddingTop: 60,
-    paddingBottom: 40,
-    paddingHorizontal: 20,
-  },
-  profileHeaderContent: {
     alignItems: 'center',
+    paddingVertical: 40,
+    backgroundColor: 'transparent',
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
   },
   profileImage: {
-    width: 200,
-    height: 200,
+    width: 150,
+    height: 150,
     borderRadius: 100,
-    borderWidth: 3,
-    borderColor: '#fff',
+    borderWidth: 6,
+    borderColor: '#1a73e8',
+    marginBottom: 15,
+    shadowColor: '#1a73e8',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 10,
   },
   profileName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginTop: 10,
+    fontSize: 28,
+    fontWeight: '700',
+    color: 'black',
   },
   profileEmail: {
-    fontSize: 14,
-    color: '#fff',
-    opacity: 0.8,
+    fontSize: 16,
+    color: 'black',
   },
-  statsContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    marginHorizontal: 20,
-    marginTop: -30,
-    borderRadius: 15,
-    padding: 20,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statBorder: {
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  statNumber: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1a73e8',
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 5,
-  },
-  menuContainer: {
-    // marginTop: 200,
-    // height: 300,
-    backgroundColor: '#fff',
+  card: {
+    backgroundColor: '#ffffff',
     marginHorizontal: 20,
     marginTop: 20,
-    borderRadius: 15,
+    borderRadius: 20,
+    padding: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4.65,
+    elevation: 8,
+  },
+  menuContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
     padding: 10,
   },
   menuItem: {
@@ -303,7 +276,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#f0f0f0',
   },
   menuItemLeft: {
     flexDirection: 'row',
@@ -311,17 +284,23 @@ const styles = StyleSheet.create({
   },
   menuItemText: {
     fontSize: 16,
-    marginLeft: 15,
+    marginLeft: 10,
+    color: '#4a4a4a',
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ea4335',
+    backgroundColor: 'red',
     marginHorizontal: 20,
     marginVertical: 20,
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 20,
+    shadowColor: 'red',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
   logoutText: {
     color: '#fff',
