@@ -44,48 +44,48 @@ const { width } = Dimensions.get('window');
 const ITEM_SIZE = width * 0.75;
 const CATEGORY_CARD_SIZE = (width - (16 * 3)) / 2;
 
-const jobsData = [
-  {
-    id: '1',
-    title: 'Senior .Net Developer',
-    company: 'Attri',
-    location: 'Ahmedabad, Gujarat',
-    salary: '₹17,00,000 - ₹20,00,000 a year',
-    tags: ['Full-time', 'Day shift'],
-    posted: 'Active 5 days ago',
-  },
-  {
-    id: '2',
-    title: 'Senior .NET (MVC/Core) Developer',
-    company: 'MagnusMinds IT Solution',
-    location: 'Satellite, Ahmedabad, Gujarat',
-    salary: '₹17,00,000 - ₹20,00,000 a year',
-    tags: ['Full-time', 'Day shift'],
-    posted: 'Active 3 days ago',
-  },
-];
+// const jobsData = [
+//   {
+//     id: '1',
+//     title: 'Senior .Net Developer',
+//     company: 'Attri',
+//     location: 'Ahmedabad, Gujarat',
+//     salary: '₹17,00,000 - ₹20,00,000 a year',
+//     tags: ['Full-time', 'Day shift'],
+//     posted: 'Active 5 days ago',
+//   },
+//   {
+//     id: '2',
+//     title: 'Senior .NET (MVC/Core) Developer',
+//     company: 'MagnusMinds IT Solution',
+//     location: 'Satellite, Ahmedabad, Gujarat',
+//     salary: '₹17,00,000 - ₹20,00,000 a year',
+//     tags: ['Full-time', 'Day shift'],
+//     posted: 'Active 3 days ago',
+//   },
+// ];
 
-function JobCard({ job }) {
-  return (
-    <View style={styles.card}>
-      <Text style={styles.title}>{job.title}</Text>
-      <Text style={styles.company}>{job.company}</Text>
-      <Text style={styles.location}>{job.location}</Text>
-      <Text style={styles.salary}>{job.salary}</Text>
-      <View style={styles.tagsContainer}>
-        {job.tags.map((tag, index) => (
-          <Text key={index} style={styles.tag}>
-            {tag}
-          </Text>
-        ))}
-      </View>
-      <Text style={styles.posted}>{job.posted}</Text>
-      <TouchableOpacity style={styles.applyButton}>
-        <Text style={styles.applyText}>Easily apply</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
+// function JobCard({ job }) {
+//   return (
+//     <View style={styles.card}>
+//       <Text style={styles.title}>{job.title}</Text>
+//       <Text style={styles.company}>{job.company}</Text>
+//       <Text style={styles.location}>{job.location}</Text>
+//       <Text style={styles.salary}>{job.salary}</Text>
+//       <View style={styles.tagsContainer}>
+//         {job.tags.map((tag, index) => (
+//           <Text key={index} style={styles.tag}>
+//             {tag}
+//           </Text>
+//         ))}
+//       </View>
+//       <Text style={styles.posted}>{job.posted}</Text>
+//       <TouchableOpacity style={styles.applyButton}>
+//         <Text style={styles.applyText}>Easily apply</Text>
+//       </TouchableOpacity>
+//     </View>
+//   );
+// }
 
 // Add this skeleton component near the top
 const AppointmentSkeleton = () => (
@@ -142,15 +142,15 @@ const FeaturedSpecialistSkeleton = () => (
 );
 
 // Add CategorySkeleton component
-const CategorySkeleton = () => (
-  <View style={styles.categoryCard}>
-    <View style={[styles.skeleton, { 
-      width: CATEGORY_CARD_SIZE,
-      height: CATEGORY_CARD_SIZE,
-      borderRadius: 16
-    }]} />
-  </View>
-);
+// const CategorySkeleton = () => (
+//   <View style={styles.categoryCard}>
+//     <View style={[styles.skeleton, { 
+//       width: CATEGORY_CARD_SIZE,
+//       height: CATEGORY_CARD_SIZE,
+//       borderRadius: 16
+//     }]} />
+//   </View>
+// );
 
 // Add this component for the hero section skeleton
 const HeroSectionSkeleton = () => (
@@ -174,12 +174,12 @@ function HomeScreen() {
   const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [userLocation, setUserLocation] = useState('Fetching location...');
-  const [searchHistory, setSearchHistory] = useState([
-    'Mobile App Developer', 'UI/UX Designer', 'Frontend Developer'
-  ]);
+  // const [searchHistory, setSearchHistory] = useState([
+  //   'Mobile App Developer', 'UI/UX Designer', 'Frontend Developer'
+  // ]);
   const [showSearch, setShowSearch] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
-  const searchAnimation = useSharedValue(0);
+  // const searchAnimation = useSharedValue(0);
   const [name, setName] = useState('User');
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
   const [appointmentIds, setAppointmentIds] = useState([]);
@@ -189,45 +189,45 @@ function HomeScreen() {
 
   const [featuredDoctors, setFeaturedDoctors] = useState([]);
   const [isFeaturedLoading, setIsFeaturedLoading] = useState(true);
-  const [providers, setProviders] = useState({});
-  const [professions, setProfessions] = useState({});
+  // const [providers, setProviders] = useState({});
+  // const [professions, setProfessions] = useState({});
 
-  const [popularServices, setPopularServices] = useState([
-    {
-      id: '1',
-      title: 'Plumbing Services',
-      image: 'https://example.com/plumbing.jpg',
-      rating: 4.8,
-      reviews: 120,
-      category: 'Home Services'
-    },
-    {
-      id: '2',
-      title: 'Electrical Repair',
-      image: 'https://example.com/electrical.jpg',
-      rating: 4.9,
-      reviews: 150,
-      category: 'Home Services'
-    },
-  ]);
+  // const [popularServices, setPopularServices] = useState([
+  //   {
+  //     id: '1',
+  //     title: 'Plumbing Services',
+  //     image: 'https://example.com/plumbing.jpg',
+  //     rating: 4.8,
+  //     reviews: 120,
+  //     category: 'Home Services'
+  //   },
+  //   {
+  //     id: '2',
+  //     title: 'Electrical Repair',
+  //     image: 'https://example.com/electrical.jpg',
+  //     rating: 4.9,
+  //     reviews: 150,
+  //     category: 'Home Services'
+  //   },
+  // ]);
 
-  const popularSearches = [
-    { id: '1', term: 'Software Engineer', icon: 'code-outline' },
-    { id: '2', term: 'Product Designer', icon: 'color-palette-outline' },
-    { id: '3', term: 'Data Scientist', icon: 'analytics-outline' },
-    { id: '4', term: 'DevOps Engineer', icon: 'server-outline' },
-  ];
+  // const popularSearches = [
+  //   { id: '1', term: 'Software Engineer', icon: 'code-outline' },
+  //   { id: '2', term: 'Product Designer', icon: 'color-palette-outline' },
+  //   { id: '3', term: 'Data Scientist', icon: 'analytics-outline' },
+  //   { id: '4', term: 'DevOps Engineer', icon: 'server-outline' },
+  // ];
 
-  const [animations] = useState(() =>
-    Array(6).fill(0).map(() => ({
-      fadeAnim: new Animated.Value(0),
-      translateX: new Animated.Value(50)
-    }))
-  );
+  // const [animations] = useState(() =>
+  //   Array(6).fill(0).map(() => ({
+  //     fadeAnim: new Animated.Value(0),
+  //     translateX: new Animated.Value(50)
+  //   }))
+  // );
 
-  const [userInfo, setUserInfo] = useState('');
+  // const [userInfo, setUserInfo] = useState('');
 
-  const scrollX = useRef(new Animated.Value(0)).current;
+  // const scrollX = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateX = useRef(new Animated.Value(50)).current;
 
@@ -496,11 +496,11 @@ function HomeScreen() {
   };
 
 
-  const handleSearchClose = () => {
-    searchAnimation.value = withSpring(0);
-    setTimeout(() => setShowSearch(false), 300);
-    setSearchQuery('');
-  };
+  // const handleSearchClose = () => {
+  //   searchAnimation.value = withSpring(0);
+  //   setTimeout(() => setShowSearch(false), 300);
+  //   setSearchQuery('');
+  // };
 
   const handleSearch = (text) => {
     setSearchQuery(text);
@@ -514,108 +514,108 @@ function HomeScreen() {
     }
   };
 
-  const SearchOverlay = () => {
-    const animatedStyle = useAnimatedStyle(() => ({
-      opacity: searchAnimation.value,
-      transform: [
-        {
-          translateY: withSpring(searchAnimation.value * -20)
-        }
-      ]
-    }));
+  // const SearchOverlay = () => {
+  //   const animatedStyle = useAnimatedStyle(() => ({
+  //     opacity: searchAnimation.value,
+  //     transform: [
+  //       {
+  //         translateY: withSpring(searchAnimation.value * -20)
+  //       }
+  //     ]
+  //   }));
 
-    return (
-      <Animated.View
-        style={[styles.searchOverlay, animatedStyle]}
-      >
-        <BlurView intensity={90} style={StyleSheet.absoluteFill} />
-        <View style={styles.searchContent}>
-          <View style={styles.searchHeader}>
-            <View style={styles.searchInputContainer}>
-              <Icon name="search-outline" size={20} color="#666" />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search for jobs, skills, companies..."
-                placeholderTextColor="#666"
-                value={searchQuery}
-                onChangeText={handleSearch}
-                autoFocus
-              />
-              {searchQuery.length > 0 && (
-                <TouchableOpacity
-                  onPress={() => setSearchQuery('')}
-                  style={styles.clearButton}
-                >
-                  <Icon name="close-circle" size={18} color="#666" />
-                </TouchableOpacity>
-              )}
-            </View>
-            <TouchableOpacity
-              onPress={handleSearchClose}
-              style={styles.cancelButton}
-            >
-              <Text style={styles.cancelText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
+  //   return (
+  //     <Animated.View
+  //       style={[styles.searchOverlay, animatedStyle]}
+  //     >
+  //       <BlurView intensity={90} style={StyleSheet.absoluteFill} />
+  //       <View style={styles.searchContent}>
+  //         <View style={styles.searchHeader}>
+  //           <View style={styles.searchInputContainer}>
+  //             <Icon name="search-outline" size={20} color="#666" />
+  //             <TextInput
+  //               style={styles.searchInput}
+  //               placeholder="Search for jobs, skills, companies..."
+  //               placeholderTextColor="#666"
+  //               value={searchQuery}
+  //               onChangeText={handleSearch}
+  //               autoFocus
+  //             />
+  //             {searchQuery.length > 0 && (
+  //               <TouchableOpacity
+  //                 onPress={() => setSearchQuery('')}
+  //                 style={styles.clearButton}
+  //               >
+  //                 <Icon name="close-circle" size={18} color="#666" />
+  //               </TouchableOpacity>
+  //             )}
+  //           </View>
+  //           <TouchableOpacity
+  //             onPress={handleSearchClose}
+  //             style={styles.cancelButton}
+  //           >
+  //             <Text style={styles.cancelText}>Cancel</Text>
+  //           </TouchableOpacity>
+  //         </View>
 
-          <ScrollView style={styles.searchResults}>
-            {searchQuery.length === 0 ? (
-              <>
-                {searchHistory.length > 0 && (
-                  <View style={styles.searchSection}>
-                    <View style={styles.sectionHeader}>
-                      <Text style={styles.sectionTitle}>Recent Searches</Text>
-                      <TouchableOpacity onPress={() => setSearchHistory([])}>
-                        <Text style={styles.clearText}>Clear</Text>
-                      </TouchableOpacity>
-                    </View>
-                    {searchHistory.map((item, index) => (
-                      <TouchableOpacity
-                        key={index}
-                        style={styles.searchItem}
-                        onPress={() => setSearchQuery(item)}
-                      >
-                        <Icon name="time-outline" size={20} color="#666" />
-                        <Text style={styles.searchItemText}>{item}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-                <View style={styles.searchSection}>
-                  <Text style={styles.sectionTitle}>Popular Searches</Text>
-                  {popularSearches.map((item) => (
-                    <TouchableOpacity
-                      key={item.id}
-                      style={styles.searchItem}
-                      onPress={() => setSearchQuery(item.term)}
-                    >
-                      <Icon name={item.icon} size={20} color="#666" />
-                      <Text style={styles.searchItemText}>{item.term}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </>
-            ) : (
-              <View style={styles.suggestionsContainer}>
-                {filteredSuggestions.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.suggestionItem}
-                    onPress={() => {
-                      setSearchQuery(item);
-                    }}
-                  >
-                    <Icon name="search-outline" size={20} color="#666" />
-                    <Text style={styles.suggestionText}>{item}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </ScrollView>
-        </View>
-      </Animated.View>
-    );
-  };
+  //         <ScrollView style={styles.searchResults}>
+  //           {searchQuery.length === 0 ? (
+  //             <>
+  //               {searchHistory.length > 0 && (
+  //                 <View style={styles.searchSection}>
+  //                   <View style={styles.sectionHeader}>
+  //                     <Text style={styles.sectionTitle}>Recent Searches</Text>
+  //                     <TouchableOpacity onPress={() => setSearchHistory([])}>
+  //                       <Text style={styles.clearText}>Clear</Text>
+  //                     </TouchableOpacity>
+  //                   </View>
+  //                   {searchHistory.map((item, index) => (
+  //                     <TouchableOpacity
+  //                       key={index}
+  //                       style={styles.searchItem}
+  //                       onPress={() => setSearchQuery(item)}
+  //                     >
+  //                       <Icon name="time-outline" size={20} color="#666" />
+  //                       <Text style={styles.searchItemText}>{item}</Text>
+  //                     </TouchableOpacity>
+  //                   ))}
+  //                 </View>
+  //               )}
+  //               <View style={styles.searchSection}>
+  //                 <Text style={styles.sectionTitle}>Popular Searches</Text>
+  //                 {popularSearches.map((item) => (
+  //                   <TouchableOpacity
+  //                     key={item.id}
+  //                     style={styles.searchItem}
+  //                     onPress={() => setSearchQuery(item.term)}
+  //                   >
+  //                     <Icon name={item.icon} size={20} color="#666" />
+  //                     <Text style={styles.searchItemText}>{item.term}</Text>
+  //                   </TouchableOpacity>
+  //                 ))}
+  //               </View>
+  //             </>
+  //           ) : (
+  //             <View style={styles.suggestionsContainer}>
+  //               {filteredSuggestions.map((item, index) => (
+  //                 <TouchableOpacity
+  //                   key={index}
+  //                   style={styles.suggestionItem}
+  //                   onPress={() => {
+  //                     setSearchQuery(item);
+  //                   }}
+  //                 >
+  //                   <Icon name="search-outline" size={20} color="#666" />
+  //                   <Text style={styles.suggestionText}>{item}</Text>
+  //                 </TouchableOpacity>
+  //               ))}
+  //             </View>
+  //           )}
+  //         </ScrollView>
+  //       </View>
+  //     </Animated.View>
+  //   );
+  // };
 
   const suggestions = [
     'Plumber', 'Electrician', 'Carpenter',
@@ -626,41 +626,41 @@ function HomeScreen() {
     item.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleBackFromSearch = () => {
-    setShowSearch(false);
-    setSearchQuery('');
-  };
+  // const handleBackFromSearch = () => {
+  //   setShowSearch(false);
+  //   setSearchQuery('');
+  // };
 
-  const renderAppointmentCard = ({ item }) => (
-    <TouchableOpacity
-      style={styles.appointmentCard}
-      onPress={() => navigation.navigate('Appointments', { appointment: item })}
-    >
-      <View style={styles.appointmentHeader}>
-        <Text style={styles.serviceName}>{item.serviceName}</Text>
-        <View style={[styles.statusBadge,
-        { backgroundColor: 
-            item.status === 'Confirmed' ? '#E3FCEF' : 
-            item.status === 'Cancelled' ? '#FFE5E5' : '#FFF5E6' 
-        }]}>
-          <Text style={[styles.statusText,
-          { color: 
-              item.status === 'Confirmed' ? '#1CB66C' : 
-              item.status === 'Cancelled' ? '#FF3B30' : '#FF9500'
-          }]}>
-            {item.status}
-          </Text>
-        </View>
-      </View>
-      <Text style={styles.providerName}>{item.providerName}</Text>
-      <View style={styles.appointmentInfo}>
-        <Icon name="calendar-outline" size={16} color="#666" />
-        <Text style={styles.appointmentText}>{item.date}</Text>
-        <Icon name="time-outline" size={16} color="#666" />
-        <Text style={styles.appointmentText}>{item.time}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+  // const renderAppointmentCard = ({ item }) => (
+  //   <TouchableOpacity
+  //     style={styles.appointmentCard}
+  //     onPress={() => navigation.navigate('Appointments', { appointment: item })}
+  //   >
+  //     <View style={styles.appointmentHeader}>
+  //       <Text style={styles.serviceName}>{item.serviceName}</Text>
+  //       <View style={[styles.statusBadge,
+  //       { backgroundColor: 
+  //           item.status === 'Confirmed' ? '#E3FCEF' : 
+  //           item.status === 'Cancelled' ? '#FFE5E5' : '#FFF5E6' 
+  //       }]}>
+  //         <Text style={[styles.statusText,
+  //         { color: 
+  //             item.status === 'Confirmed' ? '#1CB66C' : 
+  //             item.status === 'Cancelled' ? '#FF3B30' : '#FF9500'
+  //         }]}>
+  //           {item.status}
+  //         </Text>
+  //       </View>
+  //     </View>
+  //     <Text style={styles.providerName}>{item.providerName}</Text>
+  //     <View style={styles.appointmentInfo}>
+  //       <Icon name="calendar-outline" size={16} color="#666" />
+  //       <Text style={styles.appointmentText}>{item.date}</Text>
+  //       <Icon name="time-outline" size={16} color="#666" />
+  //       <Text style={styles.appointmentText}>{item.time}</Text>
+  //     </View>
+  //   </TouchableOpacity>
+  // );
 
   const renderFeaturedDoctor = ({ item }) => {
     return (
@@ -728,98 +728,98 @@ function HomeScreen() {
     );
   };
 
-  const renderCategoryGrid = () => (
-    <View style={styles.categoryGrid}>
-      {categories.map((category) => (
-        <TouchableOpacity
-          key={category.id}
-          style={styles.categoryButton}
-          onPress={() => navigation.navigate('CategoryDetails', { category })}
-        >
-          <View style={styles.categoryIconContainer}>
-            <Icon name={category.icon} size={24} color="#1a73e8" />
-          </View>
-          <Text style={styles.categoryButtonText}>{category.title}</Text>
-        </TouchableOpacity>
-      ))}
-        </View>
-      );
+  // const renderCategoryGrid = () => (
+  //   <View style={styles.categoryGrid}>
+  //     {categories.map((category) => (
+  //       <TouchableOpacity
+  //         key={category.id}
+  //         style={styles.categoryButton}
+  //         onPress={() => navigation.navigate('CategoryDetails', { category })}
+  //       >
+  //         <View style={styles.categoryIconContainer}>
+  //           <Icon name={category.icon} size={24} color="#1a73e8" />
+  //         </View>
+  //         <Text style={styles.categoryButtonText}>{category.title}</Text>
+  //       </TouchableOpacity>
+  //     ))}
+  //       </View>
+  //     );
 
-  const additionalStyles = StyleSheet.create({
-    categoryCard: {
-      width: CATEGORY_CARD_SIZE,
-      marginHorizontal: 8,
-      borderRadius: 16,
-      overflow: 'hidden',
-    },
-    categoryButton: {
-      width: '100%',
-      height: '100%',
-    },
-    categoryGradient: {
-      flex: 1,
-      padding: 16,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    iconContainer: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: 12,
-    },
-    categoryTitle: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: '#333',
-      marginBottom: 4,
-      textAlign: 'center',
-    },
-    categoryCount: {
-      fontSize: 13,
-      color: '#666',
-      textAlign: 'center',
-    },
-    section: {
-      marginVertical: 16,
-    },
-    viewAllButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: '#f8f9fa',
-      paddingVertical: 6,
-      paddingHorizontal: 12,
-      borderRadius: 20,
-    },
-    viewAllText: {
-      fontSize: 14,
-      color: '#2E86DE',
-      marginRight: 4,
-    },
-    categoryIndicator: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: 10,
-      opacity: 0.6,
-    },
-    swipeText: {
-      marginLeft: 8,
-      fontSize: 12,
-      color: '#666',
-    },
-    categoriesList: {
-      paddingHorizontal: 8,
-      paddingVertical: 10,
-    },
-    skeleton: {
-      backgroundColor: '#E1E9EE',
-      borderRadius: 4,
-      overflow: 'hidden',
-    },
-  });
+  // const additionalStyles = StyleSheet.create({
+  //   categoryCard: {
+  //     width: CATEGORY_CARD_SIZE,
+  //     marginHorizontal: 8,
+  //     borderRadius: 16,
+  //     overflow: 'hidden',
+  //   },
+  //   categoryButton: {
+  //     width: '100%',
+  //     height: '100%',
+  //   },
+  //   categoryGradient: {
+  //     flex: 1,
+  //     padding: 16,
+  //     justifyContent: 'center',
+  //     alignItems: 'center',
+  //   },
+  //   iconContainer: {
+  //     width: 48,
+  //     height: 48,
+  //     borderRadius: 24,
+  //     alignItems: 'center',
+  //     justifyContent: 'center',
+  //     marginBottom: 12,
+  //   },
+  //   categoryTitle: {
+  //     fontSize: 16,
+  //     fontWeight: '600',
+  //     color: '#333',
+  //     marginBottom: 4,
+  //     textAlign: 'center',
+  //   },
+  //   categoryCount: {
+  //     fontSize: 13,
+  //     color: '#666',
+  //     textAlign: 'center',
+  //   },
+  //   section: {
+  //     marginVertical: 16,
+  //   },
+  //   viewAllButton: {
+  //     flexDirection: 'row',
+  //     alignItems: 'center',
+  //     backgroundColor: '#f8f9fa',
+  //     paddingVertical: 6,
+  //     paddingHorizontal: 12,
+  //     borderRadius: 20,
+  //   },
+  //   viewAllText: {
+  //     fontSize: 14,
+  //     color: '#2E86DE',
+  //     marginRight: 4,
+  //   },
+  //   categoryIndicator: {
+  //     flexDirection: 'row',
+  //     alignItems: 'center',
+  //     justifyContent: 'center',
+  //     marginBottom: 10,
+  //     opacity: 0.6,
+  //   },
+  //   swipeText: {
+  //     marginLeft: 8,
+  //     fontSize: 12,
+  //     color: '#666',
+  //   },
+  //   categoriesList: {
+  //     paddingHorizontal: 8,
+  //     paddingVertical: 10,
+  //   },
+  //   skeleton: {
+  //     backgroundColor: '#E1E9EE',
+  //     borderRadius: 4,
+  //     overflow: 'hidden',
+  //   },
+  // });
 
   // Add this function to fetch featured doctors
   const fetchFeaturedDoctors = async () => {
@@ -1035,7 +1035,7 @@ function HomeScreen() {
                 <TouchableOpacity
                     key={item.id}
                   style={styles.appointmentCard}
-                    onPress={() => navigation.navigate('AppointmentDetails', { id: item.id })}
+                    // onPress={() => navigation.navigate('AppointmentDetails', { id: item.id })}
                   >
                     <View style={styles.appointmentTimeStrip}>
                       <Text style={styles.appointmentTime}>{item.time}</Text>
