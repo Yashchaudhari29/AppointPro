@@ -30,13 +30,22 @@ export default function ProfileScreen() {
         const userDocRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userDocRef);
         const data = userSnap.data();
+        
+        // Load image URI before setting user info
+        const uri = await AsyncStorage.getItem('userProfileImage');
+        if (!uri) {
+          setImageUri('https://static.vecteezy.com/system/resources/previews/011/490/381/non_2x/happy-smiling-young-man-avatar-3d-portrait-of-a-man-cartoon-character-people-illustration-isolated-on-white-background-vector.jpg');
+        }else{
+          setImageUri(uri);
+        }
+
         setUserInfo({
           name: `${data.firstName} ${data.lastName}`,
           firstName: data.firstName,
           lastName: data.lastName,
           email: data.email,
           phone: data.mobile,
-          profileImage: imageUri || 'https://static.vecteezy.com/system/resources/previews/011/490/381/non_2x/happy-smiling-young-man-avatar-3d-portrait-of-a-man-cartoon-character-people-illustration-isolated-on-white-background-vector.jpg',
+          profileImage: uri ,
           location: data.location
         });
       }
@@ -139,11 +148,6 @@ export default function ProfileScreen() {
           <View style={styles.profileEmailSkeleton} />
         </View>
       </View>
-      {/* <View style={styles.statsContainer}>
-        <View style={styles.statItemSkeleton} />
-        <View style={styles.statItemSkeleton} />
-        <View style={styles.statItemSkeleton} />
-      </View> */}
       <View style={styles.menuContainer}>
         {menuItems.map((item) => (
           <View key={item.id} style={styles.menuItemSkeleton} />
@@ -186,14 +190,14 @@ export default function ProfileScreen() {
                       <MaterialCommunityIcons
                         name={item.icon}
                         size={24}
-                        color="#6c63ff"
+                        color="#1a73e8"
                       />
                       <Text style={styles.menuItemText}>{item.title}</Text>
                     </View>
                     <MaterialCommunityIcons
                       name="chevron-right"
                       size={24}
-                      color="#b0b0b0"
+                      color="#1a73e8"
                     />
                   </TouchableOpacity>
                 ))}
@@ -314,30 +318,29 @@ const styles = StyleSheet.create({
   skeletonContainer: {
     flex: 1,
     padding: 20,
+    backgroundColor: '#f0f0f3',
   },
   profileImageSkeleton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 180,
+    height: 180,
+    borderRadius: 100,
     backgroundColor: '#e0e0e0',
+    marginBottom: 15,
   },
   profileNameSkeleton: {
-    width: 120,
+    alignContent: 'center',
+    width: 180,
     height: 20,
-    marginTop: 10,
     backgroundColor: '#e0e0e0',
+    marginTop: 10,
+    borderRadius: 10,
   },
   profileEmailSkeleton: {
     width: 180,
     height: 14,
+    backgroundColor: '#e0e0e0',
     marginTop: 5,
-    backgroundColor: '#e0e0e0',
-  },
-  statItemSkeleton: {
-    flex: 1,
-    height: 50,
-    backgroundColor: '#e0e0e0',
-    marginHorizontal: 5,
+    borderRadius: 7,
   },
   menuItemSkeleton: {
     height: 50,
