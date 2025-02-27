@@ -169,6 +169,9 @@ const HeroSectionSkeleton = () => (
 );
 
 function HomeScreen() {
+  // useEffect(() => {
+  //   getUserLocation();
+  // }, []);
   const navigation = useNavigation();
   const { unreadCount } = useNotifications();
   const { theme } = useTheme();
@@ -230,7 +233,7 @@ function HomeScreen() {
   // const scrollX = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateX = useRef(new Animated.Value(50)).current;
-
+ 
   // Extract fetchUserData function
   const fetchUserData = async () => {
     try {
@@ -241,13 +244,28 @@ function HomeScreen() {
 
       if (userSnap.exists()) {
         setName(userData.firstName);
+        
+        // Get the formatted address from current location
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === 'granted') {
+          const location = await Location.getCurrentPositionAsync({});
+          const [address] = await Location.reverseGeocodeAsync({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          });
+
+          if (address) {
+            const formattedAddress = `${address.city || ''} - ${address.postalCode || ''}`;
+            setUserLocation(formattedAddress);
+            
+            if (!userData.location || userData.location !== formattedAddress) {
+              updateUserLocationInDB(formattedAddress);
+            }
+          }
+        }
       } else {
         console.log("No user data found!");
       }
-      if (!userData.location || userData.location !== userLocation) {
-        updateUserLocationInDB(userLocation);
-      }
-
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -287,9 +305,7 @@ function HomeScreen() {
     ]).start();
   }, []);
 
-  useEffect(() => {
-    getUserLocation();
-  }, []);
+ 
 
   useEffect(() => {
     const fetchAppointmentDetails = async () => {
@@ -472,33 +488,33 @@ function HomeScreen() {
       console.error('Error updating user location:', error);
     }
   };
-  const getUserLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
+  // const getUserLocation = async () => {
+  //   try {
+  //     const { status } = await Location.requestForegroundPermissionsAsync();
 
-      if (status !== 'granted') {
-        setUserLocation('Location access denied');
-        return;
-      }
+  //     if (status !== 'granted') {
+  //       setUserLocation('Location access denied');
+  //       return;
+  //     }
 
-      const location = await Location.getCurrentPositionAsync({});
-      const [address] = await Location.reverseGeocodeAsync({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
+  //     const location = await Location.getCurrentPositionAsync({});
+  //     const [address] = await Location.reverseGeocodeAsync({
+  //       latitude: location.coords.latitude,
+  //       longitude: location.coords.longitude,
+  //     });
 
-      if (address) {
-        const formattedAddress = `${address.city || ''} - ${address.postalCode || ''}`;
-        setUserLocation(formattedAddress);
+  //     if (address) {
+  //       const formattedAddress = `${address.city || ''} - ${address.postalCode || ''}`;
+  //       setUserLocation(formattedAddress);
 
-      } else {
-        setUserLocation('Address not found');
-      }
-    } catch (error) {
-      console.error('Error getting location:', error);
-      setUserLocation('Location unavailable');
-    }
-  };
+  //     } else {
+  //       setUserLocation('Address not found');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error getting location:', error);
+  //     setUserLocation('Location unavailable');
+  //   }
+  // };
 
 
   // const handleSearchClose = () => {
