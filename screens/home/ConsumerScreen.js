@@ -105,21 +105,21 @@ const AppointmentSkeleton = () => (
 // Add this skeleton component
 const FeaturedSpecialistSkeleton = () => (
   <View style={[styles.modernDoctorCard, { backgroundColor: '#fff' }]}>
-    <View style={[styles.skeleton, { 
-      width: '100%', 
+    <View style={[styles.skeleton, {
+      width: '100%',
       height: ITEM_SIZE * 0.8,
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20
     }]} />
-    
+
     <View style={styles.modernDoctorInfo}>
       <View style={styles.nameRow}>
         <View style={[styles.skeleton, { width: '60%', height: 24, marginBottom: 8 }]} />
         <View style={[styles.skeleton, { width: 45, height: 24, borderRadius: 12 }]} />
       </View>
-      
+
       <View style={[styles.skeleton, { width: '40%', height: 16, marginBottom: 12 }]} />
-      
+
       <View style={[styles.modernLocationContainer, { backgroundColor: '#F8F9FA' }]}>
         <View style={[styles.skeleton, { width: '80%', height: 16 }]} />
       </View>
@@ -244,6 +244,10 @@ function HomeScreen() {
       } else {
         console.log("No user data found!");
       }
+      if (!userData.location || userData.location !== userLocation) {
+        updateUserLocationInDB(userLocation);
+      }
+
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -258,7 +262,6 @@ function HomeScreen() {
       const consumerAppointmentRef = doc(db1, 'ConsumerAppointments', user.uid);
       const consumerAppointmentSnap = await getDoc(consumerAppointmentRef);
 
-      console.log(consumerAppointmentSnap.exists());
       if (consumerAppointmentSnap.exists()) {
         const ids = consumerAppointmentSnap.data().appointments || [];
         const invertedIds = [...ids].reverse();
@@ -306,9 +309,9 @@ function HomeScreen() {
               date: data.date,
               time: data.time,
               status: data.status || 'Pending',
-              appointment_Status:data.appointment_Status,
-              image:data.provider_image,
-              location:data.location,
+              appointment_Status: data.appointment_Status,
+              image: data.provider_image,
+              location: data.location,
             };
           }
           return null;
@@ -335,7 +338,7 @@ function HomeScreen() {
       const usersRef = collection(db1, 'users');
       const q = query(usersRef, where('role', '==', 'provider'));
       const usersSnapshot = await getDocs(q);
-      
+
       // Object to store category counts and providers
       const categoryData = {
         'Emergency Care': { count: 0, icon: 'heartbeat', color: '#FF4757' },
@@ -365,7 +368,8 @@ function HomeScreen() {
           categoryData['Beauty & Spa'].count++;
         }
         else if (profession.includes('teacher') || profession.includes('tutor')) {
-          categoryData['Education'].count++;        } 
+          categoryData['Education'].count++;
+        }
       });
 
       // Convert to array format for categories
@@ -407,7 +411,7 @@ function HomeScreen() {
       ]}
     >
       <TouchableOpacity
-        
+
         style={styles.categoryButton}
       >
         <LinearGradient
@@ -486,7 +490,7 @@ function HomeScreen() {
       if (address) {
         const formattedAddress = `${address.city || ''} - ${address.postalCode || ''}`;
         setUserLocation(formattedAddress);
-        // updateUserLocationInDB(formattedAddress);
+
       } else {
         setUserLocation('Address not found');
       }
@@ -670,8 +674,8 @@ function HomeScreen() {
         style={styles.modernDoctorCard}
       >
         <View style={styles.imageWrapper}>
-          <Image 
-            source={{ uri: item.image }} 
+          <Image
+            source={{ uri: item.image }}
             style={styles.modernDoctorImage}
             resizeMode="cover"
           />
@@ -687,7 +691,7 @@ function HomeScreen() {
             </View>
           )}
         </View>
-        
+
         <View style={styles.modernDoctorInfo}>
           <View style={styles.nameRow}>
             <Text style={styles.modernDoctorName} numberOfLines={1}>{item.name}</Text>
@@ -698,7 +702,7 @@ function HomeScreen() {
           </View>
 
           <Text style={styles.modernSpecialty} numberOfLines={1}>{item.specialty}</Text>
-          
+
           <View style={styles.modernLocationContainer}>
             <Icon name="location-sharp" size={14} color="#666" />
             <Text style={styles.modernLocation} numberOfLines={1}>{item.location}</Text>
@@ -711,7 +715,7 @@ function HomeScreen() {
             </View>
             <View style={styles.modernStat}>
               {/* <Ionicons name="money-outline" size={14} color="#666" /> */}
-              <Text style={styles.modernStatText}>Consultation : ₹{item.price|| '-'} </Text>
+              <Text style={styles.modernStatText}>Consultation : ₹{item.price || '-'} </Text>
             </View>
           </View>
 
@@ -832,7 +836,7 @@ function HomeScreen() {
         where('rating', '>=', 4.5),
         limit(5)
       );
-      
+
       const querySnapshot = await getDocs(q);
       const doctors = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -923,11 +927,11 @@ function HomeScreen() {
           <MaterialIcons name="arrow-forward" size={20} color="#2E86DE" />
         </TouchableOpacity>
       </View>
-      
+
       <FlatList
         horizontal
         showsHorizontalScrollIndicator={false}
-        data={isFeaturedLoading ? [1,2,3] : featuredDoctors}
+        data={isFeaturedLoading ? [1, 2, 3] : featuredDoctors}
         renderItem={isFeaturedLoading ? () => <FeaturedSpecialistSkeleton /> : renderFeaturedDoctor}
         keyExtractor={(item, index) => isFeaturedLoading ? index.toString() : item.id}
         contentContainerStyle={styles.featuredList}
@@ -992,12 +996,12 @@ function HomeScreen() {
         </View>
       )}
 
-      <ScrollView 
+      <ScrollView
         style={styles.mainContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
+          <RefreshControl
+            refreshing={refreshing}
             onRefresh={onRefresh}
             colors={['#1a73e8']} // Android
             tintColor="#1a73e8" // iOS
@@ -1010,17 +1014,17 @@ function HomeScreen() {
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Appointments</Text>
               {upcomingAppointments.length > 0 && (
-              <TouchableOpacity
-                style={styles.viewAllButton}
+                <TouchableOpacity
+                  style={styles.viewAllButton}
                   onPress={() => navigation.navigate('UserAppointments', { appointment_detail: allAppointments })}
-              >
+                >
                   <Text style={styles.viewAllText}>View all</Text>
-                <MaterialIcons name="arrow-forward" size={20} color="#2E86DE" />
-              </TouchableOpacity>
+                  <MaterialIcons name="arrow-forward" size={20} color="#2E86DE" />
+                </TouchableOpacity>
               )}
             </View>
-            
-            <ScrollView 
+
+            <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.appointmentsList}
@@ -1033,10 +1037,10 @@ function HomeScreen() {
                 </>
               ) : upcomingAppointments.length > 0 ? (
                 upcomingAppointments.map(item => (
-                <TouchableOpacity
+                  <TouchableOpacity
                     key={item.id}
-                  style={styles.appointmentCard}
-                    // onPress={() => navigation.navigate('AppointmentDetails', { id: item.id })}
+                    style={styles.appointmentCard}
+                  // onPress={() => navigation.navigate('AppointmentDetails', { id: item.id })}
                   >
                     <View style={styles.appointmentTimeStrip}>
                       <Text style={styles.appointmentTime}>{item.time}</Text>
@@ -1044,26 +1048,28 @@ function HomeScreen() {
                     </View>
                     <View style={styles.appointmentContent}>
                       <Text style={styles.serviceName}>{item.serviceName} Appointment</Text>
-                      <Text style={styles.providerName}>{item.serviceName==="Doctor" ? `Dr. ${item.providerName}` : item.providerName}</Text>
-                    <View style={[styles.statusBadge,
-                    { backgroundColor: 
-                        item.status === 'Confirmed' ? '#E3FCEF' : 
-                        item.status === 'Cancelled' ? '#FFE5E5' : '#FFF5E6' 
-                    }]}>
-                      <Text style={[styles.statusText,
-                      { color: 
-                          item.status === 'Confirmed' ? '#1CB66C' : 
-                          item.status === 'Cancelled' ? '#FF3B30' : '#FF9500'
+                      <Text style={styles.providerName}>{item.serviceName === "Doctor" ? `Dr. ${item.providerName}` : item.providerName}</Text>
+                      <View style={[styles.statusBadge,
+                      {
+                        backgroundColor:
+                          item.status === 'Confirmed' ? '#E3FCEF' :
+                            item.status === 'Cancelled' ? '#FFE5E5' : '#FFF5E6'
                       }]}>
-                        {item.status}
-                      </Text>
+                        <Text style={[styles.statusText,
+                        {
+                          color:
+                            item.status === 'Confirmed' ? '#1CB66C' :
+                              item.status === 'Cancelled' ? '#FF3B30' : '#FF9500'
+                        }]}>
+                          {item.status}
+                        </Text>
+                      </View>
                     </View>
-                  </View>
                   </TouchableOpacity>
                 ))
               ) : null}
             </ScrollView>
-                  </View>
+          </View>
         )}
 
         {/* Featured Specialists Section */}
@@ -1081,35 +1087,35 @@ function HomeScreen() {
         onRequestClose={() => setShowSearch(false)}
       >
         <View style={[styles.searchModal, { backgroundColor: theme.background }]}>
-            <View style={styles.searchHeader}>
+          <View style={styles.searchHeader}>
             <TouchableOpacity onPress={() => setShowSearch(false)}>
               <MaterialIcons name="arrow-back" size={24} color={theme.text} style={styles.backButton} />
             </TouchableOpacity>
-                <TextInput
+            <TextInput
               style={[styles.searchInput, { color: theme.text }]}
               placeholder="Search specialists, services..."
               placeholderTextColor={theme.placeholder}
-                  value={searchQuery}
+              value={searchQuery}
               onChangeText={handleSearch}
-                  autoFocus
-                />
+              autoFocus
+            />
           </View>
           {showSearchSuggestions && (
             <ScrollView style={styles.suggestionsContainer}>
               {filteredSuggestions.map((suggestion, index) => (
-                  <TouchableOpacity
+                <TouchableOpacity
                   key={index}
                   style={styles.suggestionItem}
                   onPress={() => handleSuggestionPress(suggestion)}
-                  >
+                >
                   <Text style={[styles.suggestionText, { color: theme.text }]}>
                     {suggestion}
                   </Text>
-                  </TouchableOpacity>
+                </TouchableOpacity>
               ))}
             </ScrollView>
-                )}
-              </View>
+          )}
+        </View>
       </Modal>
     </SafeAreaView>
   );
