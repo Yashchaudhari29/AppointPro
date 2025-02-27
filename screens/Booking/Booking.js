@@ -180,6 +180,10 @@ const DoctorBookingScreen = ({ route, navigation }) => {
                 location:provider.Location,
                 createdAt: new Date(),
               });
+              const consumerAppointmentRef = doc(db, 'ConsumerAppointments', currentUser.uid);
+              await setDoc(consumerAppointmentRef, {
+                appointments: arrayUnion(appointmentRef.id)
+              }, { merge: true });
 
               // Save notification to AsyncStorage
               await saveNotification(appointmentRef.id);

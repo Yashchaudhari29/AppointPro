@@ -125,14 +125,18 @@ export function NotificationProvider({ children }) {
     await AsyncStorage.setItem('notifications', JSON.stringify(updatedNotifications));
   };
 
-  const restoreAllFromTrash = () => {
-    setNotifications(prev =>
-      prev.map(notif =>
+  const restoreAllFromTrash = async () => {
+    try {
+      const updatedNotifications = notifications.map(notif =>
         notif.status === 'trash'
-          ? { ...notif, status: 'read' }
+          ? { ...notif, status: 'read', isRead: true }
           : notif
-      )
-    );
+      );
+      setNotifications(updatedNotifications);
+      await AsyncStorage.setItem('notifications', JSON.stringify(updatedNotifications));
+    } catch (error) {
+      console.error('Error restoring notifications from trash:', error);
+    }
   };
 
   return (
@@ -414,7 +418,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingHorizontal: 16,
     paddingTop: 12,
-    
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },

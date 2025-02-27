@@ -188,7 +188,7 @@ export default function PersonalInfoScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'white',
   },
   header: {
     backgroundColor: 'transparent',
@@ -198,6 +198,10 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   backButton: {
+      padding: 8,
+      marginRight: 8,
+      borderRadius: 12,
+      backgroundColor: '#f5f5f5',
     position: 'absolute',
     top: Platform.OS === 'ios' ? 40 : 20,
     left: 20,

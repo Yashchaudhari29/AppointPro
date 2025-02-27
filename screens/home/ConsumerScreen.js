@@ -258,6 +258,7 @@ function HomeScreen() {
       const consumerAppointmentRef = doc(db1, 'ConsumerAppointments', user.uid);
       const consumerAppointmentSnap = await getDoc(consumerAppointmentRef);
 
+      console.log(consumerAppointmentSnap.exists());
       if (consumerAppointmentSnap.exists()) {
         const ids = consumerAppointmentSnap.data().appointments || [];
         const invertedIds = [...ids].reverse();
@@ -485,7 +486,7 @@ function HomeScreen() {
       if (address) {
         const formattedAddress = `${address.city || ''} - ${address.postalCode || ''}`;
         setUserLocation(formattedAddress);
-        updateUserLocationInDB(formattedAddress);
+        // updateUserLocationInDB(formattedAddress);
       } else {
         setUserLocation('Address not found');
       }
@@ -1082,7 +1083,7 @@ function HomeScreen() {
         <View style={[styles.searchModal, { backgroundColor: theme.background }]}>
             <View style={styles.searchHeader}>
             <TouchableOpacity onPress={() => setShowSearch(false)}>
-              <MaterialIcons name="arrow-back" size={24} color={theme.text} />
+              <MaterialIcons name="arrow-back" size={24} color={theme.text} style={styles.backButton} />
             </TouchableOpacity>
                 <TextInput
               style={[styles.searchInput, { color: theme.text }]}
@@ -1304,6 +1305,12 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  backButton: {
+    padding: 8,
+    marginRight: 8,
+    borderRadius: 12,
+    backgroundColor: '#f5f5f5',
+  },
   safeContainer: {
     flex: 1,
     backgroundColor: '#fff',
@@ -1896,7 +1903,8 @@ const styles = StyleSheet.create({
   },
   searchModal: {
     position: 'absolute',
-    top: 0,
+    marginTop: 10,
+    top: 10,
     left: 0,
     right: 0,
     bottom: 0,
@@ -1906,12 +1914,14 @@ const styles = StyleSheet.create({
   searchHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 10,
     paddingHorizontal: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
   searchInput: {
+    marginTop: 10,
     flex: 1,
     color: '#333',
     fontSize: 14,
