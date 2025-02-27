@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,39 +6,39 @@ import {
   FlatList,
   TouchableOpacity,
   RefreshControl,
-  Animated
+  Animated,
+  ActivityIndicator
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Create context within the same file
 const NotificationContext = createContext();
 
 export function NotificationProvider({ children }) {
-  const [notifications, setNotifications] = useState([
-    {
-      id: '1',
-      title: 'Appointment Confirmed',
-      message: 'Your appointment with Dr. Smith is confirmed for tomorrow at 10 AM',
-      time: '2 minutes ago',
-      icon: 'calendar-outline',
-      color: '#34a853',
-      isRead: false,
-      status: 'unread',
-      details: 'Location: Manhattan Medical Center\nRoom: 302\nDuration: 30 minutes'
-    },
-    {
-      id: '2',
-      title: 'New Message',
-      message: 'You have a new message from CleanPro Services',
-      time: '1 hour ago',
-      icon: 'chatbubble-outline',
-      color: '#1a73e8',
-      isRead: true,
-      status: 'read'
-    },
-    // Add more sample notifications
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Add this useEffect to load notifications from AsyncStorage
+  useEffect(() => {
+    loadNotifications();
+  }, []);
+
+  const loadNotifications = async () => {
+    try {
+      setIsLoading(true);
+      const storedNotifications = await AsyncStorage.getItem('notifications');
+      if (storedNotifications) {
+        setNotifications(JSON.parse(storedNotifications));
+      }
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const [unreadCount, setUnreadCount] = useState(0);
   const [viewedIds, setViewedIds] = useState(new Set());
@@ -73,34 +73,34 @@ export function NotificationProvider({ children }) {
     }
   };
 
-  const markAsRead = (notificationId) => {
-    setNotifications(prev =>
-      prev.map(notif =>
-        notif.id === notificationId
-          ? { ...notif, status: 'read', isRead: true }
-          : notif
-      )
+  const markAsRead = async (notificationId) => {
+    const updatedNotifications = notifications.map(notif =>
+      notif.id === notificationId
+        ? { ...notif, status: 'read', isRead: true }
+        : notif
     );
+    setNotifications(updatedNotifications);
+    await AsyncStorage.setItem('notifications', JSON.stringify(updatedNotifications));
   };
 
-  const moveToTrash = (notificationId) => {
-    setNotifications(prev =>
-      prev.map(notif =>
-        notif.id === notificationId
-          ? { ...notif, status: 'trash' }
-          : notif
-      )
+  const markAllAsRead = async () => {
+    const updatedNotifications = notifications.map(notif => 
+      notif.status === 'unread' 
+        ? { ...notif, status: 'read', isRead: true }
+        : notif
     );
+    setNotifications(updatedNotifications);
+    await AsyncStorage.setItem('notifications', JSON.stringify(updatedNotifications));
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev =>
-      prev.map(notif => 
-        notif.status === 'unread' 
-          ? { ...notif, status: 'read', isRead: true }
-          : notif
-      )
+  const moveToTrash = async (notificationId) => {
+    const updatedNotifications = notifications.map(notif =>
+      notif.id === notificationId
+        ? { ...notif, status: 'trash' }
+        : notif
     );
+    setNotifications(updatedNotifications);
+    await AsyncStorage.setItem('notifications', JSON.stringify(updatedNotifications));
   };
 
   const restoreFromTrash = (notificationId) => {
@@ -119,10 +119,10 @@ export function NotificationProvider({ children }) {
     );
   };
 
-  const emptyTrash = () => {
-    setNotifications(prev =>
-      prev.filter(notif => notif.status !== 'trash')
-    );
+  const emptyTrash = async () => {
+    const updatedNotifications = notifications.filter(notif => notif.status !== 'trash');
+    setNotifications(updatedNotifications);
+    await AsyncStorage.setItem('notifications', JSON.stringify(updatedNotifications));
   };
 
   const restoreAllFromTrash = () => {
@@ -149,7 +149,9 @@ export function NotificationProvider({ children }) {
         emptyTrash,
         restoreAllFromTrash,
         markAsViewed,
-        moveViewedToRead
+        moveViewedToRead,
+        isLoading,
+        loadNotifications
       }}
     >
       {children}
@@ -175,12 +177,15 @@ export default function NotificationsScreen() {
     restoreAllFromTrash,
     unreadCount,
     markAsViewed,
-    moveViewedToRead
+    moveViewedToRead,
+    isLoading,
+    loadNotifications
   } = useNotifications();
   
   const [activeTab, setActiveTab] = useState('unread');
   const [refreshing, setRefreshing] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const navigation = useNavigation();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -192,12 +197,16 @@ export default function NotificationsScreen() {
     return notifications.filter(notif => notif.status === activeTab);
   };
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    setTimeout(() => {
+  const onRefresh = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      await loadNotifications();
+    } catch (error) {
+      console.error('Error refreshing notifications:', error);
+    } finally {
       setRefreshing(false);
-    }, 2000);
-  };
+    }
+  }, [loadNotifications]);
 
   const renderTab = (tabName, count) => (
     <TouchableOpacity
@@ -268,74 +277,146 @@ export default function NotificationsScreen() {
     </TouchableOpacity>
   );
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.tabContainer}>
-        {renderTab('unread', unreadCount)}
-        {renderTab('read', notifications.filter(n => n.status === 'read').length)}
-        {renderTab('trash', notifications.filter(n => n.status === 'trash').length)}
-      </View>
-
-      {activeTab === 'unread' && unreadCount > 0 && (
-        <TouchableOpacity
-          style={styles.markAllButton}
-          onPress={markAllAsRead}
-        >
-          <Text style={styles.markAllText}>Mark all as read</Text>
-        </TouchableOpacity>
-      )}
-
-      {activeTab === 'trash' && notifications.filter(n => n.status === 'trash').length > 0 && (
-        <View style={styles.trashActions}>
-          <TouchableOpacity
-            style={styles.trashActionButton}
-            onPress={restoreAllFromTrash}
-          >
-            <Icon name="refresh-outline" size={20} color="#1a73e8" />
-            <Text style={styles.trashActionText}>Restore All</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.trashActionButton, styles.emptyTrashButton]}
-            onPress={emptyTrash}
-          >
-            <Icon name="trash-outline" size={20} color="#ea4335" />
-            <Text style={[styles.trashActionText, styles.emptyTrashText]}>Empty Trash</Text>
-          </TouchableOpacity>
+  const renderHeader = () => (
+    <View style={styles.headerContainer}>
+      <TouchableOpacity 
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Icon name="chevron-back" size={24} color="#333" />
+      </TouchableOpacity>
+      <Text style={styles.headerTitle}>Notifications</Text>
+      {unreadCount > 0 && (
+        <View style={styles.unreadBadge}>
+          <Text style={styles.unreadBadgeText}>{unreadCount}</Text>
         </View>
       )}
-
-      <FlatList
-        data={filterNotifications()}
-        renderItem={renderNotification}
-        keyExtractor={item => item.id}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Icon name="notifications-off-outline" size={48} color="#666" />
-            <Text style={styles.emptyText}>
-              No {activeTab} notifications
-            </Text>
-          </View>
-        }
-      />
     </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        {renderHeader()}
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#1a73e8" />
+            <Text style={styles.loadingText}>Loading notifications...</Text>
+          </View>
+        ) : (
+          <>
+            <View style={styles.tabContainer}>
+              {renderTab('unread', unreadCount)}
+              {renderTab('read', notifications.filter(n => n.status === 'read').length)}
+              {renderTab('trash', notifications.filter(n => n.status === 'trash').length)}
+            </View>
+
+            {activeTab === 'unread' && unreadCount > 0 && (
+              <TouchableOpacity
+                style={styles.markAllButton}
+                onPress={markAllAsRead}
+              >
+                <Text style={styles.markAllText}>Mark all as read</Text>
+              </TouchableOpacity>
+            )}
+
+            {activeTab === 'trash' && notifications.filter(n => n.status === 'trash').length > 0 && (
+              <View style={styles.trashActions}>
+                <TouchableOpacity
+                  style={styles.trashActionButton}
+                  onPress={restoreAllFromTrash}
+                >
+                  <Icon name="refresh-outline" size={20} color="#1a73e8" />
+                  <Text style={styles.trashActionText}>Restore All</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.trashActionButton, styles.emptyTrashButton]}
+                  onPress={emptyTrash}
+                >
+                  <Icon name="trash-outline" size={20} color="#ea4335" />
+                  <Text style={[styles.trashActionText, styles.emptyTrashText]}>Empty Trash</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            <FlatList
+              data={filterNotifications()}
+              renderItem={renderNotification}
+              keyExtractor={item => item.id}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              }
+              ListEmptyComponent={
+                <View style={styles.emptyContainer}>
+                  <Icon name="notifications-off-outline" size={48} color="#666" />
+                  <Text style={styles.emptyText}>
+                    No {activeTab} notifications
+                  </Text>
+                </View>
+              }
+            />
+          </>
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   container: {
     flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 8,
+    borderRadius: 12,
     backgroundColor: '#f5f5f5',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    flex: 1,
+  },
+  unreadBadge: {
+    backgroundColor: '#1a73e8',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginLeft: 8,
+  },
+  unreadBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
   tabContainer: {
     flexDirection: 'row',
     backgroundColor: '#fff',
     paddingHorizontal: 16,
     paddingTop: 12,
+    
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#f0f0f0',
   },
   tab: {
     flex: 1,
@@ -343,10 +424,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
+    marginHorizontal: 10,
+    borderRadius: 12,
   },
   activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#1a73e8',
+    // borderBottomWidth: 2,
+    backgroundColor: '#f0f7ff',
   },
   tabText: {
     fontSize: 14,
@@ -360,7 +443,7 @@ const styles = StyleSheet.create({
   countBadge: {
     backgroundColor: '#1a73e8',
     borderRadius: 10,
-    paddingHorizontal: 6,
+    paddingHorizontal: 8,
     paddingVertical: 2,
     marginLeft: 6,
   },
@@ -383,7 +466,14 @@ const styles = StyleSheet.create({
   },
   notificationItem: {
     backgroundColor: '#fff',
-    marginBottom: 1,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    borderRadius: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   notificationContent: {
     flexDirection: 'row',
@@ -391,12 +481,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   notificationIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 16,
   },
   textContainer: {
     flex: 1,
@@ -404,13 +494,14 @@ const styles = StyleSheet.create({
   notificationTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#1a1a1a',
     marginBottom: 4,
   },
   notificationMessage: {
     fontSize: 14,
     color: '#666',
     marginBottom: 4,
+    lineHeight: 20,
   },
   notificationTime: {
     fontSize: 12,
@@ -424,11 +515,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 100,
+    backgroundColor: '#f8f9fa',
   },
   emptyText: {
     fontSize: 16,
     color: '#666',
-    marginTop: 10,
+    marginTop: 16,
+    fontWeight: '500',
   },
   detailsContainer: {
     marginTop: 8,
@@ -443,8 +536,12 @@ const styles = StyleSheet.create({
   },
   trashActions: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
   actionButton: {
     padding: 8,
@@ -453,10 +550,9 @@ const styles = StyleSheet.create({
   trashActionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
-    borderRadius: 8,
-    marginHorizontal: 8,
-    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#f8f9fa',
   },
   trashActionText: {
     marginLeft: 8,
@@ -465,9 +561,21 @@ const styles = StyleSheet.create({
     color: '#1a73e8',
   },
   emptyTrashButton: {
-    backgroundColor: '#fef2f2',
+    backgroundColor: '#fff2f2',
   },
   emptyTrashText: {
-    color: '#ea4335',
+    color: '#dc3545',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '500',
   },
 }); 

@@ -20,6 +20,7 @@ import { StatusBar } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 import { getFirestore, doc, setDoc,collection, addDoc, arrayUnion, updateDoc } from 'firebase/firestore';
 import { auth } from '../../firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const db = getFirestore();
 // Constants
@@ -112,6 +113,35 @@ const DoctorBookingScreen = ({ route, navigation }) => {
     return slots;
   };
 
+  const saveNotification = async (appointmentId) => {
+    try {
+      // Get existing notifications
+      const existingNotifications = await AsyncStorage.getItem('notifications');
+      const notifications = existingNotifications ? JSON.parse(existingNotifications) : [];
+      
+      // Create new notification
+      const newNotification = {
+        id: appointmentId,
+        title: 'Appointment Confirmed',
+        message: `Your appointment with ${provider.name} is confirmed for ${selectedDate} at ${selectedTime}`,
+        time: new Date().toISOString(),
+        icon: 'calendar-outline',
+        color: '#34a853',
+        isRead: false,
+        status: 'unread',
+        details: `Provider: ${provider.name}\nService: ${provider.job}\nLocation: ${provider.Location || 'Virtual Consultation'}\nConsultation Fee: ₹${provider.consultation}`
+      };
+
+      // Add new notification to the beginning of the array
+      notifications.unshift(newNotification);
+
+      // Save back to AsyncStorage
+      await AsyncStorage.setItem('notifications', JSON.stringify(notifications));
+    } catch (error) {
+      console.error('Error saving notification:', error);
+    }
+  };
+
   const handleBooking = async () => {
     if (!selectedDate || !selectedTime) {
       Alert.alert('Error', 'Please select both date and time');
@@ -128,7 +158,6 @@ const DoctorBookingScreen = ({ route, navigation }) => {
         {
           text: "Confirm",
           onPress: async() => {
-            
             try {
               const currentUser = auth.currentUser;
               if (!currentUser) {
@@ -152,15 +181,8 @@ const DoctorBookingScreen = ({ route, navigation }) => {
                 createdAt: new Date(),
               });
 
-              // await updateDoc(doc(db, "Appointments", appointmentRef.id), {
-              //   appointmentId: appointmentRef.id,
-              // });
-          
-              // Add appointment ID to consumer's appointments collection
-              const consumerAppointmentRef = doc(db, 'ConsumerAppointments', currentUser.uid);
-              await setDoc(consumerAppointmentRef, {
-                appointments: arrayUnion(appointmentRef.id)
-              }, { merge: true });
+              // Save notification to AsyncStorage
+              await saveNotification(appointmentRef.id);
           
               // Navigate to confirmation screen
               RedirectedSuccess(appointmentRef.id, provider);
@@ -172,7 +194,6 @@ const DoctorBookingScreen = ({ route, navigation }) => {
         }
       ]
     );
-    
   };
 
   const confirmBooking = () => {
