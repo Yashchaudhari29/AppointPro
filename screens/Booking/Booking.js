@@ -18,7 +18,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Calendar } from 'react-native-calendars';
 import { StatusBar } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
-import { getFirestore, doc, setDoc,collection, addDoc, arrayUnion, updateDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, collection, addDoc, arrayUnion, updateDoc } from 'firebase/firestore';
 import { auth } from '../../firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -59,7 +59,7 @@ const doctorAvailability = {
 };
 
 const DoctorBookingScreen = ({ route, navigation }) => {
-  const { providerId, provider } = route.params; 
+  const { providerId, provider } = route.params;
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [modalAnimation] = useState(new Animated.Value(0));
@@ -118,7 +118,7 @@ const DoctorBookingScreen = ({ route, navigation }) => {
       // Get existing notifications
       const existingNotifications = await AsyncStorage.getItem('notifications');
       const notifications = existingNotifications ? JSON.parse(existingNotifications) : [];
-      
+
       // Create new notification
       const newNotification = {
         id: appointmentId,
@@ -157,14 +157,14 @@ const DoctorBookingScreen = ({ route, navigation }) => {
         },
         {
           text: "Confirm",
-          onPress: async() => {
+          onPress: async () => {
             try {
               const currentUser = auth.currentUser;
               if (!currentUser) {
                 Alert.alert('Error', 'Please login to book an appointment');
                 return;
               }
-          
+
               // Create new appointment in Firestore
               const appointmentRef = await addDoc(collection(db, 'Appointments'), {
                 consumerId: currentUser.uid,
@@ -175,9 +175,9 @@ const DoctorBookingScreen = ({ route, navigation }) => {
                 time: selectedTime,
                 consultation: provider.consultation,
                 status: 'pending',
-                appointment_Status:'upcoming',
-                provider_image:provider.image || "https://media.istockphoto.com/id/1332100919/vector/man-icon-black-icon-person-symbol.jpg?s=612x612&w=0&k=20&c=AVVJkvxQQCuBhawHrUhDRTCeNQ3Jgt0K1tXjJsFy1eg=",
-                location:provider.Location,
+                appointment_Status: 'upcoming',
+                provider_image: provider.image || "https://media.istockphoto.com/id/1332100919/vector/man-icon-black-icon-person-symbol.jpg?s=612x612&w=0&k=20&c=AVVJkvxQQCuBhawHrUhDRTCeNQ3Jgt0K1tXjJsFy1eg=",
+                location: provider.Location,
                 createdAt: new Date(),
               });
               const consumerAppointmentRef = doc(db, 'ConsumerAppointments', currentUser.uid);
@@ -187,7 +187,7 @@ const DoctorBookingScreen = ({ route, navigation }) => {
 
               // Save notification to AsyncStorage
               await saveNotification(appointmentRef.id);
-          
+
               // Navigate to confirmation screen
               RedirectedSuccess(appointmentRef.id, provider);
             } catch (error) {
@@ -292,8 +292,8 @@ const DoctorBookingScreen = ({ route, navigation }) => {
           />
         ) : (
           <View style={styles.timelineContainer}>
-            <ScrollView 
-              horizontal 
+            <ScrollView
+              horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.timelineScroll}
             >
@@ -380,7 +380,7 @@ const DoctorBookingScreen = ({ route, navigation }) => {
                   availability > 4 && styles.highAvailability,
                 ]}>
                   {availability <= 2 ? 'Few slots left' :
-                   availability <= 4 ? 'Going fast' : 'Available'}
+                    availability <= 4 ? 'Going fast' : 'Available'}
                 </Text>
               )}
             </TouchableOpacity>
@@ -427,7 +427,7 @@ const DoctorBookingScreen = ({ route, navigation }) => {
             <Text style={styles.statLabel}>Rating</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{provider.Exp|| '-'}</Text>
+            <Text style={styles.statNumber}>{provider.Exp || '-'}</Text>
             <Text style={styles.statLabel}>Experience</Text>
           </View>
           <View style={styles.statItem}>
@@ -462,7 +462,7 @@ const DoctorBookingScreen = ({ route, navigation }) => {
       </ScrollView>
 
       {modalVisible && (
-        <Animated.View 
+        <Animated.View
           style={[
             styles.modalOverlay,
             {
@@ -490,7 +490,7 @@ const DoctorBookingScreen = ({ route, navigation }) => {
               },
             ]}
 
-            >
+          >
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Confirm Appointment</Text>
@@ -498,7 +498,7 @@ const DoctorBookingScreen = ({ route, navigation }) => {
                   <Icon name="close" size={24} color="#666" />
                 </TouchableOpacity>
               </View>
-              
+
               <View style={styles.appointmentDetails}>
                 <View style={styles.appointmentDetailItem}>
                   <Icon name="person" size={20} color="#007AFF" />
@@ -700,7 +700,7 @@ const styles = StyleSheet.create({
   },
   selectedCard: {
     backgroundColor: '#007AFF',
-    transform: [{scale: 1.05}],
+    transform: [{ scale: 1.05 }],
   },
   pastCard: {
     backgroundColor: '#f5f5f5',
