@@ -34,6 +34,7 @@ import ChatDetail from './screens/consumer/Messages/ChatDetail';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Specific_detail from './screens/consumer/Booking/Specific_detail';
 import ConfirmBooking from './screens/consumer/Booking/ConfirmBooking';
+import ProviderForm from './screens/Provider/ProviderForm';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -119,6 +120,10 @@ export default function App() {
                 component={ProviderScreen}
               />
               <Stack.Screen
+                name="ProviderForm"
+                component={ProviderForm}
+              />
+              <Stack.Screen
                 name="Categories"
                 component={CategoriesScreen}
               />
@@ -135,7 +140,7 @@ export default function App() {
                 name="UserAppointments"
                 component={AppointmentsScreen}
                 options={{
-                  headerShown:true,
+                  headerShown: true,
                   title: 'My Appointments',
                 }}
               />

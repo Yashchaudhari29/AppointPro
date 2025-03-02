@@ -57,7 +57,7 @@ export default function WelcomePage({ navigation }) {
           startWelcomeAnimations();
         } else {
           // Navigate to main app screen if user is logged in
-          navigation.replace('consumer');
+          navigation.replace('Login');
         }
       });
     }, 3000);

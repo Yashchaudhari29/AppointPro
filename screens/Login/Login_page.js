@@ -39,7 +39,6 @@ const LoginScreen = ({ navigation }) => {
         try {
           const docRef = doc(db1, 'users', user.uid);
           const docSnap = await getDoc(docRef);
-
           if (docSnap.exists()) {
             const role = docSnap.data().role;
             if (role === 'admin') {
@@ -47,7 +46,11 @@ const LoginScreen = ({ navigation }) => {
             } else if (role === 'consumer') {
               navigation.replace('consumer');
             } else if (role === 'provider') {
-              navigation.replace('provider');
+              if (docSnap.data().job==undefined || docSnap.data().job==null || docSnap.data().job=='') {
+                navigation.replace('ProviderForm');
+              } else {
+                navigation.replace('provider');
+              }
             }
             setDataLoading(false); // Set to false once the data is fetched
           } else {
