@@ -11,7 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { auth, PhoneAuthProvider } from '../../firebase';
+import { auth, PhoneAuthProvider } from '../../../firebase';
 
 export default function TwoFactorAuthScreen({ navigation }) {
   const [loading, setLoading] = useState(false);

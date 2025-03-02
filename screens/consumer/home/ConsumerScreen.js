@@ -25,14 +25,14 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AppointmentScreen from '../Booking/square';
-import { auth } from '../../firebase';
+import { auth } from '../../../firebase';
 import ExploreScreen from '../Explore/ExploreScreen';
 import MessagesScreen from '../Messages/MessagesScreen';
 import { MaterialIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useNotifications } from './NotificationsScreen';
 import { BlurView } from 'expo-blur';
 import { useSharedValue } from 'react-native-reanimated';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../../contexts/ThemeContext';
 import * as Location from 'expo-location';
 import { getFirestore, doc, getDoc, collection, query, where, getDocs, limit, updateDoc } from 'firebase/firestore';
 import CategoriesScreen from '../Booking/Categories';
@@ -233,8 +233,7 @@ function HomeScreen() {
   // const scrollX = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateX = useRef(new Animated.Value(50)).current;
- 
-  // Extract fetchUserData function
+
   const fetchUserData = async () => {
     try {
       const user = auth.currentUser;
@@ -245,7 +244,6 @@ function HomeScreen() {
       if (userSnap.exists()) {
         setName(userData.firstName);
         
-        // Get the formatted address from current location
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status === 'granted') {
           const location = await Location.getCurrentPositionAsync({});

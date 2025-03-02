@@ -14,7 +14,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { getFirestore, doc, setDoc,collection, addDoc, arrayUnion, getDoc, getDocs, updateDoc } from 'firebase/firestore';
-import { auth } from '../../firebase';
+import { auth } from '../../../firebase';
 
 const db = getFirestore();
 export default function AppointmentsScreen({ route }) {

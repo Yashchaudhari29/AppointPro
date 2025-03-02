@@ -10,7 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { auth } from '../../firebase';
+import { auth } from '../../../firebase';
 import {
   EmailAuthProvider,
   reauthenticateWithCredential,

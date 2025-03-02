@@ -12,9 +12,9 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
-import { auth } from '../../firebase';
+import { auth } from '../../../firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import firebase from '../../firebase';
+// import firebase from '../../firebase';
 import { getFirestore, doc, getDoc, collection, updateDoc } from 'firebase/firestore';
 
 const db = getFirestore();

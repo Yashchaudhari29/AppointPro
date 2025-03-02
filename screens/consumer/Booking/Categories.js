@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, FlatList, TextInput, StyleSheet, TouchableOpacity, StatusBar, RefreshControl, Dimensions } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../../contexts/ThemeContext';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { collection, getDocs,getFirestore, query, distinct } from 'firebase/firestore';
 import { LinearGradient } from 'expo-linear-gradient';

@@ -19,7 +19,7 @@ import { Calendar } from 'react-native-calendars';
 import { StatusBar } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 import { getFirestore, doc, setDoc, collection, addDoc, arrayUnion, updateDoc } from 'firebase/firestore';
-import { auth } from '../../firebase';
+import { auth } from '../../../firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const db = getFirestore();

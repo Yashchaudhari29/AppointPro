@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
-import { auth, firestore } from '../../firebase';
+import { auth, firestore } from '../../../firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getFirestore, doc, getDoc, collection } from 'firebase/firestore';
 
